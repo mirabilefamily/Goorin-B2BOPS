@@ -381,7 +381,14 @@ function App() {
                 <div className="user-avatar">RM</div><div className="user-copy"><strong>Ryan M <i className="account-badge">AS</i></strong><span>Mirabile Distribution</span></div><ChevronDown className="profile-chevron" size={14} />
               </button>
               {userMenuOpen && <div className="profile-menu" role="menu">
-                <div className="reliability-summary"><p>RELIABILITY</p><div className="reliability-total"><strong>99.8%</strong><span>operational</span></div><div className="reliability-progress"><span /></div><div className="reliability-detail"><span>+1.2% from last week</span><strong>18 / 18 connections healthy</strong></div></div>
+                <div className="profile-account" data-testid="profile-account-summary">
+                  <div className="profile-account-top"><div className="user-avatar profile-account-avatar">RM</div><div><strong>Ryan Mirabile</strong><span>ryan@mirabile.com</span></div></div>
+                  <dl className="profile-account-meta">
+                    <div><dt>Company</dt><dd>Mirabile Distribution</dd></div>
+                    <div><dt>Account</dt><dd>#GB-48213</dd></div>
+                    <div><dt>Sales rep</dt><dd><i className="account-badge">AS</i>Ally Stevens</dd></div>
+                  </dl>
+                </div>
                 <div className="profile-menu-section"><button className="profile-menu-item" role="menuitem"><UserPlus size={21} /><span>Invite users</span></button><button className="profile-menu-item" role="menuitem" onClick={() => openSettings('users')}><Shield size={21} /><span>Access &amp; permissions</span></button><button className="profile-menu-item" role="menuitem" onClick={() => openSettings('workspace')}><Settings size={21} /><span>Workspace settings</span></button></div>
                 <div className="profile-menu-section"><button className="profile-menu-item" role="menuitem" onClick={() => openSettings('users')}><User size={21} /><span>Account settings</span></button><button className="profile-menu-item" role="menuitem"><KeyRound size={21} /><span>Change password</span></button><button className="profile-menu-item logout-item" role="menuitem" onClick={handleSignOut}><LogOut size={21} /><span>Log out</span></button></div>
               </div>}
