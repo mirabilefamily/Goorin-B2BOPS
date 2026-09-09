@@ -116,8 +116,6 @@
 .dash-skeleton .sk { border-radius: 18px; background: linear-gradient(90deg, #eceee9 0%, #f6f7f4 50%, #eceee9 100%); background-size: 200% 100%; animation: dash-shimmer 1.3s ease-in-out infinite; }
 @keyframes dash-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 .sk-hero { height: 96px; margin-bottom: 24px; }
-@media (max-width: 1240px) { .dash-account { grid-template-columns: 1fr 1fr; } .dash-account > div:nth-child(3) { border-left: 0; } .dash-account > div:nth-child(n+3) { border-top: 1px solid #eceee9; } .dash-widgets { grid-template-columns: 1fr; } }
-@media (max-width: 760px) { .dash-account { grid-template-columns: 1fr; } .dash-account > div + div { border-left: 0; border-top: 1px solid #eceee9; } .dash-timeline li small { display: none; } }
 
 .dash-orders { margin-top: 36px; background: #fff; border: 1px solid rgba(0,0,0,.06); border-radius: 18px; box-shadow: 0 2px 12px rgba(0,0,0,.03); overflow: hidden; }
 .dash-orders-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 24px 26px 0; }
@@ -165,8 +163,6 @@
 .dash-orders-foot button { display: inline-flex; align-items: center; gap: 4px; background: transparent; padding: 0; color: #121415; font-size: 13.5px; font-weight: 700; transition: color .15s ease; }
 .dash-orders-foot button:hover { color: #1d8f6f; }
 
-@media (max-width: 1240px) { .stat-grid { grid-template-columns: 1fr 1fr; } .stat--dark { grid-column: 1 / -1; } .qa-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 760px) { .dash-hero { flex-direction: column; align-items: flex-start; } .dash-hero-meta { align-items: flex-start; } .stat-grid, .qa-grid { grid-template-columns: 1fr; } .dash-orders-head { flex-direction: column; align-items: flex-start; } .dash-orders-tools { flex-direction: column; } }
 
 /* ── Stat cards ─────────────────────────────────────────── */
 .stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
@@ -217,6 +213,7 @@
 .qa-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 10px; background: rgba(0,212,161,.08); color: #00b88c; transition: background .2s ease, transform .2s ease; }
 .qa:hover .qa-icon { background: rgba(0,212,161,.14); transform: scale(1.04); }
 .qa-icon svg { width: 20px; height: 20px; }
+.qa-copy-wrap { display: flex; flex-direction: column; }
 .qa strong { margin-top: 16px; font-size: 15px; font-weight: 700; color: #121415; letter-spacing: -.01em; }
 .qa small { margin-top: 4px; font-size: 12.5px; line-height: 1.45; color: #686e73; }
 .qa .qa-cta { margin-top: auto; padding-top: 16px; }
@@ -226,3 +223,62 @@
 .qa:hover .qa-cta svg { transform: translate(2px, -2px); }
 .sk-card { height: 300px; }
 .sk-action { height: 160px; }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 1240px) { .dash-account { grid-template-columns: 1fr 1fr; } .dash-account > div:nth-child(3) { border-left: 0; } .dash-account > div:nth-child(n+3) { border-top: 1px solid #eceee9; } .dash-widgets { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .dash-account { grid-template-columns: 1fr; } .dash-account > div + div { border-left: 0; border-top: 1px solid #eceee9; } .dash-timeline li small { display: none; } }
+@media (max-width: 1240px) { .stat-grid { grid-template-columns: 1fr 1fr; } .stat--dark { grid-column: 1 / -1; } .qa-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 760px) { .dash-hero { flex-direction: column; align-items: flex-start; } .dash-hero-meta { align-items: flex-start; } .stat-grid, .qa-grid { grid-template-columns: 1fr; } .dash-orders-head { flex-direction: column; align-items: flex-start; } .dash-orders-tools { flex-direction: column; } }
+@media (max-width: 1240px) { .dash-orders-tools { flex-wrap: wrap; } }
+@media (max-width: 760px) {
+  .dash-hero { padding: 0 0 18px; margin-bottom: 18px; gap: 12px; }
+  .dash-hero h1 { font-size: 26px; }
+  .dash-sub { font-size: 13.5px; }
+  .dash-eyebrow { margin-bottom: 8px; font-size: 10.5px; }
+  .dash-hero-meta { flex-direction: row; align-items: center; }
+  .stat-grid { gap: 12px; }
+  .stat { padding: 20px 18px 18px; min-height: 0; border-radius: 16px; }
+  .stat-value { font-size: 30px; }
+  .stat-value--sm { font-size: 19px; }
+  .stat-chart { height: 56px; }
+  .stat-note { padding-bottom: 16px; max-width: none; }
+  .stat-head { flex-wrap: wrap; row-gap: 8px; }
+  .qa-head { margin-top: 26px; }
+  .qa-grid { gap: 10px; }
+  .qa { flex-direction: row; align-items: center; gap: 14px; padding: 14px 16px; }
+  .qa-icon { width: 40px; height: 40px; border-radius: 12px; }
+  .qa-icon svg { width: 18px; height: 18px; }
+  .qa strong { margin-top: 0; font-size: 15px; }
+  .qa small { margin-top: 2px; }
+  .qa .qa-cta { margin: 0 0 0 auto; padding: 0; font-size: 0; }
+  .qa .qa-cta svg { width: 18px; height: 18px; color: #9aa09b; }
+  .qa-copy-wrap { display: flex; flex-direction: column; min-width: 0; }
+  .dash-orders { margin-top: 26px; border-radius: 16px; }
+  .dash-orders-head { padding: 18px 16px 0; gap: 12px; }
+  .dash-orders-head h2 { font-size: 17px; }
+  .dash-segment { align-self: stretch; }
+  .dash-segment button { flex: 1; }
+  .dash-orders-tools { padding: 14px 16px; }
+  .dash-export { justify-content: center; }
+  .dash-table-wrap { overflow-x: visible; }
+  .dash-table thead { display: none; }
+  .dash-table, .dash-table tbody { display: block; }
+  .dash-table tbody tr { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "id total" "date chevron" "ship chevron" "items chevron" "status status"; gap: 4px 12px; padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,.06); }
+  .dash-table tbody tr:last-child { border-bottom: 0; }
+  .dash-table td { display: block; padding: 0 !important; border: 0; white-space: normal; font-size: 13.5px; color: #686e73; }
+  .dash-table td:nth-child(1) { grid-area: id; font-size: 15px; }
+  .dash-table td:nth-child(2) { grid-area: date; }
+  .dash-table td:nth-child(2)::before { content: 'Placed '; }
+  .dash-table td:nth-child(3) { grid-area: ship; }
+  .dash-table td:nth-child(3)::before { content: 'Ships '; }
+  .dash-table td:nth-child(4) { grid-area: items; }
+  .dash-table td:nth-child(5) { grid-area: total; text-align: right; font-size: 15px; }
+  .dash-table td:nth-child(6) { grid-area: status; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .dash-table td:nth-child(6) .dash-pill { margin: 0; }
+  .dash-table td:nth-child(7) { grid-area: chevron; align-self: center; }
+  .dash-empty { padding: 32px 16px !important; }
+  .dash-orders-foot { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .dash-drawer { width: 100vw; }
+  .dash-drawer-head, .dash-drawer-section, .dash-drawer-pills, .dash-drawer-foot { padding-left: 20px; padding-right: 20px; }
+  .dash-timeline li strong { font-size: 12px; }
+}

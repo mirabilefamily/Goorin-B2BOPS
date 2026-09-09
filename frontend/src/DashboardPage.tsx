@@ -384,8 +384,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
         {actions.map(({ label, title, sub, cta, icon: Icon }, i) => (
           <button key={label} className="qa dash-reveal" style={{ animationDelay: `${0.28 + i * 0.04}s` }} onClick={() => onNavigate(label)} data-testid={`quick-action-${label.toLowerCase().replace(/\s+/g, '-')}`}>
             <span className="qa-icon"><Icon strokeWidth={1.8} /></span>
-            <strong>{title}</strong>
-            <small>{sub}</small>
+            <span className="qa-copy-wrap"><strong>{title}</strong><small>{sub}</small></span>
             <span className="qa-cta">{cta} <ArrowUpRight /></span>
           </button>
         ))}
