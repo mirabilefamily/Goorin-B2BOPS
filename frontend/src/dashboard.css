@@ -7,8 +7,10 @@
 .dash-eyebrow i { width: 18px; height: 2px; border-radius: 2px; background: var(--accent); }
 .dash-hero h1 { margin: 0; font-size: clamp(28px, 2.6vw, 38px); font-weight: 700; letter-spacing: -.03em; line-height: 1.1; color: #121415; }
 .dash-hero h1 em { font-style: normal; color: #121415; }
-.dash-hero-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; color: #686e73; font-size: 13px; padding-bottom: 2px; }
-.dash-date { display: inline-flex; align-items: center; height: 28px; padding: 0 11px; border-radius: 999px; background: #fff; border: 1px solid rgba(0,0,0,.06); color: #2d3235; font-weight: 600; font-size: 12px; }
+.dash-hero-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; color: #686e73; font-size: 13px; padding-bottom: 4px; }
+.dash-date svg { width: 14px; height: 14px; color: #8e9396; }
+.dash-sub { margin: 8px 0 0; font-size: 14px; color: #686e73; }
+.dash-date { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: 999px; background: #fff; border: 1px solid rgba(0,0,0,.06); color: #2d3235; font-weight: 600; font-size: 12px; }
 .dash-live { display: inline-flex; align-items: center; gap: 7px; color: #1d8f6f; font-weight: 600; font-size: 12px; }
 .dash-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(0,212,161,.5); animation: dash-pulse 2s ease-out infinite; }
 @keyframes dash-pulse { 0% { box-shadow: 0 0 0 0 rgba(0,212,161,.5); } 70% { box-shadow: 0 0 0 6px rgba(0,212,161,0); } 100% { box-shadow: 0 0 0 0 rgba(0,212,161,0); } }
@@ -163,19 +165,19 @@
 .dash-orders-foot button { display: inline-flex; align-items: center; gap: 4px; background: transparent; padding: 0; color: #121415; font-size: 13.5px; font-weight: 700; transition: color .15s ease; }
 .dash-orders-foot button:hover { color: #1d8f6f; }
 
-@media (max-width: 1240px) { .stat-grid { grid-template-columns: 1fr 1fr; } .qa-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1240px) { .stat-grid { grid-template-columns: 1fr 1fr; } .stat--dark { grid-column: 1 / -1; } .qa-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 760px) { .dash-hero { flex-direction: column; align-items: flex-start; } .dash-hero-meta { align-items: flex-start; } .stat-grid, .qa-grid { grid-template-columns: 1fr; } .dash-orders-head { flex-direction: column; align-items: flex-start; } .dash-orders-tools { flex-direction: column; } }
 
 /* ── Stat cards ─────────────────────────────────────────── */
 .stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-.stat { display: flex; flex-direction: column; padding: 24px 26px 22px; border-radius: 18px; background: #fff; border: 1px solid rgba(0,0,0,.06); box-shadow: 0 2px 12px rgba(0,0,0,.03); transition: transform .2s ease, box-shadow .2s ease; }
+.stat { display: flex; flex-direction: column; padding: 24px 26px 24px; min-height: 250px; border-radius: 18px; background: #fff; border: 1px solid rgba(0,0,0,.06); box-shadow: 0 2px 12px rgba(0,0,0,.03); transition: transform .2s ease, box-shadow .2s ease; }
 .stat:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,.06); }
 .stat--dark { background: #121415; border-color: rgba(255,255,255,.08); color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,.15); }
 .stat--dark:hover { box-shadow: 0 14px 32px rgba(0,0,0,.25); }
 .stat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 30px; }
 .stat-label { font-size: 13px; font-weight: 600; color: #686e73; letter-spacing: .01em; }
 .stat--dark .stat-label { color: #8e9396; }
-.stat-value { display: block; margin-top: 14px; font-size: 32px; font-weight: 700; letter-spacing: -.02em; line-height: 1.05; color: #121415; font-variant-numeric: tabular-nums; }
+.stat-value { display: block; margin-top: 14px; font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1.05; color: #121415; font-variant-numeric: tabular-nums; }
 .stat-value--sm { font-size: 21px; letter-spacing: -.015em; line-height: 1.25; margin-top: 16px; }
 .stat--dark .stat-value { color: #fff; }
 .stat-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 999px; background: #eef1ed; color: #2d3235; font-size: 12px; font-weight: 600; white-space: nowrap; }
@@ -184,9 +186,9 @@
 .stat-toggle { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); color: #d9dcde; font-size: 12px; font-weight: 600; white-space: nowrap; transition: background .16s ease, border-color .16s ease; }
 .stat-toggle:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.2); color: #fff; }
 .stat-toggle svg { width: 12px; height: 12px; opacity: .7; }
-.stat-chart { display: flex; align-items: flex-end; gap: 6px; height: 42px; margin-top: 22px; }
+.stat-chart { display: flex; align-items: flex-end; gap: 7px; height: 48px; margin-top: 24px; }
 .stat-bar { position: relative; flex: 1; height: 100%; display: flex; align-items: flex-end; cursor: default; }
-.stat-bar > i { display: block; width: 100%; border-radius: 3px; background: rgba(255,255,255,.15); transform-origin: bottom; animation: stat-grow .6s cubic-bezier(.2,.7,.2,1) both; transition: background .15s ease; }
+.stat-bar > i { display: block; width: 100%; border-radius: 4px 4px 2px 2px; background: rgba(255,255,255,.15); transform-origin: bottom; animation: stat-grow .6s cubic-bezier(.2,.7,.2,1) both; transition: background .15s ease; }
 .stat-bar.is-active > i { background: var(--accent); }
 .stat-bar:hover > i { background: #fff; }
 .stat-bar.is-active:hover > i { background: var(--accent); }
@@ -203,20 +205,21 @@
 .stat--dark .stat-meta dd { color: #fff; }
 .stat-meta dd .muted { font-weight: 500; color: #686e73; }
 .stat--dark .stat-meta dd .muted { color: #8e9396; }
-.stat-note { margin: 18px 0 0; font-size: 13px; color: #686e73; line-height: 1.5; }
+.stat-note { margin: 16px 0 auto; padding-bottom: 20px; font-size: 13px; color: #686e73; line-height: 1.55; max-width: 34ch; }
 
 /* ── Quick actions ──────────────────────────────────────── */
 .qa-head { display: flex; align-items: baseline; justify-content: space-between; margin-top: 36px; margin-bottom: 14px; }
 .qa-head h2 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -.01em; color: #121415; }
 .qa-head span { font-size: 12.5px; color: #686e73; }
 .qa-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.qa { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 20px; background: #fff; border: 1px solid rgba(0,0,0,.06); border-radius: 14px; text-align: left; transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s cubic-bezier(.16,1,.3,1), border-color .2s ease; }
+.qa { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 20px; min-height: 100%; background: #fff; border: 1px solid rgba(0,0,0,.06); border-radius: 14px; text-align: left; transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s cubic-bezier(.16,1,.3,1), border-color .2s ease; }
 .qa:hover { border-color: rgba(0,212,161,.4); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,212,161,.08); }
 .qa-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 10px; background: rgba(0,212,161,.08); color: #00b88c; transition: background .2s ease, transform .2s ease; }
 .qa:hover .qa-icon { background: rgba(0,212,161,.14); transform: scale(1.04); }
 .qa-icon svg { width: 20px; height: 20px; }
 .qa strong { margin-top: 16px; font-size: 15px; font-weight: 700; color: #121415; letter-spacing: -.01em; }
 .qa small { margin-top: 4px; font-size: 12.5px; line-height: 1.45; color: #686e73; }
+.qa .qa-cta { margin-top: auto; padding-top: 16px; }
 .qa-cta { display: inline-flex; align-items: center; gap: 4px; margin-top: 16px; font-size: 12.5px; font-weight: 700; color: #121415; transition: color .15s ease, gap .15s ease; }
 .qa-cta svg { width: 14px; height: 14px; transition: transform .2s ease; }
 .qa:hover .qa-cta { color: #00a37d; }

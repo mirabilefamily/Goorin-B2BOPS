@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   BookOpen,
   BookMarked,
+  CalendarDays,
   CheckCircle2,
   ChevronRight,
   Download,
@@ -330,9 +331,10 @@ export default function DashboardPage({ name, onNavigate }: Props) {
         <div>
           <p className="dash-eyebrow"><i />The Goorin Bros. B2B Portal</p>
           <h1 data-testid="dashboard-greeting">{greeting()}, <em>{name}</em>.</h1>
+          <p className="dash-sub">Here's a snapshot of Mirabile Distribution's account.</p>
         </div>
         <div className="dash-hero-meta">
-          <span className="dash-date">{today}</span>
+          <span className="dash-date"><CalendarDays />{today}</span>
         </div>
       </header>
 
