@@ -14,3 +14,4 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 - P1: Real backend (FastAPI/Mongo) for orders, balances, auth
 - P2: Update topbar (cart icon, account badge like reference), search placeholder copy
 - 2026-06: Dashboard refinement — topbar cart btn + account chip (Ryan M / AS / Mirabile Distribution), account summary strip, YTD ↔ Last-12-mo spend toggle w/ monthly bars + tooltips, order detail drawer (timeline, tracking, line items, totals, Reorder/Invoice toasts), Upcoming shipments + Announcements widgets, skeleton loader, staggered reveals, rich empty state. Tested (iteration_2, 46/46 pass).
+- 2026-06: Per user, removed added widgets (Announcements, Upcoming shipments) and account summary strip. Dashboard now = hero → 3 stat cards (spend bars + range toggle) → quick actions → Recent Orders (row click opens order drawer). Login: clicking Log in with empty fields signs in as demo account.

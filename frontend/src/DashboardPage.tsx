@@ -6,15 +6,11 @@ import {
   ArrowUpRight,
   BookOpen,
   BookMarked,
-  CalendarClock,
   CheckCircle2,
   ChevronRight,
-  CreditCard,
   Download,
   FileText,
-  Megaphone,
   Package,
-  Phone,
   RotateCcw,
   Search,
   ShoppingBag,
@@ -215,7 +211,7 @@ function OrdersTable({ onViewAll, onOpen }: { onViewAll: () => void; onOpen: (o:
   };
 
   return (
-    <section className="dash-orders dash-reveal" style={{ animationDelay: '.32s' }} data-testid="recent-orders-card">
+    <section className="dash-orders dash-reveal" style={{ animationDelay: '.3s' }} data-testid="recent-orders-card">
       <div className="dash-orders-head">
         <div><h2>{scope === 'recent' ? 'Recent Orders' : 'All Orders'}</h2><p>{scope === 'recent' ? 'Your latest purchase history · click a row for details' : 'Every order placed on this account'}</p></div>
         <div className="dash-segment" role="tablist">
@@ -298,7 +294,6 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const spendLabels = range === 'ytd' ? months.slice(0, 9) : trailingMonths;
   const spendTotal = spendValues.reduce((s, v) => s + v, 0);
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-  const shipments = orders.filter((o) => o.status === 'Open' || o.status === 'Shipped').slice(0, 3);
 
   const actions = [
     { label: 'Marketplace', title: 'Browse Catalog', sub: 'Shop now', icon: ShoppingBag, tone: 'ink' },
@@ -321,13 +316,6 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           <span className="dash-live"><i />Live data · synced just now</span>
         </div>
       </header>
-
-      <div className="dash-account dash-reveal" style={{ animationDelay: '.06s' }} data-testid="account-strip">
-        <div><small>Account</small><strong>Mirabile Distribution</strong><span>#GB-48213 · Wholesale</span></div>
-        <div><small>Sales rep</small><strong><i className="dash-rep-badge">AS</i>Ally Stevens</strong><button onClick={() => onNavigate('Profile & Addresses')} data-testid="contact-rep-btn"><Phone size={12} /> ally@goorin.com</button></div>
-        <div><small>Credit available</small><strong>{money(4983)}</strong><span>of $5,000.00 limit</span></div>
-        <div><small>Next ship window</small><strong>Jan 6, 2027</strong><span>Spring '27 pre-book</span></div>
-      </div>
 
       <div className="dash-stats">
         <article className="dash-card dash-card-dark dash-reveal" style={{ animationDelay: '.1s' }} data-testid="stat-ytd-spend">
@@ -374,40 +362,6 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <ArrowUpRight size={17} className="dash-action-arrow" />
           </button>
         ))}
-      </div>
-
-      <div className="dash-widgets">
-        <section className="dash-widget dash-reveal" style={{ animationDelay: '.3s' }} data-testid="shipments-widget">
-          <header><div><h2><Truck size={18} /> Upcoming shipments</h2><p>Open and in-transit orders</p></div><button onClick={() => onNavigate('Shipments')} data-testid="shipments-view-all">View all <ChevronRight size={14} /></button></header>
-          <ul>
-            {shipments.map((o) => (
-              <li key={o.id} onClick={() => setSelected(o)} data-testid={`shipment-${o.id}`}>
-                <span className={`dash-ship-icon tone-${statusTone[o.status]}`}>{o.status === 'Shipped' ? <Truck size={16} /> : <CalendarClock size={16} />}</span>
-                <div><strong>{o.id}</strong><small>{o.items} units · {o.estimated ? `Est. ${fmtDate(o.shipDate)}` : `Shipped ${fmtDate(o.shipDate)}`}</small></div>
-                {o.tracking ? <span className="dash-track-chip">{o.tracking.split(' ').slice(-1)[0]}</span> : <span className="dash-track-chip is-muted">Awaiting</span>}
-                <ChevronRight size={15} />
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="dash-widget dash-reveal" style={{ animationDelay: '.34s' }} data-testid="announcements-widget">
-          <header><div><h2><Megaphone size={18} /> Announcements</h2><p>From the Goorin Bros. wholesale team</p></div></header>
-          <ul className="dash-news">
-            <li>
-              <span className="dash-news-date"><b>Sep</b>15</span>
-              <div><strong>Spring '27 pre-book closes Sep 15</strong><small>Lock in seasonal styles and secure your Jan 6 ship window before allocation ends.</small><button onClick={() => onNavigate('Pre-Book')} data-testid="announcement-prebook">Open pre-book <ArrowUpRight size={13} /></button></div>
-            </li>
-            <li>
-              <span className="dash-news-date"><b>Sep</b>1</span>
-              <div><strong>New: Farm Animal Collection drop</strong><small>36 fresh styles now live in the Marketplace with wholesale pricing.</small><button onClick={() => onNavigate('Marketplace')} data-testid="announcement-marketplace">Browse styles <ArrowUpRight size={13} /></button></div>
-            </li>
-            <li>
-              <span className="dash-news-date"><b>Aug</b>20</span>
-              <div><strong>Pay invoices online</strong><small>ACH and card payments are now accepted directly from your Statements page.</small><button onClick={() => onNavigate('Statements')} data-testid="announcement-statements"><CreditCard size={13} /> Go to statements</button></div>
-            </li>
-          </ul>
-        </section>
       </div>
 
       <OrdersTable onViewAll={() => onNavigate('My Orders')} onOpen={setSelected} />
