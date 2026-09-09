@@ -34,7 +34,7 @@ const items: Item[] = [
 ];
 
 
-function Overview({ onOpen }: { onOpen: (d: Drop) => void }) {
+function Overview({ onOpen, reserved }: { onOpen: (d: Drop) => void; reserved: Record<number, number> }) {
   const next = drops.find((d) => d.status === 'open')!;
   return (
     <div className="pb" data-testid="prebook-page">
@@ -56,6 +56,7 @@ function Overview({ onOpen }: { onOpen: (d: Drop) => void }) {
                 <div className="pb-drop-head">
                   <span className="pb-drop-icon"><BookOpen /></span>
                   <div><div className="pb-drop-title"><strong>Drop {d.id}</strong><em className={d.status}>{d.status === 'open' ? 'Open' : 'Closed'}</em></div><span>{d.season}</span></div>
+                  {reserved[d.id] > 0 && <span className="pb-drop-reserved" data-testid={`drop-${d.id}-reserved`}>{reserved[d.id]} units reserved</span>}
                   <span className={`pb-drop-pill ${d.status}`}><Clock /> {d.status === 'open' ? `${d.daysLeft} days left` : 'Closed'}</span>
                   <ChevronRight className="pb-drop-chev" />
                 </div>
@@ -81,12 +82,11 @@ function Overview({ onOpen }: { onOpen: (d: Drop) => void }) {
   );
 }
 
-function DropBuilder({ drop, onBack, onSubmitted }: { drop: Drop; onBack: () => void; onSubmitted: () => void }) {
+function DropBuilder({ drop, onBack, onSubmitted, qty, setQty }: { drop: Drop; onBack: () => void; onSubmitted: () => void; qty: Record<string, number>; setQty: React.Dispatch<React.SetStateAction<Record<string, number>>> }) {
   const notify = useToast();
   const [step, setStep] = useState<1 | 2>(1);
   const [query, setQuery] = useState('');
   const [view, setView] = useState<'tile' | 'list'>('tile');
-  const [qty, setQty] = useState<Record<string, number>>({});
   const [sameBill, setSameBill] = useState(true);
   const [po, setPo] = useState('');
   const [notes, setNotes] = useState('');
@@ -113,12 +113,14 @@ function DropBuilder({ drop, onBack, onSubmitted }: { drop: Drop; onBack: () => 
 
       <section className="pb-hero pb-hero--drop">
         <div>
-          <p className="pb-eyebrow">Pre-book drop</p>
+          <p className="pb-eyebrow">Pre-book drop · {drop.season}</p>
           <h1>Drop {drop.id}</h1>
-          <div className="pb-chips">
+          <p className="pb-lede pb-lede--sm">Reserve quantities below. Styles confirm once they reach their minimum order quantity.</p>
+        </div>
+        <div className="pb-chips">
             <div><small>Order deadline</small><strong>{drop.orderBy} <span>· 12:00 PM</span></strong></div>
             <div><small>Ship window</small><strong>{drop.ship}</strong></div>
-          </div>
+            <div><small>Reserved</small><strong data-testid="pb-hero-units">{units} <span>units</span></strong></div>
         </div>
       </section>
 
@@ -153,7 +155,7 @@ function DropBuilder({ drop, onBack, onSubmitted }: { drop: Drop; onBack: () => 
                         <div className="mk-title"><h3>{it.name}</h3><button className="mk-info" aria-label="Product details"><Info /></button></div>
                         <p className="mk-sku">{it.sku}</p>
                         <div className="mk-price"><strong>{money(it.price)}</strong><small>WHSL</small><span>MSRP {money(it.msrp)}</span></div>
-                        {met ? <p className="mk-stock"><span className="pb-moq-met">MOQ Met</span></p> : <p className="mk-stock">MOQ {it.moq + q}/{it.moqTarget}</p>}
+                        {met || it.moq + q >= it.moqTarget ? <p className="mk-stock"><span className="pb-moq-met">MOQ Met</span></p> : <p className="mk-stock">MOQ {it.moq + q}/{it.moqTarget}<span className="pb-moq-left">{it.moqTarget - it.moq - q} more to confirm</span></p>}
                         <div className="pb-moqbar"><span style={{ width: `${Math.min(100, ((it.moq + q) / it.moqTarget) * 100)}%` }} /></div>
                         {q > 0 ? (
                           <div className="mk-line" data-testid={`pb-line-${it.id}`}><Qty id={it.id} value={q} max={999} onChange={(n) => set(it.id, n)} /><strong className="mk-line-total">{money(q * it.price)}</strong></div>
@@ -201,7 +203,7 @@ function DropBuilder({ drop, onBack, onSubmitted }: { drop: Drop; onBack: () => 
                 {lines.map((i) => (
                   <li key={i.id} data-testid={`pb-cart-line-${i.id}`}>
                     <span className="pb-cart-thumb">{i.image ? <img src={i.image} alt="" /> : <Box />}</span>
-                    <div><strong>{i.name}</strong><span>{i.sku}</span></div>
+                    <div className="pb-cart-text"><strong>{i.name}</strong><span>{i.sku}</span></div>
                     <Qty id={`cart-${i.id}`} value={qty[i.id]} max={999} onChange={(n) => set(i.id, n)} />
                     <b>{money(qty[i.id] * i.price)}</b>
                   </li>
@@ -229,12 +231,25 @@ function DropBuilder({ drop, onBack, onSubmitted }: { drop: Drop; onBack: () => 
           </footer>
         </aside>
       </div>
+
+      {units > 0 && step === 1 && (
+        <div className="pb-mobilebar" data-testid="pb-mobile-bar">
+          <div><strong>{units} units</strong><span>{lines.length} style{lines.length === 1 ? '' : 's'} · {money(total)}</span></div>
+          <button onClick={() => document.querySelector('[data-testid="prebook-cart"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} data-testid="pb-mobile-review">Review <ChevronRight /></button>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function PreBookPage({ onNavigate }: { onNavigate: (l: string) => void }) {
   const [drop, setDrop] = useState<Drop | null>(null);
-  if (drop) return <DropBuilder drop={drop} onBack={() => setDrop(null)} onSubmitted={() => { setDrop(null); onNavigate('My Orders'); }} />;
-  return <Overview onOpen={setDrop} />;
+  const [carts, setCarts] = useState<Record<number, Record<string, number>>>({});
+  const reserved = Object.fromEntries(drops.map((d) => [d.id, Object.values(carts[d.id] ?? {}).reduce((s, n) => s + n, 0)]));
+  if (drop) {
+    const qty = carts[drop.id] ?? {};
+    const setQty: React.Dispatch<React.SetStateAction<Record<string, number>>> = (u) => setCarts((c) => ({ ...c, [drop.id]: typeof u === 'function' ? u(c[drop.id] ?? {}) : u }));
+    return <DropBuilder drop={drop} qty={qty} setQty={setQty} onBack={() => setDrop(null)} onSubmitted={() => { setCarts((c) => ({ ...c, [drop.id]: {} })); setDrop(null); onNavigate('My Orders'); }} />;
+  }
+  return <Overview onOpen={setDrop} reserved={reserved} />;
 }
