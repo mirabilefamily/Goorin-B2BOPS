@@ -88,7 +88,7 @@ function SpendBars({ values, labels }: { values: number[]; labels: string[] }) {
         <div key={labels[i] + i} className="dash-bar-col" data-testid={`spend-bar-${labels[i].toLowerCase()}`}>
           <span className="dash-bar-tip">{labels[i]} · {money(v)}</span>
           <div className={`dash-bar-track`}><div className={`dash-bar-fill ${i === values.length - 1 ? 'is-current' : ''}`} style={{ height: `${Math.max(4, (v / max) * 100)}%`, animationDelay: `${0.25 + i * 0.04}s` }} /></div>
-          <small>{labels[i][0]}</small>
+          <small>{labels[i]}</small>
         </div>
       ))}
     </div>
@@ -333,14 +333,13 @@ export default function DashboardPage({ name, onNavigate }: Props) {
         </div>
         <div className="dash-hero-meta">
           <span className="dash-date">{today}</span>
-          <span className="dash-live"><i />Live data · synced just now</span>
         </div>
       </header>
 
       <div className="dash-stats">
         <article className="dash-card dash-card-dark dash-reveal" style={{ animationDelay: '.1s' }} data-testid="stat-ytd-spend">
           <div className="dash-card-top">
-            <div><strong>{money(spendShown)}</strong><p>{range === 'ytd' ? 'ytd spend' : 'trailing 12 mo'}<span>·</span>live data</p></div>
+            <div><strong>{money(spendShown)}</strong><p>{range === 'ytd' ? 'ytd spend' : 'trailing 12 mo'}</p></div>
             <button className="dash-chip-dark" onClick={() => setRange(range === 'ytd' ? 'trailing' : 'ytd')} data-testid="spend-range-toggle">{range === 'ytd' ? 'Year to Date' : 'Last 12 months'}<ArrowUpDown size={13} /></button>
           </div>
           <SpendBars values={spendValues} labels={spendLabels} />
@@ -358,7 +357,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           <span className="dash-chip tone-green"><CheckCircle2 size={15} /> No past-due balance</span>
           <div className="dash-stack">
             <div className="dash-stack-bar"><span className="is-due" style={{ width: '0%' }} /><span className="is-current" style={{ width: '100%' }} /></div>
-            <div className="dash-stack-legend"><span><i className="is-due" />Past due</span><span><i className="is-current" />Current · 100%</span><span className="dash-stack-note">Terms · Net 60</span></div>
+            <div className="dash-stack-legend"><span><i className="is-due" />Past due · $0</span><span><i className="is-current" />Current · 100%</span></div>
           </div>
           <div className="dash-card-split">
             <div><small>Past due</small><strong>$0</strong><div className="dash-bar"><span style={{ width: '0%' }} /></div></div>
@@ -372,9 +371,9 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <span className="dash-card-glyph"><Landmark size={20} strokeWidth={1.6} /></span>
           </div>
           <span className="dash-chip"><FileText size={15} /> Invoiced account</span>
-          <div className="dash-terms">
-            <div className="dash-terms-seg"><small>Prepay</small><strong>50%</strong><span>due at order</span></div>
-            <div className="dash-terms-seg"><small>Net 60</small><strong>50%</strong><span>due after ship</span></div>
+          <div className="dash-stack">
+            <div className="dash-stack-bar"><span className="is-prepay" style={{ width: '50%' }} /><span className="is-current" style={{ width: '50%' }} /></div>
+            <div className="dash-stack-legend"><span><i className="is-prepay" />Prepay 50% · at order</span><span><i className="is-current" />Net 60 · after ship</span></div>
           </div>
           <div className="dash-card-split">
             <div><small>Active orders</small><strong>{openOrders.length}</strong><div className="dash-bar"><span style={{ width: `${Math.min(100, openOrders.length * 10)}%` }} /></div></div>
