@@ -8,8 +8,10 @@ import {
   BookMarked,
   CheckCircle2,
   ChevronRight,
+  CreditCard,
   Download,
   FileText,
+  Landmark,
   Package,
   RotateCcw,
   Search,
@@ -85,7 +87,7 @@ function SpendBars({ values, labels }: { values: number[]; labels: string[] }) {
       {values.map((v, i) => (
         <div key={labels[i] + i} className="dash-bar-col" data-testid={`spend-bar-${labels[i].toLowerCase()}`}>
           <span className="dash-bar-tip">{labels[i]} · {money(v)}</span>
-          <div className="dash-bar-track"><div className={`dash-bar-fill ${i === values.length - 1 ? 'is-current' : ''}`} style={{ height: `${Math.max(4, (v / max) * 100)}%` }} /></div>
+          <div className={`dash-bar-track`}><div className={`dash-bar-fill ${i === values.length - 1 ? 'is-current' : ''}`} style={{ height: `${Math.max(4, (v / max) * 100)}%`, animationDelay: `${0.25 + i * 0.04}s` }} /></div>
           <small>{labels[i][0]}</small>
         </div>
       ))}
@@ -277,6 +279,22 @@ function Skeleton() {
   );
 }
 
+function useCountUp(target: number, duration = 900) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      setValue(target * (1 - Math.pow(1 - t, 3)));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return value;
+}
+
 export default function DashboardPage({ name, onNavigate }: Props) {
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState<'ytd' | 'trailing'>('ytd');
@@ -293,6 +311,8 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const spendValues = range === 'ytd' ? ytdSpend.slice(0, 9) : trailingSpend;
   const spendLabels = range === 'ytd' ? months.slice(0, 9) : trailingMonths;
   const spendTotal = spendValues.reduce((s, v) => s + v, 0);
+  const spendShown = useCountUp(spendTotal);
+  const balanceShown = useCountUp(openAmount);
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   const actions = [
@@ -308,11 +328,11 @@ export default function DashboardPage({ name, onNavigate }: Props) {
     <div className="dash" data-testid="dashboard-page">
       <header className="dash-hero dash-reveal">
         <div>
-          <p className="dash-eyebrow">The Goorin Bros. B2B Portal</p>
-          <h1 data-testid="dashboard-greeting">{greeting()}, {name}.</h1>
+          <p className="dash-eyebrow"><i />The Goorin Bros. B2B Portal</p>
+          <h1 data-testid="dashboard-greeting">{greeting()}, <em>{name}</em>.</h1>
         </div>
         <div className="dash-hero-meta">
-          <span>{today}</span>
+          <span className="dash-date">{today}</span>
           <span className="dash-live"><i />Live data · synced just now</span>
         </div>
       </header>
@@ -320,7 +340,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
       <div className="dash-stats">
         <article className="dash-card dash-card-dark dash-reveal" style={{ animationDelay: '.1s' }} data-testid="stat-ytd-spend">
           <div className="dash-card-top">
-            <div><strong>{money(spendTotal)}</strong><p>{range === 'ytd' ? 'ytd spend' : 'trailing 12 mo'}<span>·</span>live data</p></div>
+            <div><strong>{money(spendShown)}</strong><p>{range === 'ytd' ? 'ytd spend' : 'trailing 12 mo'}<span>·</span>live data</p></div>
             <button className="dash-chip-dark" onClick={() => setRange(range === 'ytd' ? 'trailing' : 'ytd')} data-testid="spend-range-toggle">{range === 'ytd' ? 'Year to Date' : 'Last 12 months'}<ArrowUpDown size={13} /></button>
           </div>
           <SpendBars values={spendValues} labels={spendLabels} />
@@ -332,9 +352,14 @@ export default function DashboardPage({ name, onNavigate }: Props) {
 
         <article className="dash-card dash-reveal" style={{ animationDelay: '.16s' }} data-testid="stat-balance">
           <div className="dash-card-top">
-            <div><strong>{money(openAmount)}</strong><p>outstanding balance<span>·</span>combined</p></div>
+            <div><strong>{money(balanceShown)}</strong><p>outstanding balance<span>·</span>combined</p></div>
+            <span className="dash-card-glyph"><CreditCard size={20} strokeWidth={1.6} /></span>
           </div>
           <span className="dash-chip tone-green"><CheckCircle2 size={15} /> No past-due balance</span>
+          <div className="dash-stack">
+            <div className="dash-stack-bar"><span className="is-due" style={{ width: '0%' }} /><span className="is-current" style={{ width: '100%' }} /></div>
+            <div className="dash-stack-legend"><span><i className="is-due" />Past due</span><span><i className="is-current" />Current · 100%</span><span className="dash-stack-note">Terms · Net 60</span></div>
+          </div>
           <div className="dash-card-split">
             <div><small>Past due</small><strong>$0</strong><div className="dash-bar"><span style={{ width: '0%' }} /></div></div>
             <div><small>Current</small><strong>${openAmount}</strong><div className="dash-bar"><span style={{ width: '100%' }} /></div></div>
@@ -344,8 +369,13 @@ export default function DashboardPage({ name, onNavigate }: Props) {
         <article className="dash-card dash-reveal" style={{ animationDelay: '.22s' }} data-testid="stat-terms">
           <div className="dash-card-top">
             <div><strong className="dash-strong-sm">50% Prepay, 50% Net 60</strong><p>payment terms<span>·</span>active</p></div>
+            <span className="dash-card-glyph"><Landmark size={20} strokeWidth={1.6} /></span>
           </div>
           <span className="dash-chip"><FileText size={15} /> Invoiced account</span>
+          <div className="dash-terms">
+            <div className="dash-terms-seg"><small>Prepay</small><strong>50%</strong><span>due at order</span></div>
+            <div className="dash-terms-seg"><small>Net 60</small><strong>50%</strong><span>due after ship</span></div>
+          </div>
           <div className="dash-card-split">
             <div><small>Active orders</small><strong>{openOrders.length}</strong><div className="dash-bar"><span style={{ width: `${Math.min(100, openOrders.length * 10)}%` }} /></div></div>
             <div><small>Last order</small><strong>{fmtDate(orders[0].date, { month: 'short', day: 'numeric' })}</strong><p><i className="grey" />{daysAgo(orders[0].date)}</p></div>
@@ -353,7 +383,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
         </article>
       </div>
 
-      <p className="dash-section-label dash-reveal" style={{ animationDelay: '.26s' }}>Quick actions</p>
+      <div className="dash-section-head dash-reveal" style={{ animationDelay: '.26s' }}><p className="dash-section-label">Quick actions</p><span>Jump back in</span></div>
       <div className="dash-actions">
         {actions.map(({ label, title, sub, icon: Icon, tone }, i) => (
           <button key={label} className="dash-action dash-reveal" style={{ animationDelay: `${0.28 + i * 0.04}s` }} onClick={() => onNavigate(label)} data-testid={`quick-action-${label.toLowerCase().replace(/\s+/g, '-')}`}>
