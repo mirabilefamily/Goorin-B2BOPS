@@ -13,3 +13,4 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 - P1: Build Marketplace, Pre-Book, My Orders, Shipments, Resources, Statements, Profile & Addresses pages
 - P1: Real backend (FastAPI/Mongo) for orders, balances, auth
 - P2: Update topbar (cart icon, account badge like reference), search placeholder copy
+- 2026-06: Dashboard refinement — topbar cart btn + account chip (Ryan M / AS / Mirabile Distribution), account summary strip, YTD ↔ Last-12-mo spend toggle w/ monthly bars + tooltips, order detail drawer (timeline, tracking, line items, totals, Reorder/Invoice toasts), Upcoming shipments + Announcements widgets, skeleton loader, staggered reveals, rich empty state. Tested (iteration_2, 46/46 pass).

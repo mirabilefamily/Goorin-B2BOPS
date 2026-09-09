@@ -29,6 +29,7 @@ import {
   Package,
   Ship,
   ShoppingBag,
+  ShoppingCart,
   UserCog,
   CalendarClock,
   MoreHorizontal,
@@ -332,7 +333,7 @@ function App() {
               <Search size={16} />
               <input
                 type="text"
-                placeholder="Search flows, connections, runs..."
+                placeholder="Search orders, products, invoices..."
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
                 onFocus={() => setSearchOpen(true)}
@@ -366,6 +367,7 @@ function App() {
             )}
           </div>
           <div className="top-actions">
+            <button className="icon-button" onClick={() => setActiveNav('Marketplace')} aria-label="Cart" data-testid="cart-button"><ShoppingCart size={17} /><span className="cart-count">2</span></button>
             <div className="notification-wrap">
             <button className="icon-button notification-button" onClick={() => { setNotificationsOpen(!notificationsOpen); setUserMenuOpen(false); }} aria-label="Notifications" aria-expanded={notificationsOpen} aria-haspopup="dialog"><Bell size={17} />{!notificationDismissed && <span className="notification-dot" />}</button>
             {notificationsOpen && <div className="notification-popover" role="dialog" aria-label="Notifications">
@@ -376,7 +378,7 @@ function App() {
             <span className="top-divider" aria-hidden="true" />
             <div className="profile-menu-wrap">
               <button className={`user-profile ${userMenuOpen ? 'profile-open' : ''}`} onClick={() => { setUserMenuOpen(!userMenuOpen); setNotificationsOpen(false); }} aria-expanded={userMenuOpen} aria-haspopup="menu">
-                <div className="user-avatar">JD</div><div className="user-copy"><strong>Jordan Davis</strong><span>Administrator</span></div><ChevronDown className="profile-chevron" size={14} />
+                <div className="user-avatar">RM</div><div className="user-copy"><strong>Ryan M <i className="account-badge">AS</i></strong><span>Mirabile Distribution</span></div><ChevronDown className="profile-chevron" size={14} />
               </button>
               {userMenuOpen && <div className="profile-menu" role="menu">
                 <div className="reliability-summary"><p>RELIABILITY</p><div className="reliability-total"><strong>99.8%</strong><span>operational</span></div><div className="reliability-progress"><span /></div><div className="reliability-detail"><span>+1.2% from last week</span><strong>18 / 18 connections healthy</strong></div></div>
@@ -456,7 +458,7 @@ function App() {
             </div>
             )
           ) : view === 'dashboard' && activeNav === 'Dashboard' ? (
-            <DashboardPage name="Jordan" onNavigate={(label) => setActiveNav(label)} />
+            <DashboardPage name="Ryan" onNavigate={(label) => setActiveNav(label)} />
           ) : view === 'dashboard' ? (
             <div className="page-heading" data-testid="placeholder-page">
               <div><h1>{activeLabel}</h1><p>This section is coming soon.</p></div>
