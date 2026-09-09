@@ -14,6 +14,8 @@ export const products: Product[] = [
   { id: 'p9', name: 'Lone Wolf Trucker', sku: '101-2449-BLK-O/S', collection: 'Core', shape: 'Trucker', price: 16, msrp: 40, available: 3120, max: 50, image: img('lone-wolf'), images: 2, createdAt: '2026-06-30' },
   { id: 'p10', name: 'Black Sheep Trucker', sku: '101-2457-BLK-O/S', collection: 'Core', shape: 'Trucker', price: 16, msrp: 40, available: 54, max: 50, image: img('black-sheep'), images: 2, createdAt: '2026-06-22' },
   { id: 'p11', name: 'The Cock', sku: '101-0378-WHI-O/S', collection: 'Heritage', shape: 'Trucker', price: 16, msrp: 40, available: 0, max: 50, image: img('rooster'), images: 1, createdAt: '2026-06-10' },
+  { id: 'p13', name: 'The GOAT', sku: '101-0385-DEN01-O/S', collection: 'The Farm', shape: 'Trucker', price: 8.5, msrp: 42.5, available: 1200, max: 50, image: img('goat'), images: 2, createdAt: '2026-08-10' },
+  { id: 'p14', name: 'The Gorilla', sku: '101-0386-BLK01-O/S', collection: 'The Farm', shape: 'Trucker', price: 8.5, msrp: 42.5, available: 860, max: 50, image: null, images: 0, createdAt: '2026-08-08' },
   { id: 'p12', name: 'Panther Snapback', sku: '101-2450-BLK-O/S', collection: 'Heritage', shape: 'Snapback', price: 18, msrp: 45, available: 640, max: 50, image: img('panther'), images: 1, createdAt: '2026-05-28' },
 ];
 

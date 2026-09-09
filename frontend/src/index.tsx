@@ -4,6 +4,7 @@ import App from '@/App';
 import { ToastProvider } from '@/lib/toast';
 import { CartProvider } from '@/lib/cart';
 import './index.css';
+import './premium.css';
 
 const container = document.getElementById('root');
 const root = createRoot(container as HTMLElement);

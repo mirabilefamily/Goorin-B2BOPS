@@ -62,6 +62,10 @@ import DashboardPage from './DashboardPage';
 import MarketplacePage from './MarketplacePage';
 import CheckoutPage from './CheckoutPage';
 import PreBookPage from './PreBookPage';
+import MyOrdersPage from './MyOrdersPage';
+import ShipmentsPage from './ShipmentsPage';
+import { ResourcesPage, StatementsPage, ProfilePage } from './AccountPages';
+import { TeamAccess } from './TeamAccess';
 import { useCart } from '@/lib/cart';
 
 type NavItem = {
@@ -131,15 +135,15 @@ type Member = {
 };
 
 const settingsTabs: { id: SettingsTab; label: string; icon: typeof User }[] = [
-  { id: 'users', label: 'Users & Roles', icon: Users },
-  { id: 'workspace', label: 'Workspace Settings', icon: SlidersHorizontal },
+  { id: 'users', label: 'Team access', icon: Users },
+  { id: 'workspace', label: 'Company preferences', icon: SlidersHorizontal },
   { id: 'notifications', label: 'Notifications', icon: Bell },
 ];
 
 const settingsSubtitle: Record<SettingsTab, string> = {
-  users: 'Manage teammates, roles, and what each access level can do.',
-  workspace: 'Execution defaults, data retention, and email delivery.',
-  notifications: 'Choose how and where you are alerted about flow activity.',
+  users: 'Invite coworkers and manage the access level that fits their responsibilities.',
+  workspace: 'Ordering defaults, documents and email delivery for your account.',
+  notifications: 'Choose how and where you are alerted about orders, shipments and invoices.',
 };
 
 const initialMembers: Member[] = [
@@ -477,6 +481,16 @@ function App() {
             <MarketplacePage onCheckout={() => setActiveNav('Checkout')} />
           ) : view === 'dashboard' && activeNav === 'Pre-Book' ? (
             <PreBookPage onNavigate={(label) => setActiveNav(label)} />
+          ) : view === 'dashboard' && activeNav === 'My Orders' ? (
+            <MyOrdersPage />
+          ) : view === 'dashboard' && activeNav === 'Shipments' ? (
+            <ShipmentsPage />
+          ) : view === 'dashboard' && activeNav === 'Resources' ? (
+            <ResourcesPage />
+          ) : view === 'dashboard' && activeNav === 'Statements' ? (
+            <StatementsPage />
+          ) : view === 'dashboard' && activeNav === 'Profile & Addresses' ? (
+            <ProfilePage />
           ) : view === 'dashboard' && activeNav === 'Checkout' ? (
             <CheckoutPage onBack={() => setActiveNav('Marketplace')} onComplete={() => setActiveNav('My Orders')} />
           ) : view === 'dashboard' ? (
@@ -503,92 +517,7 @@ function App() {
               </nav>
 
               <div className="set-main">
-                {settingsTab === 'users' && (
-                  <>
-                    <div className="set-stats">
-                      <div className="set-stat"><span className="set-stat-label"><i className="dot-dark" /> Total members</span><strong>{members.length}</strong></div>
-                      <div className="set-stat"><span className="set-stat-label"><i className="dot-green" /> Active</span><strong>{members.filter((m) => m.status === 'Active').length}</strong></div>
-                      <div className="set-stat"><span className="set-stat-label"><i className="dot-amber" /> Pending invite</span><strong>{members.filter((m) => m.status === 'Invited').length}</strong></div>
-                    </div>
-
-                    <section className="set-card">
-                      <div className="set-card-top">
-                        <div><h2>Workspace members</h2><p>Manage who has access to this workspace.</p></div>
-                        <button className="primary-button" onClick={() => setInviteOpen(!inviteOpen)}><UserPlus size={15} /> Invite member</button>
-                      </div>
-
-                      {inviteOpen && (
-                        <div className="set-invite-row">
-                          <input type="email" placeholder="name@goorin.com" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
-                          <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value as Role)}>
-                            <option value="Admin">Admin</option>
-                            <option value="User">User</option>
-                          </select>
-                          <button className="primary-button" onClick={handleInvite}>Send invite</button>
-                        </div>
-                      )}
-
-                      <div className="set-member-toolbar">
-                        <label className="set-search"><Search size={15} /><input value={memberSearch} onChange={(e) => setMemberSearch(e.target.value)} placeholder="Search members..." aria-label="Search members" /></label>
-                        <div className="set-seg">
-                          {(['All', 'Admin', 'User'] as const).map((r) => (
-                            <button key={r} className={memberRoleFilter === r ? 'active' : ''} onClick={() => setMemberRoleFilter(r)}>{r}</button>
-                          ))}
-                        </div>
-                        <button className="set-status-btn">All statuses <ChevronDown size={14} /></button>
-                      </div>
-
-                      <div className="set-member-list">
-                        {filteredMembers.map((m) => (
-                          <div className="set-member-row" key={m.id}>
-                            <div className="set-member-avatar" style={{ background: m.color }}>{m.initials}</div>
-                            <div className="set-member-main">
-                              <div className="set-member-name">
-                                {m.name}
-                                {m.you && <span className="set-you">(You)</span>}
-                                {m.role === 'Admin' ? <span className="set-role-badge"><Star size={11} fill="currentColor" /> ADMIN</span> : <span className="set-role-badge user">USER</span>}
-                              </div>
-                              <div className="set-member-sub">{m.email}<span className="set-status" style={{ color: m.status === 'Active' ? '#12b76a' : '#b7791f' }}><i />{m.status}</span></div>
-                            </div>
-                            <div className="set-member-meta">
-                              <span className="set-joined"><CalendarDays size={14} /> {m.joined}</span>
-                              <div className="set-menu-wrap">
-                                <button className="set-row-menu" onClick={() => setMemberMenu(memberMenu === m.id ? null : m.id)} aria-label={`Actions for ${m.name}`} aria-haspopup="menu" aria-expanded={memberMenu === m.id}><MoreHorizontal size={18} /></button>
-                                {memberMenu === m.id && (
-                                  <div className="set-menu" role="menu">
-                                    <button role="menuitem" onClick={() => { updateMemberRole(m.id, m.role === 'Admin' ? 'User' : 'Admin'); setMemberMenu(null); }}>Make {m.role === 'Admin' ? 'User' : 'Admin'}</button>
-                                    <button role="menuitem" className="danger" onClick={() => { removeMember(m.id); setMemberMenu(null); }}>Remove from workspace</button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                        {filteredMembers.length === 0 && <p className="set-empty">No members match your filters.</p>}
-                      </div>
-
-                      <div className="set-member-footer">Showing <strong>{filteredMembers.length}</strong> of {members.length}</div>
-                    </section>
-
-                    <section className="set-card">
-                      <div className="set-card-top"><div><h2>Role Permissions</h2><p>What each access level can see and do.</p></div></div>
-                      <table className="set-perm-table">
-                        <thead><tr><th>Permission</th><th>Admin</th><th>User</th></tr></thead>
-                        <tbody>
-                          {rolePermissions.map((p) => (
-                            <tr key={p.label}>
-                              <td>{p.label}</td>
-                              <td>{p.admin ? <Check className="perm-yes" size={17} /> : <span className="perm-no">—</span>}</td>
-                              <td>{p.user ? <Check className="perm-yes" size={17} /> : <span className="perm-no">—</span>}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </section>
-
-                    {memberMenu && <div className="set-menu-overlay" onClick={() => setMemberMenu(null)} />}
-                  </>
-                )}
+                {settingsTab === 'users' && <TeamAccess />}
 
                 {settingsTab === 'workspace' && (
                   <>

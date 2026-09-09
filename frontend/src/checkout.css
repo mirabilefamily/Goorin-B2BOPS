@@ -121,3 +121,40 @@
 
 @media (max-width: 1100px) { .co { grid-template-columns: 1fr; margin: -28px -24px -50px; } .co-main { padding: 24px 24px 60px; } .co-summary { position: static; min-height: 0; border-left: 0; border-top: 1px solid rgba(0,0,0,.06); } }
 @media (max-width: 640px) { .co-row, .co-terms { grid-template-columns: 1fr; } .co-step-line { width: 20px; } .co-step-label { display: none; } .co-steps li.current .co-step-label { display: inline; } }
+
+/* ── Contrast pass ──────────────────────────────────────── */
+.co-section h2 { color: #0f1112; }
+.co-section-head span, .co-contact span, .co-address-body span, .co-note { color: #565c60; }
+.co-contact { background: #fff; border-color: rgba(0,0,0,.14); }
+.co-address { border-color: rgba(0,0,0,.16); }
+.co-address.is-radio:hover { border-color: rgba(0,0,0,.4); }
+.co-address.is-selected { border-color: #121415; box-shadow: 0 0 0 3px rgba(0,212,161,.22); }
+.co-radio { border-color: rgba(0,0,0,.4); }
+.co-field > span { color: #121415; font-weight: 600; }
+.co-field input, .co-input { background: #fff; border: 1.5px solid rgba(0,0,0,.16); color: #121415; }
+.co-field input:hover, .co-input:hover { border-color: rgba(0,0,0,.32); }
+.co-field input:focus, .co-input:focus { border-color: #121415; box-shadow: 0 0 0 3px rgba(0,212,161,.22); }
+.co-field input::placeholder, .co-input::placeholder { color: #7b8286; }
+.co-input[type="date"] { color: #121415; }
+.co-input[type="date"]:invalid, .co-input[type="date"]:not(:focus):placeholder-shown { color: #7b8286; }
+.co-check { color: #121415; font-weight: 500; }
+.co-check span { border-color: rgba(0,0,0,.4); }
+.co-check:hover span { border-color: #121415; }
+.co-check svg { color: #565c60; }
+.co-segment { border-color: rgba(0,0,0,.16); }
+.co-segment button { color: #121415; }
+.co-warning { background: #fff7db; border-color: #e6c95a; color: #5a4300; }
+.co-warning strong { color: #3f2f00; }
+.co-warning strong svg { color: #b8860b; }
+.co-primary:disabled { background: #d9dcd8; color: #6b7175; }
+.co-address-side em { background: #121415; }
+.co-edit { color: #1f5fe0; font-weight: 600; }
+.co-back { color: #565c60; }
+.co-step-dot { border-color: rgba(0,0,0,.3); color: #565c60; }
+.co-step-label { color: #7b8286; }
+.co-reserve { background: #dcf5eb; border-color: #9fdfc7; color: #0f5a45; }
+.co-terms div { background: #fff; border-color: rgba(0,0,0,.12); }
+.co-terms span { color: #565c60; }
+.co-lines li > .co-line-body > span, .co-totals div, .co-secure { color: #565c60; }
+.co-qty button { border-color: rgba(0,0,0,.18); }
+.co-summary { border-left-color: rgba(0,0,0,.1); }
