@@ -60,7 +60,7 @@ export default function AuthPage({ onGuest }: Props) {
     <div className="login-page">
       <div className="login-card">
         <div className="login-topbar">
-          <img src="/sync_dark copy.png" alt="Goorin Sync" />
+          <img src="/b2b_ops_dark.webp" alt="Goorin B2B Ops" />
         </div>
 
         <div className="login-body">

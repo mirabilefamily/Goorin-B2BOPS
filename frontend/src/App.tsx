@@ -290,7 +290,7 @@ function App() {
     <div className="app-shell">
       <aside className={`sidebar ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${mobileOpen ? 'sidebar-mobile-open' : ''}`}>
         <div className="brand-lockup">
-          <img className="brand-logo expanded-brand-logo" src="/sync_dark.png" alt="Goorin Sync" />
+          <img className="brand-logo expanded-brand-logo" src="/b2b_ops_dark.webp" alt="Goorin B2B Ops" />
           <img className="brand-logo collapsed-brand-logo" src="/goorin-sidebar-icon copy.png" alt="Goorin" />
         </div>
 
