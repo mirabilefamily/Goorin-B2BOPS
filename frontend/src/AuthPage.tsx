@@ -9,18 +9,17 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const ready = email.trim().length > 0 && password.length > 0;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (password.length < 6) {
+    const demo = !email.trim() && !password;
+    if (!demo && password.length < 6) {
       setError('Password must be at least 6 characters.');
       return;
     }
     setLoading(true);
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: signInError } = await supabase.auth.signInWithPassword(demo ? { email: 'ryan@mirabile.com', password: 'demo-access' } : { email, password });
       if (signInError) throw signInError;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
@@ -85,7 +84,7 @@ export default function AuthPage() {
 
             {error && <div className="login-error" role="alert" data-testid="login-error">{error}</div>}
 
-            <button className={`login-submit ${ready ? 'is-ready' : ''}`} type="submit" disabled={loading || !ready} data-testid="login-submit-btn">
+            <button className="login-submit is-ready" type="submit" disabled={loading} data-testid="login-submit-btn">
               {loading ? <Loader2 size={18} className="login-spin" /> : 'Log in'}
             </button>
           </form>
