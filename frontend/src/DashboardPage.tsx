@@ -8,10 +8,8 @@ import {
   BookMarked,
   CheckCircle2,
   ChevronRight,
-  CreditCard,
   Download,
   FileText,
-  Landmark,
   Package,
   RotateCcw,
   Search,
@@ -83,15 +81,17 @@ const yearProgress = () => {
 function SpendBars({ values, labels }: { values: number[]; labels: string[] }) {
   const max = Math.max(...values, 1);
   return (
-    <div className="dash-bars" role="img" aria-label="Monthly spend">
-      {values.map((v, i) => (
-        <div key={labels[i] + i} className="dash-bar-col" data-testid={`spend-bar-${labels[i].toLowerCase()}`}>
-          <span className="dash-bar-tip">{labels[i]} · {money(v)}</span>
-          <div className={`dash-bar-track`}><div className={`dash-bar-fill ${i === values.length - 1 ? 'is-current' : ''}`} style={{ height: `${Math.max(4, (v / max) * 100)}%`, animationDelay: `${0.25 + i * 0.04}s` }} /></div>
-          <small>{labels[i]}</small>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="stat-chart" role="img" aria-label="Monthly spend">
+        {values.map((v, i) => (
+          <div key={labels[i] + i} className={`stat-bar ${i === values.length - 1 ? 'is-active' : ''}`} data-testid={`spend-bar-${labels[i].toLowerCase()}`}>
+            <span className="stat-tip">{labels[i]} · {money(v)}</span>
+            <i style={{ height: `${Math.max(6, (v / max) * 100)}%`, animationDelay: `${0.2 + i * 0.03}s` }} />
+          </div>
+        ))}
+      </div>
+      <div className="stat-axis"><span>{labels[0]}</span><span>{labels[Math.floor(labels.length / 2)]}</span><span>{labels[labels.length - 1]}</span></div>
+    </>
   );
 }
 
@@ -273,8 +273,8 @@ function Skeleton() {
   return (
     <div className="dash dash-skeleton" aria-busy="true" data-testid="dashboard-skeleton">
       <div className="sk sk-hero" />
-      <div className="dash-stats"><div className="sk sk-card" /><div className="sk sk-card" /><div className="sk sk-card" /></div>
-      <div className="dash-actions" style={{ marginTop: 42 }}><div className="sk sk-action" /><div className="sk sk-action" /><div className="sk sk-action" /><div className="sk sk-action" /></div>
+      <div className="stat-grid"><div className="sk sk-card" /><div className="sk sk-card" /><div className="sk sk-card" /></div>
+      <div className="qa-grid" style={{ marginTop: 36 }}><div className="sk sk-action" /><div className="sk sk-action" /><div className="sk sk-action" /><div className="sk sk-action" /></div>
     </div>
   );
 }
@@ -316,10 +316,10 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   const actions = [
-    { label: 'Marketplace', title: 'Browse Catalog', sub: 'Shop now', icon: ShoppingBag, tone: 'ink' },
-    { label: 'Pre-Book', title: 'Pre-Book Orders', sub: 'Plan upcoming seasonal orders', icon: BookOpen, tone: 'blue' },
-    { label: 'My Orders', title: 'Track Orders', sub: `${openOrders.length} open order${openOrders.length === 1 ? '' : 's'}`, icon: Package, tone: 'green' },
-    { label: 'Resources', title: 'Resources', sub: 'Line sheets & brand assets', icon: BookMarked, tone: 'amber' },
+    { label: 'Marketplace', title: 'Browse Catalog', sub: 'Shop current in-stock styles at wholesale pricing.', cta: 'Shop now', icon: ShoppingBag },
+    { label: 'Pre-Book', title: 'Pre-Book Orders', sub: 'Plan and reserve upcoming seasonal releases.', cta: 'View pre-books', icon: BookOpen },
+    { label: 'My Orders', title: 'Track Orders', sub: `${openOrders.length} open order${openOrders.length === 1 ? '' : 's'} currently in fulfillment.`, cta: 'Track orders', icon: Package },
+    { label: 'Resources', title: 'Brand Assets', sub: 'Download line sheets, imagery and brand media.', cta: 'Resources', icon: BookMarked },
   ];
 
   if (loading) return <Skeleton />;
@@ -336,59 +336,55 @@ export default function DashboardPage({ name, onNavigate }: Props) {
         </div>
       </header>
 
-      <div className="dash-stats">
-        <article className="dash-card dash-card-dark dash-reveal" style={{ animationDelay: '.1s' }} data-testid="stat-ytd-spend">
-          <div className="dash-card-top">
-            <div><strong>{money(spendShown)}</strong><p>{range === 'ytd' ? 'ytd spend' : 'trailing 12 mo'}</p></div>
-            <button className="dash-chip-dark" onClick={() => setRange(range === 'ytd' ? 'trailing' : 'ytd')} data-testid="spend-range-toggle">{range === 'ytd' ? 'Year to Date' : 'Last 12 months'}<ArrowUpDown size={13} /></button>
+      <div className="stat-grid">
+        <article className="stat stat--dark dash-reveal" style={{ animationDelay: '.1s' }} data-testid="stat-ytd-spend">
+          <div className="stat-head">
+            <span className="stat-label">{range === 'ytd' ? 'YTD spend' : 'Trailing 12-month spend'}</span>
+            <button className="stat-toggle" onClick={() => setRange(range === 'ytd' ? 'trailing' : 'ytd')} data-testid="spend-range-toggle">{range === 'ytd' ? 'Year to Date' : 'Last 12 months'}<ArrowUpDown /></button>
           </div>
+          <strong className="stat-value">{money(spendShown)}</strong>
           <SpendBars values={spendValues} labels={spendLabels} />
-          <div className="dash-card-split">
-            <div><small>Year progress</small><strong>{progress}%</strong><div className="dash-bar"><span style={{ width: `${progress}%` }} /></div></div>
-            <div><small>Open amount</small><strong>${openAmount}</strong><p><i />{openOrders.length} order{openOrders.length === 1 ? '' : 's'}</p></div>
-          </div>
+          <dl className="stat-meta">
+            <div><dt>Year progress</dt><dd>{progress}%</dd></div>
+            <div><dt>Open amount</dt><dd>${openAmount} <span className="muted">· {openOrders.length} order{openOrders.length === 1 ? '' : 's'}</span></dd></div>
+          </dl>
         </article>
 
-        <article className="dash-card dash-reveal" style={{ animationDelay: '.16s' }} data-testid="stat-balance">
-          <div className="dash-card-top">
-            <div><strong>{money(balanceShown)}</strong><p>outstanding balance<span>·</span>combined</p></div>
-            <span className="dash-card-glyph"><CreditCard size={20} strokeWidth={1.6} /></span>
+        <article className="stat dash-reveal" style={{ animationDelay: '.16s' }} data-testid="stat-balance">
+          <div className="stat-head">
+            <span className="stat-label">Outstanding balance</span>
+            <span className="stat-chip stat-chip--good"><CheckCircle2 /> No past-due balance</span>
           </div>
-          <span className="dash-chip tone-green"><CheckCircle2 size={15} /> No past-due balance</span>
-          <div className="dash-stack">
-            <div className="dash-stack-bar"><span className="is-due" style={{ width: '0%' }} /><span className="is-current" style={{ width: '100%' }} /></div>
-            <div className="dash-stack-legend"><span><i className="is-due" />Past due · $0</span><span><i className="is-current" />Current · 100%</span></div>
-          </div>
-          <div className="dash-card-split">
-            <div><small>Past due</small><strong>$0</strong><div className="dash-bar"><span style={{ width: '0%' }} /></div></div>
-            <div><small>Current</small><strong>${openAmount}</strong><div className="dash-bar"><span style={{ width: '100%' }} /></div></div>
-          </div>
+          <strong className="stat-value">{money(balanceShown)}</strong>
+          <p className="stat-note">Combined across {openOrders.length} open orders. Nothing is overdue — your account is in good standing.</p>
+          <dl className="stat-meta">
+            <div><dt>Past due</dt><dd>$0.00</dd></div>
+            <div><dt>Current balance</dt><dd>{money(openAmount)}</dd></div>
+          </dl>
         </article>
 
-        <article className="dash-card dash-reveal" style={{ animationDelay: '.22s' }} data-testid="stat-terms">
-          <div className="dash-card-top">
-            <div><strong className="dash-strong-sm">50% Prepay, 50% Net 60</strong><p>payment terms<span>·</span>active</p></div>
-            <span className="dash-card-glyph"><Landmark size={20} strokeWidth={1.6} /></span>
+        <article className="stat dash-reveal" style={{ animationDelay: '.22s' }} data-testid="stat-terms">
+          <div className="stat-head">
+            <span className="stat-label">Payment terms</span>
+            <span className="stat-chip"><FileText /> Invoiced account</span>
           </div>
-          <span className="dash-chip"><FileText size={15} /> Invoiced account</span>
-          <div className="dash-stack">
-            <div className="dash-stack-bar"><span className="is-prepay" style={{ width: '50%' }} /><span className="is-current" style={{ width: '50%' }} /></div>
-            <div className="dash-stack-legend"><span><i className="is-prepay" />Prepay 50% · at order</span><span><i className="is-current" />Net 60 · after ship</span></div>
-          </div>
-          <div className="dash-card-split">
-            <div><small>Active orders</small><strong>{openOrders.length}</strong><div className="dash-bar"><span style={{ width: `${Math.min(100, openOrders.length * 10)}%` }} /></div></div>
-            <div><small>Last order</small><strong>{fmtDate(orders[0].date, { month: 'short', day: 'numeric' })}</strong><p><i className="grey" />{daysAgo(orders[0].date)}</p></div>
-          </div>
+          <strong className="stat-value stat-value--sm">50% Prepay, 50% Net 60</strong>
+          <p className="stat-note">Half is due when an order is placed; the remaining half is invoiced 60 days after shipment.</p>
+          <dl className="stat-meta">
+            <div><dt>Active orders</dt><dd>{openOrders.length} <span className="muted">open</span></dd></div>
+            <div><dt>Last order placed</dt><dd>{fmtDate(orders[0].date, { month: 'short', day: 'numeric' })} <span className="muted">· {daysAgo(orders[0].date)}</span></dd></div>
+          </dl>
         </article>
       </div>
 
-      <div className="dash-section-head dash-reveal" style={{ animationDelay: '.26s' }}><p className="dash-section-label">Quick actions</p><span>Jump back in</span></div>
-      <div className="dash-actions">
-        {actions.map(({ label, title, sub, icon: Icon, tone }, i) => (
-          <button key={label} className="dash-action dash-reveal" style={{ animationDelay: `${0.28 + i * 0.04}s` }} onClick={() => onNavigate(label)} data-testid={`quick-action-${label.toLowerCase().replace(/\s+/g, '-')}`}>
-            <span className={`dash-action-icon tone-${tone}`}><Icon size={22} strokeWidth={1.8} /></span>
-            <span className="dash-action-copy"><strong>{title}</strong><small>{sub}</small></span>
-            <ArrowUpRight size={17} className="dash-action-arrow" />
+      <div className="qa-head dash-reveal" style={{ animationDelay: '.26s' }}><h2>Quick actions</h2><span>Jump back in</span></div>
+      <div className="qa-grid">
+        {actions.map(({ label, title, sub, cta, icon: Icon }, i) => (
+          <button key={label} className="qa dash-reveal" style={{ animationDelay: `${0.28 + i * 0.04}s` }} onClick={() => onNavigate(label)} data-testid={`quick-action-${label.toLowerCase().replace(/\s+/g, '-')}`}>
+            <span className="qa-icon"><Icon strokeWidth={1.8} /></span>
+            <strong>{title}</strong>
+            <small>{sub}</small>
+            <span className="qa-cta">{cta} <ArrowUpRight /></span>
           </button>
         ))}
       </div>
