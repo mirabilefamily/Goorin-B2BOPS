@@ -19,6 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import { useToast } from '@/lib/toast';
+import { money } from '@/lib/money';
 import './dashboard.css';
 
 type Props = { name: string; onNavigate: (label: string) => void };
@@ -58,7 +59,6 @@ const ytdSpend = [846, 0, 282, 1692, 0, 564, 1128, 34, 17, 0, 0, 0];
 const trailingSpend = [420, 610, 380, ...ytdSpend.slice(0, 9)];
 const trailingMonths = ['Oct', 'Nov', 'Dec', ...months.slice(0, 9)];
 
-const money = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const compact = (n: number) => (n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n}`);
 const fmtDate = (iso: string, opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', opts);
 

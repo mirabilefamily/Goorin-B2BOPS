@@ -59,6 +59,10 @@ import FieldWatchPage from './FieldWatchPage';
 import RunsPage from './RunsPage';
 import ConnectionDetail from './ConnectionDetail';
 import DashboardPage from './DashboardPage';
+import MarketplacePage from './MarketplacePage';
+import CheckoutPage from './CheckoutPage';
+import PreBookPage from './PreBookPage';
+import { useCart } from '@/lib/cart';
 
 type NavItem = {
   label: string;
@@ -159,6 +163,7 @@ const rolePermissions: { label: string; admin: boolean; user: boolean }[] = [
 
 function App() {
   const toast = useToast();
+  const cart = useCart();
   const [session, setSession] = useState<Session | null>(null);
   const [guest, setGuest] = useState(false);
   const [authReady, setAuthReady] = useState(false);
@@ -194,11 +199,13 @@ function App() {
 
   useEffect(() => {
     setSelectedConnection(null);
+    document.querySelector('.page-content')?.scrollTo({ top: 0 });
   }, [activeNav]);
 
   const activeLabel = activeNav ?? 'Dashboard';
 
   const ActiveIcon = useMemo(() => {
+    if (activeNav === 'Checkout') return ShoppingCart;
     const all = navGroups.flatMap((g) => g.items);
     return (all.find((i) => i.label === activeNav) ?? all[0]).icon;
   }, [activeNav]);
@@ -367,7 +374,7 @@ function App() {
             )}
           </div>
           <div className="top-actions">
-            <button className="icon-button" onClick={() => setActiveNav('Marketplace')} aria-label="Cart" data-testid="cart-button"><ShoppingCart size={17} /><span className="cart-count">2</span></button>
+            <button className="icon-button" onClick={() => setActiveNav(cart.count > 0 ? 'Checkout' : 'Marketplace')} aria-label="Cart" data-testid="cart-button"><ShoppingCart size={17} />{cart.count > 0 && <span className="cart-count" data-testid="cart-count">{cart.count}</span>}</button>
             <div className="notification-wrap">
             <button className="icon-button notification-button" onClick={() => { setNotificationsOpen(!notificationsOpen); setUserMenuOpen(false); }} aria-label="Notifications" aria-expanded={notificationsOpen} aria-haspopup="dialog"><Bell size={17} />{!notificationDismissed && <span className="notification-dot" />}</button>
             {notificationsOpen && <div className="notification-popover" role="dialog" aria-label="Notifications">
@@ -466,6 +473,12 @@ function App() {
             )
           ) : view === 'dashboard' && activeNav === 'Dashboard' ? (
             <DashboardPage name="Ryan" onNavigate={(label) => setActiveNav(label)} />
+          ) : view === 'dashboard' && activeNav === 'Marketplace' ? (
+            <MarketplacePage onCheckout={() => setActiveNav('Checkout')} />
+          ) : view === 'dashboard' && activeNav === 'Pre-Book' ? (
+            <PreBookPage onNavigate={(label) => setActiveNav(label)} />
+          ) : view === 'dashboard' && activeNav === 'Checkout' ? (
+            <CheckoutPage onBack={() => setActiveNav('Marketplace')} onComplete={() => setActiveNav('My Orders')} />
           ) : view === 'dashboard' ? (
             <div className="page-heading" data-testid="placeholder-page">
               <div><h1>{activeLabel}</h1><p>This section is coming soon.</p></div>

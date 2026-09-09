@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from '@/App';
 import { ToastProvider } from '@/lib/toast';
+import { CartProvider } from '@/lib/cart';
 import './index.css';
 
 const container = document.getElementById('root');
@@ -9,7 +10,9 @@ const root = createRoot(container as HTMLElement);
 root.render(
   <StrictMode>
     <ToastProvider>
-      <App />
+      <CartProvider>
+        <App />
+      </CartProvider>
     </ToastProvider>
   </StrictMode>
 );

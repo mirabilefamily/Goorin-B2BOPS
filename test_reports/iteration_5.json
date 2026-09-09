@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only E2E of new features: (1) Marketplace inline quantity stepper with typed qty (add-p1 -> stepper, +->2/$32, type 12 -> $192 & cart-bar '12 items · $192.00', type 999 -> clamps to 50 with inc disabled, type 0 -> stepper removed and cart-bar/cart-count hidden). (2) Lightbox: counter '1/4 · Front', next/ArrowRight/prev/thumb-3 navigation, zoom hint toggle 'Click to zoom' <-> 'Click to reset', lightbox-add-p2 -> inline stepper (qty-lb-p2), Escape/close-btn/backdrop-click all dismiss, dot-p1-2 then enlarge opens at '3/4', p5 shows 'No image available' with no arrows. (3) Mobile 390x844: scrollWidth==390 (no overflow), grid single column 362px, cart-bar 366px, lightbox panel 382px full width, next/prev work. (4) Pre-Book overview: hero 'Pre-Book Window Open', deadline shows 'Sep 21/Drop 3/11 days left', 3 drops with correct status (drops 1&2 Closed, drop-3 Open · 11 days left), 3-step how-it-works. (5) Drop builder: back button + steps + Closes Sep 21 + hero chips; 12 pb-cards; b1 SKU placeholder, b9 'MOQ Met', b3 '192/432'; search 'wolf' -> 2 cards; list toggle works; empty state + '0 units' + review disabled. Add b4 -> pb-line-b4 + pb-cart-line-b4 + '1 units' / $8.50 / MOQ 1/432; cart-stepper +2 -> card qty 3 / $25.50; add b9 -> '4 units'. PO, notes, same-bill toggle (true->false), custom-window toggle, save-draft/add-address/duplicate toasts all fire. pb-review-btn -> review table shows PO-TEST-9001, GOAT rows, notes; pb-edit-order returns with qty preserved; pb-submit -> toast 'Pre-book submitted · Drop 3 · 4 units · $34.00' and navigates to My Orders placeholder; prebook-back returns to overview. Regression: Dashboard loads, cart-bar-checkout -> checkout-page works. NO console/page errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Marketplace mobile (390x844)", "issues": ["qty-inc-p1 button height is 42px on mobile — spec requested >=44px touch target. Consider bumping .mk-qty button min-height for mobile to meet 44px accessibility guideline."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: Increase mobile qty stepper button height from 42px to >=44px to meet touch-target guideline."
+  ],
+  "critical_code_review_comments": [
+    "Qty.tsx: onChange(value - 1) allows going to -1 briefly before commit clamp; passing value===0 to onChange from dec triggers the remove path (fine here since Marketplace treats 0 as remove). Consider disabling qty-dec at value<=1 or clamping in the handler for clarity.",
+    "Lightbox useEffect deps only include [count] but registers onClose/go closures — eslint-disabled. Works because closures reference latest state via functional updater; noted but not blocking.",
+    "PreBookPage.tsx qty state uses index by string id (Record<string,number>); when a line is removed via cart stepper (n=0), map still keeps the 0 entry — harmless but adds cruft.",
+    "PreBookPage `set` clamps to 999 but the Qty prop max=999 too, so 'Max' text is not shown; consider surfacing per-drop max if needed.",
+    "MarketplacePage cart-bar counter uses <i /> as visual separator between count and total; screen readers may read count/total adjacent without pause — acceptable but noted."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "Mock auth per /app/memory/test_credentials.md — empty-field Log in succeeds as demo (ryan@mirabile.com).",
+  "seed_data_creation": "None (all data in-memory).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Custom-styled checkboxes (pb-same-bill, pb-custom-window, co-check) hide the real <input>, so Playwright .click() reports 'not visible'. Use JS click: page.evaluate(\"() => document.querySelector('[data-testid=..]').click()\"). is_checked() reads still work on the hidden input. Lightbox backdrop click must be OUTSIDE the .lb-panel bounding box (panel is centered ~448..1471 at 1920 width) — clicking near (0,0) sometimes lands on the img element in the panel via CSS transform overflow; click near the visible dark backdrop area (e.g., bottom-right within .lb but outside .lb-panel) works reliably.",
+  "rca of the issue": "No functional blockers found. Only one accessibility-oriented finding: mobile qty +/- buttons render at 42px height vs 44px spec target. Root: .mk-qty button min-height not adjusted for mobile breakpoint. Mitigation: bump min-height:44px inside @media (max-width: 640px) for .mk-qty button in marketplace.css."
+}
