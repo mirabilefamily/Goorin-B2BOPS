@@ -4,3 +4,12 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 
 ## Changelog
 - 2026-06: Replaced brand logo (sidebar expanded + login topbar) with `/public/b2b_ops_dark.webp` (Goorin B2B Ops). Collapsed sidebar icon unchanged.
+- 2026-06: Sidebar nav → "My Account" (Dashboard, Marketplace, Pre-Book, My Orders, Shipments, Resources, Statements, Profile & Addresses) + Settings footer; global --accent changed red→green (#00d4a1).
+- 2026-06: New `DashboardPage.tsx` + `dashboard.css` (greeting hero, YTD spend dark card w/ sparkline, balance & terms cards, quick actions that navigate, Recent Orders table w/ Recent/All toggle, search, sort, CSV export). Non-dashboard nav items show a "coming soon" placeholder.
+- 2026-06: Login page refined: guest button & signup removed, "Need access? Contact your administrator.", grey Log in until filled, stacked footer. Mock auth: any email + password ≥6 chars.
+- Legacy pages (Monitoring, Flows, AI Canvas, Connections, Runs, Activity, Field Watch) still exist in src but are no longer reachable from nav.
+
+## Backlog
+- P1: Build Marketplace, Pre-Book, My Orders, Shipments, Resources, Statements, Profile & Addresses pages
+- P1: Real backend (FastAPI/Mongo) for orders, balances, auth
+- P2: Update topbar (cart icon, account badge like reference), search placeholder copy

@@ -20,9 +20,17 @@ import {
   Command,
   Database,
   Eye,
+  FileText,
   GitBranch,
   History,
+  Image,
+  LayoutGrid,
   Menu,
+  Package,
+  Ship,
+  ShoppingBag,
+  UserCog,
+  CalendarClock,
   MoreHorizontal,
   Mail,
   PanelLeftClose,
@@ -49,7 +57,7 @@ import ActivityPage from './ActivityPage';
 import FieldWatchPage from './FieldWatchPage';
 import RunsPage from './RunsPage';
 import ConnectionDetail from './ConnectionDetail';
-import MonitoringPage from './MonitoringPage';
+import DashboardPage from './DashboardPage';
 
 type NavItem = {
   label: string;
@@ -58,25 +66,16 @@ type NavItem = {
 
 const navGroups: { title: string; items: NavItem[] }[] = [
   {
-    title: 'Workspace',
+    title: 'My Account',
     items: [
-      { label: 'Monitoring', icon: Activity },
-    ],
-  },
-  {
-    title: 'Build',
-    items: [
-      { label: 'Connections', icon: Cable },
-      { label: 'Flows', icon: GitBranch },
-      { label: 'AI Canvas', icon: Sparkles },
-    ],
-  },
-  {
-    title: 'Operate',
-    items: [
-      { label: 'Runs', icon: Play },
-      { label: 'Activity', icon: History },
-      { label: 'Field Watch', icon: Eye },
+      { label: 'Dashboard', icon: LayoutGrid },
+      { label: 'Marketplace', icon: ShoppingBag },
+      { label: 'Pre-Book', icon: CalendarClock },
+      { label: 'My Orders', icon: Package },
+      { label: 'Shipments', icon: Ship },
+      { label: 'Resources', icon: Image },
+      { label: 'Statements', icon: FileText },
+      { label: 'Profile & Addresses', icon: UserCog },
     ],
   },
 ];
@@ -162,7 +161,7 @@ function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [guest, setGuest] = useState(false);
   const [authReady, setAuthReady] = useState(false);
-  const [activeNav, setActiveNav] = useState<string | null>('Monitoring');
+  const [activeNav, setActiveNav] = useState<string | null>('Dashboard');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -196,7 +195,7 @@ function App() {
     setSelectedConnection(null);
   }, [activeNav]);
 
-  const activeLabel = activeNav ?? 'Monitoring';
+  const activeLabel = activeNav ?? 'Dashboard';
 
   const ActiveIcon = useMemo(() => {
     const all = navGroups.flatMap((g) => g.items);
@@ -284,7 +283,7 @@ function App() {
   };
 
   if (!authReady) return null;
-  if (!session && !guest) return <AuthPage onGuest={() => setGuest(true)} />;
+  if (!session && !guest) return <AuthPage />;
 
   return (
     <div className="app-shell">
@@ -309,7 +308,7 @@ function App() {
                 >
                   <Icon size={21} strokeWidth={1.8} />
                   {!sidebarCollapsed && <span>{label}</span>}
-                  {label === 'Monitoring' && !sidebarCollapsed && <span className="live-dot" />}
+                  {label === 'Dashboard' && !sidebarCollapsed && <span className="live-dot" />}
                 </button>
               ))}
             </div>
@@ -456,8 +455,12 @@ function App() {
               </div>
             </div>
             )
+          ) : view === 'dashboard' && activeNav === 'Dashboard' ? (
+            <DashboardPage name="Jordan" onNavigate={(label) => setActiveNav(label)} />
           ) : view === 'dashboard' ? (
-            <MonitoringPage />
+            <div className="page-heading" data-testid="placeholder-page">
+              <div><h1>{activeLabel}</h1><p>This section is coming soon.</p></div>
+            </div>
           ) : (
             <div className="set-page">
               <div className="set-page-head">
