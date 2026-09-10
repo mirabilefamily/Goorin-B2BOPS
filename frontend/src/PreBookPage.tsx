@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, BookOpen, Box, Check, ChevronRight, Clock, Download, Info, LayoutGrid, List, Lock, Maximize2, Pencil, Plus, Search, ShoppingCart, Upload } from 'lucide-react';
+import { ArrowLeft, BookOpen, Box, Check, ChevronRight, Clock, Download, Info, LayoutGrid, List, Lock as LockIcon, Maximize2, Pencil, Plus, Search, ShoppingCart, Upload } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { Qty } from './Qty';
@@ -57,10 +57,10 @@ function Overview({ onOpen, reserved }: { onOpen: (d: Drop) => void; reserved: R
               return (
                 <button key={d.id} className={`pb-drop ${d.status}`} disabled={closed} aria-disabled={closed} onClick={() => !closed && onOpen(d)} data-testid={`drop-${d.id}`}>
                   <div className="pb-drop-head">
-                    <span className="pb-drop-icon">{closed ? <Lock /> : <BookOpen />}</span>
+                    <span className="pb-drop-icon">{closed ? <LockIcon /> : <BookOpen />}</span>
                     <div><div className="pb-drop-title"><strong>Drop {d.id}</strong><em className={d.status}>{closed ? 'Closed' : 'Open'}</em></div><span>{d.season}</span></div>
                     {reserved[d.id] > 0 && <span className="pb-drop-reserved" data-testid={`drop-${d.id}-reserved`}>{reserved[d.id]} units reserved</span>}
-                    {closed ? <span className="pb-drop-pill closed" data-testid={`drop-${d.id}-closed-pill`}><Lock /> Closed · {d.deadline}</span> : <span className="pb-drop-pill open"><Clock /> {d.daysLeft} days left</span>}
+                    {closed ? <span className="pb-drop-pill closed" data-testid={`drop-${d.id}-closed-pill`}><LockIcon /> Closed · {d.deadline}</span> : <span className="pb-drop-pill open"><Clock /> {d.daysLeft} days left</span>}
                     {!closed && <ChevronRight className="pb-drop-chev" />}
                   </div>
                   <dl className="pb-drop-meta">
