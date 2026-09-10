@@ -118,19 +118,16 @@ function AgingStrip({ current }: { current: number }) {
   );
 }
 
-function TermsTimeline({ open }: { open: number }) {
+function TermsSplit({ open }: { open: number }) {
   const half = open / 2;
-  const steps = [
-    { label: 'Order placed', sub: `50% · ${money(half)}`, state: 'done' },
-    { label: 'Ships', sub: 'Invoice issued', state: 'next' },
-    { label: 'Net 60 due', sub: `50% · ${money(half)}`, state: '' },
-  ];
   return (
-    <ol className="stat-visual stat-timeline" aria-label="Payment schedule" data-testid="stat-terms-timeline">
-      {steps.map((st) => (
-        <li key={st.label} className={st.state}><i /><span><strong>{st.label}</strong><small>{st.sub}</small></span></li>
-      ))}
-    </ol>
+    <div className="stat-visual stat-split" data-testid="stat-terms-split">
+      <div className="stat-split-bar"><i className="paid" /><i className="due" /></div>
+      <div className="stat-split-legend">
+        <span><i className="paid" /><b>Prepaid at order</b><small>{money(half)}</small></span>
+        <span><i className="due" /><b>Due Net 60</b><small>{money(half)}</small></span>
+      </div>
+    </div>
   );
 }
 
@@ -412,9 +409,9 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <span className="stat-label">Payment terms</span>
             <span className="stat-chip"><FileText /> Invoiced account</span>
           </div>
-          <strong className="stat-value stat-value--terms"><span>50%</span><small>Prepay</small><em>/</em><span>50%</span><small>Net 60</small></strong>
-          <p className="stat-note">Half due at order, half invoiced 60 days after shipment.</p>
-          <TermsTimeline open={openAmount} />
+          <strong className="stat-value">50 / 50 <span className="stat-value-unit">Net 60</span></strong>
+          <p className="stat-note">Half at order, half invoiced 60 days after shipment.</p>
+          <TermsSplit open={openAmount} />
           <dl className="stat-meta">
             <div><dt>Active orders</dt><dd>{openOrders.length} <span className="muted">open</span></dd></div>
             <div><dt>Last order placed</dt><dd>{fmtDate(orders[0].date, { month: 'short', day: 'numeric' })} <span className="muted">· {daysAgo(orders[0].date)}</span></dd></div>
