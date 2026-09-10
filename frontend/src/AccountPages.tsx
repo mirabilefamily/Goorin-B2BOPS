@@ -72,7 +72,7 @@ export function ResourcesPage() {
       <div className="rs-grid">
         {folders.map((fo) => (
           <button key={fo.id} className="rs-card" onClick={() => setOpenId(fo.id)} data-testid={`res-folder-${fo.id}`}>
-            <div className="rs-cover">{fo.cover && <img src={fo.cover} alt="" />}<strong>{fo.name}</strong>{fo.latest && <em className="rs-latest">Latest</em>}</div>
+            <div className="rs-cover"><strong>{fo.name}</strong>{fo.latest && <em className="rs-latest">Latest</em>}<i className="rs-tab" /></div>
             <div className="rs-body"><strong>{fo.name}</strong><span>{fo.date}</span></div>
             <div className="rs-foot"><div className="rs-kinds">{kinds(fo.files).map(([k, n]) => <em key={k}>{n} {k}</em>)}</div><ChevronRight /></div>
           </button>
@@ -82,27 +82,55 @@ export function ResourcesPage() {
   );
 }
 
+type Stmt = { m: string; year: string; invoices: number; charges: number; payments: number; balance: number; current?: boolean };
+const stmts: Stmt[] = [
+  { m: 'September 2026', year: '2026', invoices: 3, charges: 51, payments: 0, balance: 51, current: true },
+  { m: 'August 2026', year: '2026', invoices: 2, charges: 34, payments: 34, balance: 0 },
+  { m: 'July 2026', year: '2026', invoices: 1, charges: 1128, payments: 1128, balance: 0 },
+  { m: 'June 2026', year: '2026', invoices: 1, charges: 564, payments: 564, balance: 0 },
+  { m: 'April 2026', year: '2026', invoices: 1, charges: 1692, payments: 1692, balance: 0 },
+  { m: 'January 2026', year: '2026', invoices: 1, charges: 846, payments: 846, balance: 0 },
+  { m: 'November 2025', year: '2025', invoices: 1, charges: 610, payments: 610, balance: 0 },
+  { m: 'October 2025', year: '2025', invoices: 1, charges: 420, payments: 420, balance: 0 },
+];
 export function StatementsPage() {
   const notify = useToast();
-  const months = [{ m: 'September 2026', open: 51, paid: 0, current: true }, { m: 'August 2026', open: 0, paid: 34 }, { m: 'July 2026', open: 0, paid: 1128 }, { m: 'June 2026', open: 0, paid: 564 }, { m: 'April 2026', open: 0, paid: 1692 }, { m: 'January 2026', open: 0, paid: 846 }];
+  const [year, setYear] = useState<'2026' | '2025' | 'All'>('2026');
+  const [q, setQ] = useState('');
+  const list = stmts.filter((s) => (year === 'All' || s.year === year) && s.m.toLowerCase().includes(q.trim().toLowerCase()));
+  const paidYtd = stmts.filter((s) => s.year === '2026').reduce((t, s) => t + s.payments, 0);
+  const slug = (m: string) => m.replace(/\s+/g, '-').toLowerCase();
   return (
     <div className="ord" data-testid="statements-page">
-      <div className="ac-hero"><div><h1>Statements of Account</h1><p>Statements are generated fresh with your current balance and open invoices — the "As of" date on the PDF shows when it was produced.</p></div><button className="od-btn" onClick={() => notify('Emailing current statement to ryan.mirabile@me.com')} data-testid="stmt-email"><Share2 /> Email statement</button></div>
+      <div className="ac-hero"><div><h1>Statements</h1><p>Monthly statements of account. The current statement reflects your balance as of today.</p></div><button className="od-btn" onClick={() => notify('Emailing current statement to ryan.mirabile@me.com')} data-testid="stmt-email"><Share2 /> Email current statement</button></div>
       <div className="stat-grid ac-stats">
-        <div className="stat stat--dark"><span className="stat-label">Open balance</span><strong className="stat-value">{money(51)}</strong><p className="stat-note">3 open orders · nothing past due. Terms 50% Prepay, 50% Net 60.</p></div>
-        <div className="stat"><span className="stat-label">Paid year to date</span><strong className="stat-value">{money(4264)}</strong><p className="stat-note">Across 5 invoices since January.</p></div>
-        <div className="stat"><span className="stat-label">Next due</span><strong className="stat-value stat-value--sm">Nov 4, 2026</strong><p className="stat-note">{money(8.5)} Net 60 balance on SO57017.</p></div>
+        <div className="stat stat--dark" data-testid="stmt-open"><div className="stat-head"><span className="stat-label">Open balance</span><span className="stat-chip stat-chip--good">Nothing past due</span></div><strong className="stat-value">{money(51)}</strong><p className="stat-note">3 open invoices · 50% prepay, 50% Net 60.</p></div>
+        <div className="stat"><div className="stat-head"><span className="stat-label">Paid year to date</span></div><strong className="stat-value">{money(paidYtd)}</strong><p className="stat-note">6 statements · 9 invoices since January.</p></div>
+        <div className="stat"><div className="stat-head"><span className="stat-label">Next payment due</span></div><strong className="stat-value">{money(8.5)} <span className="stat-value-unit">Oct 24</span></strong><p className="stat-note">Net 60 balance on SO56680.</p></div>
       </div>
-      <section className="dash-orders ord-card"><ul className="ac-list">
-        {months.map((s) => (
-          <li key={s.m} data-testid={`stmt-${s.m.replace(/\s+/g, '-').toLowerCase()}`}>
-            <span className="od-thumb od-thumb--sm ac-doc"><FileText /></span>
-            <div><strong>{s.m} {s.current && <em className="dash-pill tone-green">Current</em>}</strong><span>{s.current ? 'Reflects your account as of today' : `Closed · ${money(s.paid)} paid`}</span></div>
-            <div className="ac-amt"><small>{s.current ? 'Open' : 'Paid'}</small><strong>{money(s.current ? s.open : s.paid)}</strong></div>
-            <button className="od-btn" onClick={() => notify(`Statement ${s.m}.pdf downloading…`)} data-testid={`stmt-dl-${s.m.replace(/\s+/g, '-').toLowerCase()}`}><Download /> PDF</button>
-          </li>
-        ))}
-      </ul></section>
+      <div className="ord-bar">
+        <div className="dash-segment" role="tablist">{(['2026', '2025', 'All'] as const).map((y) => <button key={y} role="tab" aria-selected={year === y} className={year === y ? 'active' : ''} onClick={() => setYear(y)} data-testid={`stmt-year-${y.toLowerCase()}`}>{y}<em>{y === 'All' ? stmts.length : stmts.filter((s) => s.year === y).length}</em></button>)}</div>
+        <button className="mk-btn" onClick={() => notify(`${list.length} statements downloading…`)} data-testid="stmt-download-all"><Download /> Download all</button>
+      </div>
+      <section className="dash-orders ord-card">
+        <div className="dash-orders-tools ord-tools">
+          <label className="dash-search"><Search /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by month…" data-testid="stmt-search" /></label>
+          <div className="ord-summary"><span data-testid="stmt-count"><strong>{list.length}</strong> statement{list.length === 1 ? '' : 's'}</span><i /><span>Payments <strong>{money(list.reduce((t, s) => t + s.payments, 0))}</strong></span></div>
+        </div>
+        <div className="dash-table-wrap"><table className="dash-table ord-table ord-table--stmts">
+          <thead><tr><th>Statement</th><th>Status</th><th>Invoices</th><th>Charges</th><th>Payments</th><th>Balance</th><th /></tr></thead>
+          <tbody>{list.map((s) => (
+            <tr key={s.m} data-testid={`stmt-${slug(s.m)}`}>
+              <td><div className="ord-id"><strong>{s.m}</strong><span>{s.current ? 'As of today' : `Closed · ${s.m.split(' ')[0].slice(0, 3)} 30`}</span></div></td>
+              <td><span className={`dash-pill tone-${s.current ? 'green' : 'grey'}`}><i />{s.current ? 'Current' : 'Closed'}</span></td>
+              <td>{s.invoices}</td><td>{money(s.charges)}</td><td className="muted">{money(s.payments)}</td>
+              <td className="dash-td-total">{money(s.balance)}</td>
+              <td className="dash-td-chevron"><button className="sh-view" onClick={() => notify(`Statement ${s.m}.pdf downloading…`)} data-testid={`stmt-dl-${slug(s.m)}`}><Download /> PDF</button></td>
+            </tr>
+          ))}</tbody>
+        </table></div>
+        {list.length === 0 && <div className="mk-empty ord-empty" data-testid="stmt-empty"><FileText /><strong>No statements match</strong><span>Try another month or year.</span><button onClick={() => { setQ(''); setYear('All'); }}>Clear filters</button></div>}
+      </section>
     </div>
   );
 }

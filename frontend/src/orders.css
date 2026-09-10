@@ -150,3 +150,20 @@
   .ord-table--ships .sh-view { width: 100%; justify-content: center; height: 36px; }
 }
 @media (max-width: 760px) { .ord-table, .tm-table { min-width: 0; } }
+
+/* Statements table */
+.ord-table--stmts .sh-view { display: inline-flex; align-items: center; gap: 6px; }
+.ord-table--stmts .sh-view svg { width: 14px; height: 14px; }
+@media (max-width: 760px) {
+  /* 1 statement · 2 status · 3 invoices · 4 charges · 5 payments · 6 balance · 7 pdf */
+  .ord-table--stmts td:nth-child(2) { order: 3; }
+  .ord-table--stmts tbody tr::after { order: 4; }
+  .ord-table--stmts td:nth-child(3) { order: 5; }
+  .ord-table--stmts td:nth-child(3)::before { content: 'Invoices'; }
+  .ord-table--stmts td:nth-child(4) { order: 6; }
+  .ord-table--stmts td:nth-child(4)::before { content: '· Charges'; }
+  .ord-table--stmts td:nth-child(5) { display: inline-flex; order: 7; }
+  .ord-table--stmts td:nth-child(5)::before { content: '· Paid'; }
+  .ord-table--stmts .dash-td-chevron { display: inline-flex; order: 9; flex-basis: 100%; margin-top: 4px; }
+  .ord-table--stmts .sh-view { width: 100%; justify-content: center; height: 36px; }
+}
