@@ -118,16 +118,13 @@ function AgingStrip({ current }: { current: number }) {
   );
 }
 
-function TermsSplit({ open }: { open: number }) {
+function TermsSchedule({ open }: { open: number }) {
   const half = open / 2;
   return (
-    <div className="stat-visual stat-split" data-testid="stat-terms-split">
-      <div className="stat-split-bar"><i className="paid" /><i className="due" /></div>
-      <div className="stat-split-legend">
-        <div><small><i className="paid" />Prepaid at order</small><strong>{money(half)}</strong></div>
-        <div className="r"><small>Due Net 60<i className="due" /></small><strong>{money(half)}</strong></div>
-      </div>
-    </div>
+    <ul className="stat-visual stat-sched" data-testid="stat-terms-schedule">
+      <li className="paid"><b>50%</b><span><strong>Prepay at order</strong></span><em>{money(half)}</em><i>Paid</i></li>
+      <li><b>50%</b><span><strong>Net 60 after shipment</strong></span><em>{money(half)}</em><i>Due</i></li>
+    </ul>
   );
 }
 
@@ -409,9 +406,9 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <span className="stat-label">Payment terms</span>
             <span className="stat-chip"><FileText /> Invoiced account</span>
           </div>
-          <strong className="stat-value">50 / 50 <span className="stat-value-unit">Net 60</span></strong>
-          <p className="stat-note">Half at order, half invoiced 60 days after shipment.</p>
-          <TermsSplit open={openAmount} />
+          <strong className="stat-value">Net 60</strong>
+          <p className="stat-note">Split 50 / 50 across {openOrders.length} open orders.</p>
+          <TermsSchedule open={openAmount} />
           <dl className="stat-meta">
             <div><dt>Active orders</dt><dd>{openOrders.length} <span className="muted">open</span></dd></div>
             <div><dt>Last order placed</dt><dd>{fmtDate(orders[0].date, { month: 'short', day: 'numeric' })} <span className="muted">· {daysAgo(orders[0].date)}</span></dd></div>
