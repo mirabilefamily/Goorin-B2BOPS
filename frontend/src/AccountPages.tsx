@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Copy, Download, FileText, FolderOpen, Image as ImageIcon, Link2, MapPin, Pencil, Plus, Save, Search, Share2, Upload, Video } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, FileText, FolderOpen, Image as ImageIcon, Link2, MapPin, Pencil, Plus, Save, Search, Share2, Upload, Video } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { useBackable } from '@/lib/nav';
@@ -144,7 +144,7 @@ export function ProfilePage() {
       </section>
       </div>
       <aside className="ac-side">
-      <section className="sh-card ac-sec"><header><div><h2>Credit terms</h2><p>Your current payment terms and credit status</p></div><button className="od-btn" onClick={() => { navigator.clipboard?.writeText('Account #GB-48213 · Mirabile Distribution').catch(() => {}); notify('Account details copied'); }}><Copy /> Copy account #</button></header>
+      <section className="sh-card ac-sec"><header><div><h2>Credit terms</h2><p>Your current payment terms and credit status</p></div></header>
         <div className="ac-terms"><div><small>Payment terms</small><strong>50% Prepay, 50% Net 60</strong></div><div><small>Credit limit</small><strong>{money(5000)}</strong><span>{money(4983)} available</span><div className="dash-bar ac-credit"><span style={{ width: '0.4%' }} /></div></div><div><small>Standing</small><strong className="ok">Good</strong><span>No past-due balance</span></div><div><small>Account</small><strong>#GB-48213</strong><span>Sales rep · Ally Stevens · ally@goorin.com</span></div></div>
       </section>
       </aside>

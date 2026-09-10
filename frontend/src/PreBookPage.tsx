@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, BookOpen, Box, Check, ChevronRight, Clock, Download, Info, LayoutGrid, List, Maximize2, Pencil, Plus, Search, ShoppingCart, Upload } from 'lucide-react';
+import { ArrowLeft, BookOpen, Box, Check, ChevronRight, Clock, Download, Info, LayoutGrid, List, Lock, Maximize2, Pencil, Plus, Search, ShoppingCart, Upload } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { Qty } from './Qty';
@@ -52,22 +52,25 @@ function Overview({ onOpen, reserved }: { onOpen: (d: Drop) => void; reserved: R
         <section>
           <h2 className="pb-h2">Drops this season</h2>
           <div className="pb-drops">
-            {drops.map((d) => (
-              <button key={d.id} className={`pb-drop ${d.status}`} onClick={() => onOpen(d)} data-testid={`drop-${d.id}`}>
-                <div className="pb-drop-head">
-                  <span className="pb-drop-icon"><BookOpen /></span>
-                  <div><div className="pb-drop-title"><strong>Drop {d.id}</strong><em className={d.status}>{d.status === 'open' ? 'Open' : 'Closed'}</em></div><span>{d.season}</span></div>
-                  {reserved[d.id] > 0 && <span className="pb-drop-reserved" data-testid={`drop-${d.id}-reserved`}>{reserved[d.id]} units reserved</span>}
-                  <span className={`pb-drop-pill ${d.status}`}><Clock /> {d.status === 'open' ? `${d.daysLeft} days left` : 'Closed'}</span>
-                  <ChevronRight className="pb-drop-chev" />
-                </div>
-                <dl className="pb-drop-meta">
-                  <div><dt>Ship window</dt><dd>{d.ship}</dd></div>
-                  <div><dt>Order by</dt><dd>{d.orderBy}</dd></div>
-                  <div><dt>Status</dt><dd>{d.status === 'open' ? 'Accepting reservations' : 'Window closed'}</dd></div>
-                </dl>
-              </button>
-            ))}
+            {drops.map((d) => {
+              const closed = d.status === 'closed';
+              return (
+                <button key={d.id} className={`pb-drop ${d.status}`} disabled={closed} aria-disabled={closed} onClick={() => !closed && onOpen(d)} data-testid={`drop-${d.id}`}>
+                  <div className="pb-drop-head">
+                    <span className="pb-drop-icon">{closed ? <Lock /> : <BookOpen />}</span>
+                    <div><div className="pb-drop-title"><strong>Drop {d.id}</strong><em className={d.status}>{closed ? 'Closed' : 'Open'}</em></div><span>{d.season}</span></div>
+                    {reserved[d.id] > 0 && <span className="pb-drop-reserved" data-testid={`drop-${d.id}-reserved`}>{reserved[d.id]} units reserved</span>}
+                    {closed ? <span className="pb-drop-pill closed" data-testid={`drop-${d.id}-closed-pill`}><Lock /> Closed · {d.deadline}</span> : <span className="pb-drop-pill open"><Clock /> {d.daysLeft} days left</span>}
+                    {!closed && <ChevronRight className="pb-drop-chev" />}
+                  </div>
+                  <dl className="pb-drop-meta">
+                    <div><dt>Ship window</dt><dd>{d.ship}</dd></div>
+                    <div><dt>Order by</dt><dd>{d.orderBy}</dd></div>
+                    {!closed && <div><dt>Status</dt><dd>Accepting reservations</dd></div>}
+                  </dl>
+                </button>
+              );
+            })}
           </div>
         </section>
         <aside>
