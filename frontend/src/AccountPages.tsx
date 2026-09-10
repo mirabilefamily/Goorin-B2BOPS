@@ -9,6 +9,7 @@ import './checkout.css';
 import './orders.css';
 import './account.css';
 import { CountrySelect } from './CountrySelect';
+import { useTerms, termsLabel } from '@/lib/account';
 
 type Res = { id: string; name: string; ext: string; type: 'pdf' | 'zip' | 'img' | 'video'; size: string; updated: string; thumb?: string; shared?: boolean };
 type Folder = { id: string; name: string; date: string; latest?: boolean; cover?: string; files: Res[] };
@@ -138,6 +139,7 @@ export function StatementsPage() {
 type Addr = { id: string; name: string; company: string; line1: string; city: string; state: string; zip: string; country: string; use: 'Both' | 'Delivery' | 'Invoice'; isDefault: boolean };
 export function ProfilePage() {
   const notify = useToast();
+  const [terms, setTerms] = useTerms();
   const [c, setC] = useState({ email: 'ryan.mirabile@icloud.com', phone: '321-344-4590', mobile: '321-344-4590', website: 'https://www.mirabiledistro.com' });
   const [dirty, setDirty] = useState(false);
   const [addrs, setAddrs] = useState<Addr[]>([
@@ -174,7 +176,7 @@ export function ProfilePage() {
       </div>
       <aside className="ac-side">
       <section className="sh-card ac-sec"><header><div><h2>Credit terms</h2><p>Your current payment terms and credit status</p></div></header>
-        <div className="ac-terms"><div><small>Payment terms</small><strong>50% Prepay, 50% Net 60</strong></div><div><small>Credit limit</small><strong>{money(5000)}</strong><span>{money(4983)} available</span><div className="dash-bar ac-credit"><span style={{ width: '0.4%' }} /></div></div><div><small>Standing</small><strong className="ok">Good</strong><span>No past-due balance</span></div><div><small>Sales rep</small><strong>Ally Stevens</strong><span>ally@goorin.com</span></div></div>
+        <div className="ac-terms"><div><small>Payment terms</small><strong>{termsLabel[terms]}</strong><div className="dash-segment ac-termsseg" role="tablist"><button role="tab" aria-selected={terms === 'invoiced'} className={terms === 'invoiced' ? 'active' : ''} onClick={() => setTerms('invoiced')} data-testid="terms-invoiced">Invoiced</button><button role="tab" aria-selected={terms === 'card'} className={terms === 'card' ? 'active' : ''} onClick={() => setTerms('card')} data-testid="terms-card">Credit card</button></div></div><div><small>Credit limit</small><strong>{money(5000)}</strong><span>{money(4983)} available</span><div className="dash-bar ac-credit"><span style={{ width: '0.4%' }} /></div></div><div><small>Standing</small><strong className="ok">Good</strong><span>No past-due balance</span></div><div><small>Sales rep</small><strong>Ally Stevens</strong><span>ally@goorin.com</span></div></div>
       </section>
       </aside>
     </div>

@@ -401,3 +401,23 @@ button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px
   .od-hero h1, .pb-hero h1, .pb-hero--drop h1, .pb-hero--ov h1, .sh-hero h1 { font-size: 24px; }
   .co-primary, .co-secondary { height: 46px; }
 }
+
+/* ── Card-terms dashboard card ──────────────────────────── */
+.stat-cardv { gap: 10px; }
+.stat-cardof { position: relative; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; row-gap: 10px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(135deg, #1e2123 0%, #0f1112 100%); color: #fff; overflow: hidden; }
+.stat-cardof::after { content: ''; position: absolute; right: -30px; top: -30px; width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle, rgba(0,212,161,.28), transparent 70%); }
+.stat-cardof-brand { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #9aa4a1; }
+.stat-cardof-num { grid-column: 1 / -1; font-size: 15px; font-weight: 600; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+.stat-cardof-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; }
+.stat-cardof-meta b { font-size: 12.5px; font-weight: 600; } .stat-cardof-meta small { font-size: 11.5px; color: #9aa4a1; }
+.stat-charges { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.stat-charges li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 4px; border-bottom: 1px solid rgba(16,18,19,.06); }
+.stat-charges li:last-child { border-bottom: 0; }
+.stat-charges li span { display: flex; align-items: baseline; gap: 8px; }
+.stat-charges li strong { font-size: 13px; font-weight: 700; color: #121415; }
+.stat-charges li small { font-size: 12px; color: #7a8184; }
+.stat-charges li em { font-style: normal; font-size: 13.5px; font-weight: 700; font-variant-numeric: tabular-nums; color: #121415; }
+.ac-termsseg { margin-top: 8px; align-self: flex-start; }
+.ac-termsseg button { height: 30px; padding: 0 10px; font-size: 12.5px; }
+.stat-head .stat-label { white-space: nowrap; }
+.stat-head .stat-chip, .stat-head .stat-toggle { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

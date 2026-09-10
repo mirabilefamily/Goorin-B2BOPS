@@ -7,6 +7,7 @@ import {
   BookOpen,
   BookMarked,
   CalendarDays,
+  CreditCard,
   CheckCircle2,
   ChevronRight,
   Download,
@@ -20,6 +21,7 @@ import {
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { useBackable } from '@/lib/nav';
+import { useTerms, cardOnFile } from '@/lib/account';
 import './dashboard.css';
 
 type Props = { name: string; onNavigate: (label: string) => void };
@@ -150,6 +152,37 @@ function DueByMonth({ dues }: { dues: Due[] }) {
       ))}
       {rest.length > 0 && <li className="more"><b>+{rest.length}</b><span><strong>Later</strong><small>{rest.map((r) => r.label).join(', ')}</small></span><em>{money(rest.reduce((t, r) => t + r.amount, 0))}</em></li>}
     </ul>
+  );
+}
+
+function CardPaymentsCard({ open, delay }: { open: Order[]; delay: string }) {
+  const charges = open.filter((o) => o.payment !== 'Paid').map((o) => ({ id: o.id, amount: o.total, date: addDays(o.shipDate, -3) })).sort((a, b) => a.date.getTime() - b.date.getTime());
+  const total = charges.reduce((t, c) => t + c.amount, 0);
+  const next = charges[0];
+  const chargedYtd = orders.filter((o) => o.payment === 'Paid').reduce((t, o) => t + o.total, 0);
+  return (
+    <article className="stat dash-reveal" style={{ animationDelay: delay }} data-testid="stat-card-payments">
+      <div className="stat-head">
+        <span className="stat-label">Upcoming card charges</span>
+        <span className="stat-chip"><CreditCard /> Pay in full</span>
+      </div>
+      <strong className="stat-value">{money(total)}</strong>
+      <p className="stat-note">{charges.length} order{charges.length === 1 ? '' : 's'} will be charged before shipping.</p>
+      <div className="stat-visual stat-cardv">
+        <div className="stat-cardof" data-testid="card-on-file">
+          <span className="stat-cardof-brand">{cardOnFile.brand}</span>
+          <span className="stat-cardof-num">•••• •••• •••• {cardOnFile.last4}</span>
+          <span className="stat-cardof-meta"><b>{cardOnFile.name}</b><small>Exp {cardOnFile.exp}</small></span>
+        </div>
+        <ul className="stat-charges">
+          {charges.slice(0, 3).map((c) => <li key={c.id}><span><strong>{c.id}</strong><small>{c.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</small></span><em>{money(c.amount)}</em></li>)}
+        </ul>
+      </div>
+      <dl className="stat-meta">
+        <div><dt>Next charge</dt><dd data-testid="next-charge">{next ? <>{money(next.amount)} <span className="muted">· {next.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></> : '—'}</dd></div>
+        <div><dt>Charged YTD</dt><dd>{money(chargedYtd)}</dd></div>
+      </dl>
+    </article>
   );
 }
 
@@ -371,6 +404,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const spendLabels = range === 'ytd' ? months.slice(0, 9) : trailingMonths;
   const spendTotal = spendValues.reduce((s, v) => s + v, 0);
   const spendShown = useCountUp(spendTotal);
+  const [terms] = useTerms();
   const dues = paymentsDue(openOrders);
   const dueTotal = dues.reduce((t, d) => t + d.amount, 0);
   const nextDue = dues.find((d) => d.date.getTime() >= Date.now()) ?? dues[0];
@@ -430,6 +464,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </dl>
         </article>
 
+        {terms === 'card' ? <CardPaymentsCard open={openOrders} delay=".22s" /> : (
         <article className="stat dash-reveal" style={{ animationDelay: '.22s' }} data-testid="stat-due">
           <div className="stat-head">
             <span className="stat-label">Invoiced payments due</span>
@@ -443,6 +478,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <div><dt>Due in 30 days</dt><dd>{money(due30)}</dd></div>
           </dl>
         </article>
+        )}
       </div>
 
       <div className="qa-head dash-reveal" style={{ animationDelay: '.26s' }}><h2>Quick actions</h2><span>Jump back in</span></div>
