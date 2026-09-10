@@ -82,18 +82,55 @@ const yearProgress = () => {
 
 function SpendBars({ values, labels }: { values: number[]; labels: string[] }) {
   const max = Math.max(...values, 1);
+  const last = values.length - 1;
   return (
-    <>
+    <div className="stat-visual stat-visual--chart">
       <div className="stat-chart" role="img" aria-label="Monthly spend">
         {values.map((v, i) => (
-          <div key={labels[i] + i} className={`stat-bar ${i === values.length - 1 ? 'is-active' : ''}`} data-testid={`spend-bar-${labels[i].toLowerCase()}`}>
-            <span className="stat-tip">{labels[i]} · {money(v)}</span>
-            <i style={{ height: `${Math.max(6, (v / max) * 100)}%`, animationDelay: `${0.2 + i * 0.03}s` }} />
+          <div key={labels[i] + i} className={`stat-bar ${i === last ? 'is-active' : ''}`} data-testid={`spend-bar-${labels[i].toLowerCase()}`}>
+            {i === last ? <span className="stat-bar-val" style={{ bottom: `calc(${Math.max(5, (v / max) * 100)}% + 6px)` }}>{compact(v)}</span> : <span className="stat-tip">{labels[i]} · {money(v)}</span>}
+            <i style={{ height: `${Math.max(5, (v / max) * 100)}%`, animationDelay: `${0.2 + i * 0.03}s` }} />
           </div>
         ))}
       </div>
       <div className="stat-axis"><span>{labels[0]}</span><span>{labels[Math.floor(labels.length / 2)]}</span><span>{labels[labels.length - 1]}</span></div>
-    </>
+    </div>
+  );
+}
+
+function AgingStrip({ current }: { current: number }) {
+  const buckets = [
+    { label: 'Current', amount: current },
+    { label: '1–30', amount: 0 },
+    { label: '31–60', amount: 0 },
+    { label: '60+', amount: 0 },
+  ];
+  return (
+    <div className="stat-visual stat-aging" role="img" aria-label="Receivables aging" data-testid="stat-aging">
+      {buckets.map((b, i) => (
+        <div key={b.label} className={`stat-aging-b ${b.amount > 0 ? 'has' : ''} ${i >= 2 ? 'late' : ''}`}>
+          <i />
+          <small>{b.label}</small>
+          <strong>{b.amount > 0 ? money(b.amount) : '—'}</strong>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TermsTimeline({ open }: { open: number }) {
+  const half = open / 2;
+  const steps = [
+    { label: 'Order placed', sub: `50% · ${money(half)}`, state: 'done' },
+    { label: 'Ships', sub: 'Invoice issued', state: 'next' },
+    { label: 'Net 60 due', sub: `50% · ${money(half)}`, state: '' },
+  ];
+  return (
+    <ol className="stat-visual stat-timeline" aria-label="Payment schedule" data-testid="stat-terms-timeline">
+      {steps.map((st) => (
+        <li key={st.label} className={st.state}><i /><span><strong>{st.label}</strong><small>{st.sub}</small></span></li>
+      ))}
+    </ol>
   );
 }
 
@@ -315,6 +352,8 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const spendLabels = range === 'ytd' ? months.slice(0, 9) : trailingMonths;
   const spendTotal = spendValues.reduce((s, v) => s + v, 0);
   const spendShown = useCountUp(spendTotal);
+  const lastYear = range === 'ytd' ? 3860 : 5120;
+  const delta = Math.round(((spendTotal - lastYear) / lastYear) * 100);
   const balanceShown = useCountUp(openAmount);
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
@@ -346,7 +385,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <span className="stat-label">{range === 'ytd' ? 'YTD spend' : 'Trailing 12-month spend'}</span>
             <button className="stat-toggle" onClick={() => setRange(range === 'ytd' ? 'trailing' : 'ytd')} data-testid="spend-range-toggle">{range === 'ytd' ? 'Year to Date' : 'Last 12 months'}<ArrowUpDown /></button>
           </div>
-          <strong className="stat-value">{money(spendShown)}</strong>
+          <div className="stat-value-row"><strong className="stat-value">{money(spendShown)}</strong><span className={`stat-delta ${delta >= 0 ? 'up' : 'down'}`} data-testid="spend-delta">{delta >= 0 ? <ArrowUp /> : <ArrowDown />}{Math.abs(delta)}% vs LY</span></div>
           <SpendBars values={spendValues} labels={spendLabels} />
           <dl className="stat-meta">
             <div><dt>Year progress</dt><dd>{progress}%</dd></div>
@@ -361,10 +400,10 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className="stat-note">Across {openOrders.length} open orders — nothing is overdue.</p>
-          <div className="stat-visual" aria-hidden="true"><div className="stat-track"><span className="seg seg--ink" style={{ width: '0%' }} /><span className="seg seg--accent" style={{ width: '100%' }} /></div><div className="stat-legend"><span><i className="seg--due" />Past due 0%</span><span><i className="seg--accent" />Current 100%</span></div></div>
+          <AgingStrip current={openAmount} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>$0.00</dd></div>
-            <div><dt>Current balance</dt><dd>{money(openAmount)}</dd></div>
+            <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of $5,000</span></dd></div>
           </dl>
         </article>
 
@@ -375,7 +414,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value stat-value--terms"><span>50%</span><small>Prepay</small><em>/</em><span>50%</span><small>Net 60</small></strong>
           <p className="stat-note">Half due at order, half invoiced 60 days after shipment.</p>
-          <div className="stat-visual" aria-hidden="true"><div className="stat-track"><span className="seg seg--ink" style={{ width: '50%' }} /><span className="seg seg--accent" style={{ width: '50%' }} /></div><div className="stat-legend"><span><i className="seg--ink" />Prepay · at order</span><span><i className="seg--accent" />Net 60 · after ship</span></div></div>
+          <TermsTimeline open={openAmount} />
           <dl className="stat-meta">
             <div><dt>Active orders</dt><dd>{openOrders.length} <span className="muted">open</span></dd></div>
             <div><dt>Last order placed</dt><dd>{fmtDate(orders[0].date, { month: 'short', day: 'numeric' })} <span className="muted">· {daysAgo(orders[0].date)}</span></dd></div>

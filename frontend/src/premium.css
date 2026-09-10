@@ -189,3 +189,54 @@ h1, h2, h3, .stat-value, .dash-hero h1, .pb-hero h1, .od-hero h1, .ac-hero h1 { 
 .stat-meta dd, .stat--dark .stat-meta dd { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
 .stat-meta dd .muted { font-weight: 500; }
 @media (max-width: 760px) { .stat-value, .stat--dark .stat-value { font-size: 30px; } .stat-chart { height: 48px; } }
+
+/* ── Stat cards v3: shared rhythm + meaningful visuals ─── */
+.stat { min-height: 0; padding: 22px 24px 22px; }
+.stat-head { min-height: 28px; }
+.stat-value-row { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.stat-value-row .stat-value { margin-top: 0; }
+.stat-delta { display: inline-flex; align-items: center; gap: 3px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0; }
+.stat-delta svg { width: 12px; height: 12px; }
+.stat-delta.up { background: rgba(0,212,161,.16); color: #5ff5cf; }
+.stat-delta.down { background: rgba(255,48,72,.16); color: #ff8a9a; }
+.stat-note { margin: 12px 0 0; padding: 0; min-height: 20px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-visual { flex: 1 1 auto; min-height: 96px; margin: 18px 0 0; display: flex; flex-direction: column; justify-content: flex-end; }
+.stat-chart { height: 72px; margin-top: 0; gap: 8px; align-items: flex-end; }
+.stat-bar-val { position: absolute; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; letter-spacing: .02em; }
+.stat-bar { padding-top: 16px; }
+.stat-axis { margin-top: 8px; }
+.stat-meta { margin-top: 20px; padding-top: 16px; }
+.stat--dark .stat-meta { margin-top: 20px; }
+/* aging strip */
+.stat-aging { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-items: end; flex-direction: row; }
+.stat-aging-b { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; min-width: 0; height: 100%; }
+.stat-aging-b i { display: block; height: 6px; border-radius: 4px; background: #eceee9; transform-origin: bottom; animation: stat-grow .6s cubic-bezier(.2,.7,.2,1) both .2s; }
+.stat-aging-b.has i { height: 28px; border-radius: 6px; }
+.stat-aging-b.has i { background: var(--accent); }
+.stat-aging-b.late.has i { background: #ff3048; }
+.stat-aging-b small { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #8e9396; margin-top: 2px; }
+.stat-aging-b strong { font-size: 13.5px; font-weight: 700; color: #b6bbb6; font-variant-numeric: tabular-nums; }
+.stat-aging-b.has strong { color: #121415; }
+/* payment timeline */
+.stat-timeline { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); position: relative; flex-direction: row; align-items: end; }
+.stat-timeline li { padding-bottom: 2px; }
+.stat-timeline li { position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.stat-timeline li i { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid #d3d7d2; box-sizing: border-box; position: relative; z-index: 1; }
+.stat-timeline li.done i { background: #121415; border-color: #121415; }
+.stat-timeline li.next i { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,161,.18); }
+.stat-timeline li:not(:last-child)::after { content: ''; position: absolute; left: 14px; right: 0; top: 6px; height: 2px; background: #eceee9; }
+.stat-timeline li.done::after { background: #121415; }
+.stat-timeline li:nth-child(2)::after { left: calc(50% + 7px); right: calc(-100% + 14px); }
+.stat-timeline li:nth-child(2)::before { content: ''; position: absolute; left: 0; right: calc(50% + 7px); top: 6px; height: 2px; background: #121415; }
+.stat-timeline li span { display: flex; flex-direction: column; gap: 2px; }
+.stat-timeline li strong { font-size: 12.5px; font-weight: 700; color: #121415; white-space: nowrap; }
+.stat-timeline li small { font-size: 12px; color: #6a7174; white-space: nowrap; }
+.stat-timeline li:last-child { align-items: flex-end; text-align: right; }
+.stat-timeline li:nth-child(2) { align-items: center; text-align: center; }
+@media (max-width: 760px) {
+  .stat { padding: 18px 16px; }
+  .stat-note { white-space: normal; min-height: 0; }
+  .stat-visual { height: auto; }
+  .stat-chart { height: 56px; }
+  .stat-timeline li strong { font-size: 12px; } .stat-timeline li small { font-size: 11px; }
+}
