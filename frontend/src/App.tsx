@@ -46,7 +46,6 @@ import {
   Star,
   Users,
   Trash2,
-  X,
 } from 'lucide-react';
 import type { Session } from '@/lib/supabase';
 import { supabase } from '@/lib/supabase';
@@ -320,7 +319,6 @@ function App() {
           <img className="brand-logo collapsed-brand-logo" src="/goorin-sidebar-icon copy.png" alt="Goorin" />
         </div>
 
-        <button className="mobile-close" onClick={() => setMobileOpen(false)} aria-label="Close menu"><X size={18} /></button>
 
         <div className="sidebar-scroll">
           {navGroups.map((group) => (
