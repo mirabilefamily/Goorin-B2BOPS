@@ -248,12 +248,10 @@ h1, h2, h3, .stat-value, .dash-hero h1, .pb-hero h1, .od-hero h1, .ac-hero h1 { 
 .stat-split-bar i { flex: 1; border-radius: 5px; transform-origin: left; animation: stat-grow-x .7s cubic-bezier(.2,.7,.2,1) both .2s; }
 .stat-split-bar .paid, .stat-split-legend .paid { background: #121415; }
 .stat-split-bar .due, .stat-split-legend .due { background: #cfe9de; }
-.stat-split-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.stat-split-legend span { display: grid; grid-template-columns: 8px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; }
-.stat-split-legend span i { width: 8px; height: 8px; border-radius: 2px; grid-row: 1; }
-.stat-split-legend b { font-size: 12.5px; font-weight: 600; color: #121415; }
-.stat-split-legend small { grid-column: 2; font-size: 12.5px; color: #6a7174; font-variant-numeric: tabular-nums; }
-.stat-split-legend span:last-child { text-align: right; grid-template-columns: 1fr 8px; }
-.stat-split-legend span:last-child i { grid-column: 2; }
-.stat-split-legend span:last-child b { grid-column: 1; grid-row: 1; }
-.stat-split-legend span:last-child small { grid-column: 1; }
+.stat-split-legend { display: flex; justify-content: space-between; gap: 12px; }
+.stat-split-legend div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.stat-split-legend div.r { align-items: flex-end; text-align: right; }
+.stat-split-legend small { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #8e9396; }
+.stat-split-legend small i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.stat-split-legend strong { font-size: 15px; font-weight: 700; color: #121415; font-variant-numeric: tabular-nums; }
+.stat-split-legend div.r strong { color: #565c60; }

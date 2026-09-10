@@ -124,8 +124,8 @@ function TermsSplit({ open }: { open: number }) {
     <div className="stat-visual stat-split" data-testid="stat-terms-split">
       <div className="stat-split-bar"><i className="paid" /><i className="due" /></div>
       <div className="stat-split-legend">
-        <span><i className="paid" /><b>Prepaid at order</b><small>{money(half)}</small></span>
-        <span><i className="due" /><b>Due Net 60</b><small>{money(half)}</small></span>
+        <div><small><i className="paid" />Prepaid at order</small><strong>{money(half)}</strong></div>
+        <div className="r"><small>Due Net 60<i className="due" /></small><strong>{money(half)}</strong></div>
       </div>
     </div>
   );
