@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, BookOpen, Box, Check, ChevronRight, Clock, Download, Info, LayoutGrid, List, Lock as LockIcon, Maximize2, Pencil, Plus, Search, ShoppingCart, Upload } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Box, Check, ChevronRight, Clock, Download, Info, LayoutGrid, List, Lock as LockIcon, Maximize2, Pencil, Plus, Search, ShoppingCart, Upload } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { Qty } from './Qty';
@@ -37,13 +37,14 @@ const items: Item[] = [
 
 function Overview({ onOpen, reserved }: { onOpen: (d: Drop) => void; reserved: Record<number, number> }) {
   const next = drops.find((d) => d.status === 'open')!;
+
   return (
     <div className="pb" data-testid="prebook-page">
-      <section className="pb-hero">
-        <div>
-          <p className="pb-eyebrow">Seasonal pre-book</p>
+      <section className="pb-hero pb-hero--ov">
+        <div className="pb-hero-main">
+          <p className="pb-eyebrow">Seasonal pre-book · {next.season}</p>
           <h1>Pre-Book Window Open</h1>
-          <p className="pb-lede">Reserve units ahead of production. Orders are confirmed once each drop hits its minimum-order quantity.</p>
+          <p className="pb-lede">Reserve units ahead of production. Orders confirm once each drop hits its minimum-order quantity.</p>
         </div>
         <div className="pb-deadline" data-testid="prebook-next-deadline"><small>Next deadline</small><strong>{next.deadline}</strong><span>Drop {next.id}</span><span>{next.daysLeft} days left</span></div>
       </section>
@@ -58,15 +59,14 @@ function Overview({ onOpen, reserved }: { onOpen: (d: Drop) => void; reserved: R
                 <button key={d.id} className={`pb-drop ${d.status}`} disabled={closed} aria-disabled={closed} onClick={() => !closed && onOpen(d)} data-testid={`drop-${d.id}`}>
                   <div className="pb-drop-head">
                     <span className="pb-drop-icon">{closed ? <LockIcon /> : <BookOpen />}</span>
-                    <div><div className="pb-drop-title"><strong>Drop {d.id}</strong><em className={d.status}>{closed ? 'Closed' : 'Open'}</em></div><span>{d.season}</span></div>
+                    <div><div className="pb-drop-title"><strong>Drop {d.id}</strong><em className={d.status}>{closed ? 'Closed' : 'Open'}</em></div><span>{closed ? 'Window closed' : `${d.season} · ${d.daysLeft} days left`}</span></div>
                     {reserved[d.id] > 0 && <span className="pb-drop-reserved" data-testid={`drop-${d.id}-reserved`}>{reserved[d.id]} units reserved</span>}
-                    {closed ? <span className="pb-drop-pill closed" data-testid={`drop-${d.id}-closed-pill`}><LockIcon /> Closed · {d.deadline}</span> : <span className="pb-drop-pill open"><Clock /> {d.daysLeft} days left</span>}
-                    {!closed && <ChevronRight className="pb-drop-chev" />}
+                    {!closed && <span className="pb-drop-cta" data-testid={`drop-${d.id}-cta`}>Reserve units <ArrowRight /></span>}
                   </div>
                   <dl className="pb-drop-meta">
                     <div><dt>Ship window</dt><dd>{d.ship}</dd></div>
                     <div><dt>Order by</dt><dd>{d.orderBy}</dd></div>
-                    {!closed && <div><dt>Status</dt><dd>Accepting reservations</dd></div>}
+                    {!closed && <div><dt>Season</dt><dd>{d.season}</dd></div>}
                   </dl>
                 </button>
               );

@@ -129,7 +129,7 @@ export default function MyOrdersPage() {
               <tbody>{lineRows.map(({ o, l }) => (
                 <tr key={o.id + l.sku} onClick={() => setOpen(o)} data-testid={`line-row-${o.id}-${l.sku}`}>
                   <td className="dash-td-id">{o.id}</td><td>{fmt(o.date)}</td><td><span className={`dash-pill tone-${statusTone[o.status]}`}><i />{o.status}</span></td>
-                  <td className="mono">{l.sku}</td><td><div className="ord-prod"><span className="od-thumb od-thumb--sm">{l.image ? <img src={l.image} alt="" /> : <Box />}</span>{l.name}</div></td>
+                  <td className="mono">{l.sku}</td><td><div className="ord-prod">{l.name}</div></td>
                   <td>{o.estimated ? 'Est. ' : ''}{fmt(o.shipStart)}</td><td>{o.shipment ? <span className="dash-pill tone-blue">{o.shipment}</span> : <span className="muted">—</span>}</td><td>{l.qty}</td><td>{money(l.price)}</td><td className="dash-td-total">{money(l.qty * l.price)}</td>
                 </tr>
               ))}</tbody>

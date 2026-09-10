@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only regression on Pre-Book overview redesign, Shipment detail redesign, My Orders line-items mode, Dashboard stat cards v3, plus Marketplace/Settings smoke. All requested testids present and behaving as specified. No horizontal overflow on mobile 390 for Pre-Book overview or Shipment detail. Drop 1 & 2 show 'Window closed' and Drop 3 CTA opens builder with prebook-back visible. Shipment IS-0012 hero, 7-stage rail with 'Released' and 'Stage 5 of 7', requirements section rendered, subtotal exactly $17.00, chat message adds chat-msg-0, docs-download-all fires toast '3 documents downloading…', si-edit opens si-form and si-cancel closes it, coo-toggle-detail hides Certificate of Origin doc, shipment-back returns to list (4 rows). My Orders line-items mode has 0 .od-thumb elements. Dashboard shows spend-delta, stat-aging, stat-terms-timeline, spend-range-toggle. Marketplace and Settings load without errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: spend-range-toggle appears to render a single element rather than multiple range buttons — could not exercise a range change to verify spend-delta updates dynamically. Consider exposing individual range option testids (e.g., spend-range-<key>) so future automation can verify the value change deterministically.",
+    "Minor: after clicking Settings in sidebar, window.location.hash remained '#marketplace' although the Settings page rendered correctly. Hash routing may not update on that specific navigation — consider keeping hash in sync for shareable URLs and back-button behavior."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "None — Log In with empty fields",
+  "seed_data_creation": "None (all data mocked)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All acceptance criteria from iteration_10 review passed. spend-range-toggle only exposes 1 clickable child in the current build so range switching couldn't be executed; if this feature is expanded, request explicit per-range testids. Navigation inside the SPA must go via sidebar buttons — page.goto with a hash does not switch pages. Shipment detail is opened by clicking the first tr[data-testid^=shipment-row-] on the Shipments list."
+}
