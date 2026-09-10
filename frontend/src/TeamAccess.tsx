@@ -69,9 +69,6 @@ export function TeamAccess() {
           ))}</tbody>
         </table></div>
       </section>
-      <section className="tm-card"><header><div><h3>Access levels</h3><p>What each role can do on this account.</p></div></header>
-        <div className="tm-roles">{roles.map((r) => <div key={r.id} className="tm-role"><Shield /><div><strong>{r.id}</strong><span>{r.desc}</span></div><em>{members.filter((m) => m.role === r.id).length}</em></div>)}</div>
-      </section>
     </div>
   );
 }

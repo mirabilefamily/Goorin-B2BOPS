@@ -111,28 +111,43 @@ export function ProfilePage() {
   const notify = useToast();
   const [c, setC] = useState({ email: 'ryan.mirabile@icloud.com', phone: '321-344-4590', mobile: '321-344-4590', website: 'https://www.mirabiledistro.com' });
   const [dirty, setDirty] = useState(false);
-  const [addrs, setAddrs] = useState<Addr[]>([{ id: 'a1', name: 'Ryan Mirabile', company: 'Mirabile Distribution', line1: '15354 Rising View Dr # 1', city: 'Montverde', state: 'Florida', zip: '34756-3546', country: 'United States', use: 'Both', isDefault: true }]);
+  const [addrs, setAddrs] = useState<Addr[]>([
+    { id: 'a1', name: 'Ryan Mirabile', company: 'Mirabile Distribution', line1: '15354 Rising View Dr # 1', city: 'Montverde', state: 'Florida', zip: '34756-3546', country: 'United States', use: 'Both', isDefault: true },
+    { id: 'a2', name: 'Receiving – Orlando DC', company: 'Mirabile Distribution', line1: '4410 Distribution Ct, Dock 3', city: 'Orlando', state: 'Florida', zip: '32809', country: 'United States', use: 'Delivery', isDefault: false },
+    { id: 'a3', name: 'Accounts Payable', company: 'Mirabile Distribution', line1: 'PO Box 1188', city: 'Clermont', state: 'Florida', zip: '34712', country: 'United States', use: 'Invoice', isDefault: false },
+  ]);
   const [editing, setEditing] = useState<Addr | null>(null);
   const set = (k: keyof typeof c) => (e: React.ChangeEvent<HTMLInputElement>) => { setC({ ...c, [k]: e.target.value }); setDirty(true); };
   const blank: Addr = { id: '', name: '', company: 'Mirabile Distribution', line1: '', city: '', state: '', zip: '', country: 'United States', use: 'Delivery', isDefault: false };
   const saveAddr = () => { if (!editing) return; if (!editing.name || !editing.line1 || !editing.city || !editing.zip) { notify('Name, street, city and ZIP are required', 'error'); return; } setAddrs((xs) => (editing.id ? xs.map((a) => (a.id === editing.id ? editing : a)) : [...xs, { ...editing, id: `a${Date.now()}` }])); setEditing(null); notify('Address saved'); };
   const F = ({ l, k }: { l: string; k: keyof Addr }) => <label className="co-field"><span>{l}</span><input value={String(editing?.[k] ?? '')} onChange={(e) => setEditing((a) => a && { ...a, [k]: e.target.value })} data-testid={`addr-${k}`} /></label>;
   return (
-    <div className="ord" data-testid="profile-page">
+    <div className="ord ac-profile" data-testid="profile-page">
+      <div className="ac-main">
       <section className="sh-card ac-sec"><header><h2>Contact details</h2><button className="od-btn od-btn--dark" disabled={!dirty} onClick={() => { setDirty(false); notify('Contact details saved'); }} data-testid="profile-save"><Save /> Save changes</button></header>
         <div className="co-row ac-form"><label className="co-field"><span>Email</span><input value={c.email} onChange={set('email')} data-testid="profile-email" /></label><label className="co-field"><span>Phone</span><input value={c.phone} onChange={set('phone')} data-testid="profile-phone" /></label><label className="co-field"><span>Mobile</span><input value={c.mobile} onChange={set('mobile')} data-testid="profile-mobile" /></label><label className="co-field"><span>Website</span><input value={c.website} onChange={set('website')} data-testid="profile-website" /></label></div>
       </section>
       <section className="sh-card ac-sec"><header><h2>Addresses <span>{addrs.length}</span></h2><button className="od-btn" onClick={() => setEditing(blank)} data-testid="addr-add"><Plus /> Add address</button></header>
         <div className="ac-addrs">{addrs.map((a) => (
-          <div key={a.id} className="co-address" data-testid={`addr-${a.id}`}><MapPin className="ac-pin" /><div className="co-address-body"><strong>{a.name} {a.isDefault && <em className="dash-pill tone-green">Default</em>}</strong><span>{a.company}</span><span>{a.line1} · {a.city}, {a.state} {a.zip} · {a.country}</span></div><div className="co-address-side"><em>{a.use}</em><button className="co-edit" onClick={() => setEditing(a)} data-testid={`addr-edit-${a.id}`}><Pencil /> Edit</button>{!a.isDefault && <button className="co-edit" onClick={() => { setAddrs((xs) => xs.map((x) => ({ ...x, isDefault: x.id === a.id }))); notify('Default address updated'); }}>Make default</button>}</div></div>
-        ))}</div>
+          <div key={a.id} className={`ac-addr ${a.isDefault ? 'is-default' : ''}`} data-testid={`addr-${a.id}`}>
+            <div className="ac-addr-top"><span className={`ac-use use-${a.use.toLowerCase()}`}>{a.use === 'Both' ? 'Ship & bill' : a.use === 'Delivery' ? 'Ship to' : 'Bill to'}</span>{a.isDefault && <em className="dash-pill tone-green">Default</em>}</div>
+            <strong>{a.name}</strong><span>{a.company}</span>
+            <address>{a.line1}<br />{a.city}, {a.state} {a.zip}<br />{a.country}</address>
+            <div className="ac-addr-actions"><button onClick={() => setEditing(a)} data-testid={`addr-edit-${a.id}`}><Pencil /> Edit</button>{!a.isDefault && <button onClick={() => { setAddrs((xs) => xs.map((x) => ({ ...x, isDefault: x.id === a.id }))); notify('Default address updated'); }} data-testid={`addr-default-${a.id}`}>Make default</button>}{!a.isDefault && <button className="danger" onClick={() => { setAddrs((xs) => xs.filter((x) => x.id !== a.id)); notify('Address removed'); }} data-testid={`addr-remove-${a.id}`}>Remove</button>}</div>
+          </div>
+        ))}
+          <button className="ac-addr ac-addr--new" onClick={() => setEditing(blank)} data-testid="addr-add-card"><Plus /><strong>Add another address</strong><span>Warehouses, stores or billing contacts</span></button>
+        </div>
         {editing && <div className="co-form ac-editor" data-testid="addr-form"><h3>{editing.id ? 'Edit address' : 'New address'}</h3><div className="co-row"><F l="Full name" k="name" /><F l="Company" k="company" /></div><F l="Street address" k="line1" /><div className="co-row"><F l="City" k="city" /><F l="State" k="state" /></div><div className="co-row"><F l="ZIP" k="zip" /><F l="Country" k="country" /></div>
           <div className="co-field"><span>Use address for</span><div className="co-segment">{(['Delivery', 'Invoice', 'Both'] as const).map((u) => <button key={u} type="button" className={editing.use === u ? 'active' : ''} onClick={() => setEditing({ ...editing, use: u })}>{u}</button>)}</div></div>
           <div className="co-actions"><button className="co-secondary" onClick={() => setEditing(null)} data-testid="addr-cancel">Cancel</button><button className="co-primary" onClick={saveAddr} data-testid="addr-save">Save address</button></div></div>}
       </section>
+      </div>
+      <aside className="ac-side">
       <section className="sh-card ac-sec"><header><div><h2>Credit terms</h2><p>Your current payment terms and credit status</p></div><button className="od-btn" onClick={() => { navigator.clipboard?.writeText('Account #GB-48213 · Mirabile Distribution').catch(() => {}); notify('Account details copied'); }}><Copy /> Copy account #</button></header>
-        <div className="ac-terms"><div><small>Payment terms</small><strong>50% Prepay, 50% Net 60</strong></div><div><small>Credit limit</small><strong>{money(5000)}</strong><span>{money(4983)} available</span></div><div><small>Standing</small><strong className="ok">Good</strong><span>No past-due balance</span></div><div><small>Account</small><strong>#GB-48213</strong><span>Sales rep · Ally Stevens</span></div></div>
+        <div className="ac-terms"><div><small>Payment terms</small><strong>50% Prepay, 50% Net 60</strong></div><div><small>Credit limit</small><strong>{money(5000)}</strong><span>{money(4983)} available</span><div className="dash-bar ac-credit"><span style={{ width: '0.4%' }} /></div></div><div><small>Standing</small><strong className="ok">Good</strong><span>No past-due balance</span></div><div><small>Account</small><strong>#GB-48213</strong><span>Sales rep · Ally Stevens · ally@goorin.com</span></div></div>
       </section>
+      </aside>
     </div>
   );
 }
