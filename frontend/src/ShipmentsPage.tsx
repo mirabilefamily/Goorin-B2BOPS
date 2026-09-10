@@ -4,6 +4,7 @@ import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { orders, type Order } from '@/lib/orders';
 import { useBackable } from '@/lib/nav';
+import { CountrySelect } from './CountrySelect';
 import './marketplace.css';
 import './dashboard.css';
 import './prebook.css';
@@ -39,7 +40,7 @@ function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => void; c
   const notify = useToast();
   const [msgs, setMsgs] = useState<{ who: string; text: string; at: string }[]>([]);
   const [draft, setDraft] = useState('');
-  const [si, setSi] = useState({ method: 'Freight forwarder' as 'Freight forwarder' | 'Customer pickup', forwarder: s.forwarder, contact: 'Name', email: 'name@ff123.com', phone: '3213444590', country: 'USA', transport: s.transport, notes: '' });
+  const [si, setSi] = useState({ method: 'Freight forwarder' as 'Freight forwarder' | 'Customer pickup', forwarder: s.forwarder, contact: 'Name', email: 'name@ff123.com', phone: '3213444590', country: 'United States', transport: s.transport, notes: '' });
   const [form, setForm] = useState(si);
   const [edit, setEdit] = useState(false);
   const [docs, setDocs] = useState<string[]>([]);
@@ -119,7 +120,7 @@ function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => void; c
                   <div className="co-row"><label className="co-field"><span>Forwarder</span><input value={form.forwarder} onChange={(e) => setForm({ ...form, forwarder: e.target.value })} data-testid="si-forwarder" /></label><label className="co-field"><span>Contact name</span><input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} data-testid="si-contact" /></label></div>
                   <div className="co-row"><label className="co-field"><span>Email</span><input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} data-testid="si-email" /></label><label className="co-field"><span>Phone</span><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} data-testid="si-phone" /></label></div>
                 </>}
-                <div className="co-row"><label className="co-field"><span>Transport</span><select className="mk-select" value={form.transport} onChange={(e) => setForm({ ...form, transport: e.target.value })} data-testid="si-transport">{['Ocean', 'Air', 'Ground'].map((t) => <option key={t}>{t}</option>)}</select></label><label className="co-field"><span>Country</span><input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} data-testid="si-country" /></label></div>
+                <div className="co-row"><label className="co-field"><span>Transport</span><select className="mk-select" value={form.transport} onChange={(e) => setForm({ ...form, transport: e.target.value })} data-testid="si-transport">{['Ocean', 'Air', 'Ground'].map((t) => <option key={t}>{t}</option>)}</select></label><CountrySelect value={form.country} onChange={(v) => setForm({ ...form, country: v })} testId="si-country" /></div>
                 <label className="co-field"><span>Notes for the factory <em>(optional)</em></span><textarea className="co-input sh-notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Carrier account #, pickup windows, labeling…" data-testid="si-notes" /></label>
                 <div className="co-actions"><button className="co-secondary" onClick={() => setEdit(false)} data-testid="si-cancel">Cancel</button><button className="co-primary" disabled={form.method === 'Freight forwarder' && (!form.forwarder.trim() || !form.email.trim())} onClick={() => { setSi(form); setEdit(false); notify('Shipping instructions updated · factory notified'); }} data-testid="si-save">Save instructions</button></div>
               </div>

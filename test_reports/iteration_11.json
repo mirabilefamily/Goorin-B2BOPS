@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only regression on CountrySelect combobox (Shipments SI, Checkout, Profile & Addresses), Dashboard 'Invoiced payments due' card, and Shipping instructions booking method options. All acceptance criteria pass on desktop 1920x1080 and mobile 390x844.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_scenarios": [
+    "Login with empty fields via 'Log In' works.",
+    "Dashboard stat-due card: value $34.00, subtitle '4 invoices across 3 open orders, by due month', stat-due-months lists Oct 2026 $8.50 (SO56680), Dec 2026 $8.50 (SO58739), Mar 2027 $17.00 (SO58739, SO57017). next-payment '$8.50 · Oct 24'. 'Due in 30 days' $0.00. stat-terms no longer exists.",
+    "Shipments > first shipment > si-edit: country combobox opens (si-country-popover), search 'ger' filters, clicking si-country-opt-germany selects Germany and closes popover. Button label updates to 'Germany'. si-cancel closes si-form.",
+    "Booking method segment shows exactly 2 options: si-method-freight ('Freight forwarder') and si-method-customer ('Customer pickup'). No 'Goorin arranges' option.",
+    "Marketplace: 14 mk-add buttons; adding items updates cart-count. Cart button opens Checkout. address-new toggle reveals form; addr-country combobox opens, search 'can' filters, addr-country-opt-canada selects Canada; button label updates.",
+    "Profile & Addresses: Add address opens addr-form containing addr-country combobox; selecting Mexico updates button label to 'Mexico'.",
+    "Mobile 390: documentElement scrollWidth == clientWidth (390 == 390) on dashboard — no horizontal overflow. si-country popover in shipping instructions form has bounds x=31, width=328, right=359 — fits within viewport (<=390)."
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: Sidebar nav-items lack data-testid attributes (e.g., nav-shipments, nav-marketplace). Automation relied on '.nav-item:has-text(...)' selectors. Adding explicit testids would improve robustness across future rewrites."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "None — click 'Log In' with empty fields",
+  "seed_data_creation": "None (all mocked)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Sidebar nav items have no testids — click via '.nav-item:has-text(\"Shipments\")' etc. Booking method testids are si-method-freight and si-method-customer (not si-book-*). Marketplace add buttons are 'button.mk-add' with testid add-<productId>. Header cart-button opens Checkout. Country popover selectors: <base>-popover, <base>-search, <base>-opt-<slug> where slug is lowercase with spaces replaced by dashes (e.g., united-states)."
+}

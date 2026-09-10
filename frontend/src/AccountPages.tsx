@@ -8,6 +8,7 @@ import './dashboard.css';
 import './checkout.css';
 import './orders.css';
 import './account.css';
+import { CountrySelect } from './CountrySelect';
 
 type Res = { id: string; name: string; ext: string; type: 'pdf' | 'zip' | 'img' | 'video'; size: string; updated: string; thumb?: string; shared?: boolean };
 type Folder = { id: string; name: string; date: string; latest?: boolean; cover?: string; files: Res[] };
@@ -138,7 +139,7 @@ export function ProfilePage() {
         ))}
           <button className="ac-addr ac-addr--new" onClick={() => setEditing(blank)} data-testid="addr-add-card"><Plus /><strong>Add another address</strong><span>Warehouses, stores or billing contacts</span></button>
         </div>
-        {editing && <div className="co-form ac-editor" data-testid="addr-form"><h3>{editing.id ? 'Edit address' : 'New address'}</h3><div className="co-row"><F l="Full name" k="name" /><F l="Company" k="company" /></div><F l="Street address" k="line1" /><div className="co-row"><F l="City" k="city" /><F l="State" k="state" /></div><div className="co-row"><F l="ZIP" k="zip" /><F l="Country" k="country" /></div>
+        {editing && <div className="co-form ac-editor" data-testid="addr-form"><h3>{editing.id ? 'Edit address' : 'New address'}</h3><div className="co-row"><F l="Full name" k="name" /><F l="Company" k="company" /></div><F l="Street address" k="line1" /><div className="co-row"><F l="City" k="city" /><F l="State" k="state" /></div><div className="co-row"><F l="ZIP" k="zip" /><CountrySelect value={editing?.country ?? ''} onChange={(v) => setEditing((a) => a && { ...a, country: v })} testId="addr-country" /></div>
           <div className="co-field"><span>Use address for</span><div className="co-segment">{(['Delivery', 'Invoice', 'Both'] as const).map((u) => <button key={u} type="button" className={editing.use === u ? 'active' : ''} onClick={() => setEditing({ ...editing, use: u })}>{u}</button>)}</div></div>
           <div className="co-actions"><button className="co-secondary" onClick={() => setEditing(null)} data-testid="addr-cancel">Cancel</button><button className="co-primary" onClick={saveAddr} data-testid="addr-save">Save address</button></div></div>}
       </section>

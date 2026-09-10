@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   ChevronRight,
   Download,
-  FileText,
   Package,
   RotateCcw,
   Search,
@@ -118,12 +117,38 @@ function AgingStrip({ current }: { current: number }) {
   );
 }
 
-function TermsSchedule({ open }: { open: number }) {
-  const half = open / 2;
+type Due = { order: string; kind: 'Prepay' | 'Net 60'; date: Date; amount: number };
+const addDays = (iso: string, n: number) => { const d = new Date(`${iso}T12:00:00`); d.setDate(d.getDate() + n); return d; };
+const paymentsDue = (list: Order[]): Due[] => list.flatMap((o) => {
+  const half = o.total / 2;
+  const out: Due[] = [];
+  if (o.payment === 'Not invoiced') out.push({ order: o.id, kind: 'Prepay', date: addDays(o.shipDate, -7), amount: half });
+  if (o.payment !== 'Paid') out.push({ order: o.id, kind: 'Net 60', date: addDays(o.shipDate, 60), amount: half });
+  return out;
+}).sort((a, b) => a.date.getTime() - b.date.getTime());
+
+function DueByMonth({ dues }: { dues: Due[] }) {
+  const groups = new Map<string, { label: string; year: string; amount: number; count: number; orders: string[] }>();
+  dues.forEach((x) => {
+    const k = `${x.date.getFullYear()}-${String(x.date.getMonth()).padStart(2, '0')}`;
+    const g = groups.get(k) ?? { label: x.date.toLocaleDateString('en-US', { month: 'short' }), year: String(x.date.getFullYear()), amount: 0, count: 0, orders: [] };
+    g.amount += x.amount; g.count += 1; if (!g.orders.includes(x.order)) g.orders.push(x.order);
+    groups.set(k, g);
+  });
+  const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
+  const max = Math.max(...rows.map((r) => r.amount), 1);
+  const shown = rows.slice(0, 3);
+  const rest = rows.slice(3);
   return (
-    <ul className="stat-visual stat-sched" data-testid="stat-terms-schedule">
-      <li className="paid"><b>50%</b><span><strong>Prepay before order ships</strong></span><em>{money(half)}</em><i>Paid</i></li>
-      <li><b>50%</b><span><strong>Net 60 after shipment</strong></span><em>{money(half)}</em><i>Due</i></li>
+    <ul className="stat-visual stat-sched stat-due-list" aria-label="Invoiced payments due by month" data-testid="stat-due-months">
+      {shown.map((r, i) => (
+        <li key={r.label + r.year} className={i === 0 ? 'paid' : ''}>
+          <b>{r.label}</b>
+          <span><strong>{r.label} {r.year}</strong><small>{r.count} invoice{r.count === 1 ? '' : 's'} · {r.orders.join(', ')}</small><u style={{ width: `${(r.amount / max) * 100}%` }} /></span>
+          <em>{money(r.amount)}</em>
+        </li>
+      ))}
+      {rest.length > 0 && <li className="more"><b>+{rest.length}</b><span><strong>Later</strong><small>{rest.map((r) => r.label).join(', ')}</small></span><em>{money(rest.reduce((t, r) => t + r.amount, 0))}</em></li>}
     </ul>
   );
 }
@@ -346,6 +371,10 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const spendLabels = range === 'ytd' ? months.slice(0, 9) : trailingMonths;
   const spendTotal = spendValues.reduce((s, v) => s + v, 0);
   const spendShown = useCountUp(spendTotal);
+  const dues = paymentsDue(openOrders);
+  const dueTotal = dues.reduce((t, d) => t + d.amount, 0);
+  const nextDue = dues.find((d) => d.date.getTime() >= Date.now()) ?? dues[0];
+  const due30 = dues.filter((d) => d.date.getTime() - Date.now() < 30 * 86400000).reduce((t, d) => t + d.amount, 0);
   const lastYear = range === 'ytd' ? 3860 : 5120;
   const delta = Math.round(((spendTotal - lastYear) / lastYear) * 100);
   const balanceShown = useCountUp(openAmount);
@@ -401,17 +430,17 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </dl>
         </article>
 
-        <article className="stat dash-reveal" style={{ animationDelay: '.22s' }} data-testid="stat-terms">
+        <article className="stat dash-reveal" style={{ animationDelay: '.22s' }} data-testid="stat-due">
           <div className="stat-head">
-            <span className="stat-label">Payment terms</span>
-            <span className="stat-chip"><FileText /> Invoiced account</span>
+            <span className="stat-label">Invoiced payments due</span>
+            <span className="stat-chip"><CalendarDays /> Net 60</span>
           </div>
-          <strong className="stat-value">Net 60</strong>
-          <p className="stat-note">Split 50 / 50 across {openOrders.length} open orders.</p>
-          <TermsSchedule open={openAmount} />
+          <strong className="stat-value">{money(dueTotal)}</strong>
+          <p className="stat-note">{dues.length} invoice{dues.length === 1 ? '' : 's'} across {openOrders.length} open orders, by due month.</p>
+          <DueByMonth dues={dues} />
           <dl className="stat-meta">
-            <div><dt>Active orders</dt><dd>{openOrders.length} <span className="muted">open</span></dd></div>
-            <div><dt>Last order placed</dt><dd>{fmtDate(orders[0].date, { month: 'short', day: 'numeric' })} <span className="muted">· {daysAgo(orders[0].date)}</span></dd></div>
+            <div><dt>Next payment</dt><dd data-testid="next-payment">{nextDue ? <>{money(nextDue.amount)} <span className="muted">· {nextDue.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></> : '—'}</dd></div>
+            <div><dt>Due in 30 days</dt><dd>{money(due30)}</dd></div>
           </dl>
         </article>
       </div>

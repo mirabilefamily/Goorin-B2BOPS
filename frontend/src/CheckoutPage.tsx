@@ -4,6 +4,7 @@ import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { useCart, useCountdown } from '@/lib/cart';
 import './checkout.css';
+import { CountrySelect } from './CountrySelect';
 
 type Props = { onBack: () => void; onComplete: () => void };
 type Step = 1 | 2 | 3;
@@ -109,7 +110,7 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
                   <Field label="Address" value={addr.line1} onChange={set('line1')} placeholder="Start typing to search..." testId="addr-line1" />
                   <Field label="Apt, suite, etc." optional value={addr.line2} onChange={set('line2')} testId="addr-line2" />
                   <div className="co-row"><Field label="City" value={addr.city} onChange={set('city')} testId="addr-city" /><Field label="State" value={addr.state} onChange={set('state')} testId="addr-state" /></div>
-                  <div className="co-row"><Field label="ZIP" value={addr.zip} onChange={set('zip')} testId="addr-zip" /><Field label="Country" value={addr.country} onChange={set('country')} testId="addr-country" /></div>
+                  <div className="co-row"><Field label="ZIP" value={addr.zip} onChange={set('zip')} testId="addr-zip" /><CountrySelect value={addr.country} onChange={set('country')} testId="addr-country" /></div>
                   <div className="co-field"><span>Use address for</span>
                     <div className="co-segment" role="radiogroup">{(['Delivery', 'Invoice', 'Both'] as const).map((o) => <button key={o} type="button" role="radio" aria-checked={useFor === o} className={useFor === o ? 'active' : ''} onClick={() => setUseFor(o)} data-testid={`usefor-${o.toLowerCase()}`}>{o}</button>)}</div>
                   </div>
