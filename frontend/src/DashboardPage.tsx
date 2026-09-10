@@ -122,7 +122,7 @@ function TermsSchedule({ open }: { open: number }) {
   const half = open / 2;
   return (
     <ul className="stat-visual stat-sched" data-testid="stat-terms-schedule">
-      <li className="paid"><b>50%</b><span><strong>Prepay at order</strong></span><em>{money(half)}</em><i>Paid</i></li>
+      <li className="paid"><b>50%</b><span><strong>Prepay before order ships</strong></span><em>{money(half)}</em><i>Paid</i></li>
       <li><b>50%</b><span><strong>Net 60 after shipment</strong></span><em>{money(half)}</em><i>Due</i></li>
     </ul>
   );

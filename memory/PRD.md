@@ -42,3 +42,4 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 - 2026-06: Payment terms card simplified: value "50 / 50 · Net 60", one-line note, two-segment split bar (Prepaid at order / Due Net 60 with $), footer unchanged. TermsTimeline removed (TermsSplit component).
 - 2026-06: Terms card legend restyled to match aging strip (uppercase small labels w/ color dot + bold amounts, right item right-aligned).
 - 2026-06: Terms card redesigned as schedule rows (TermsSchedule): value "Net 60", note "Split 50/50 across N open orders", two rows [50% badge · Prepay at order · $ · PAID] / [50% · Net 60 after shipment · $ · DUE]. CSS .stat-sched in premium.css.
+- 2026-06: Terms row label changed to "Prepay before order ships" per user (nowrap desktop, wraps on mobile).

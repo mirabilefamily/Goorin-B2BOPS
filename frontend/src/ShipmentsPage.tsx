@@ -39,7 +39,7 @@ function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => void; c
   const notify = useToast();
   const [msgs, setMsgs] = useState<{ who: string; text: string; at: string }[]>([]);
   const [draft, setDraft] = useState('');
-  const [si, setSi] = useState({ method: 'Freight forwarder' as 'Freight forwarder' | 'Goorin arranges' | 'Customer pickup', forwarder: s.forwarder, contact: 'Name', email: 'name@ff123.com', phone: '3213444590', country: 'USA', transport: s.transport, notes: '' });
+  const [si, setSi] = useState({ method: 'Freight forwarder' as 'Freight forwarder' | 'Customer pickup', forwarder: s.forwarder, contact: 'Name', email: 'name@ff123.com', phone: '3213444590', country: 'USA', transport: s.transport, notes: '' });
   const [form, setForm] = useState(si);
   const [edit, setEdit] = useState(false);
   const [docs, setDocs] = useState<string[]>([]);
@@ -114,7 +114,7 @@ function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => void; c
             <div className="sh-sechead"><h3>Shipping instructions</h3>{!edit && <button className="co-edit" onClick={() => { setForm(si); setEdit(true); }} data-testid="si-edit"><Pencil /> Edit</button>}</div>
             {edit ? (
               <div className="co-form sh-form" data-testid="si-form">
-                <label className="co-field"><span>Booking method</span><div className="co-segment">{(['Freight forwarder', 'Goorin arranges', 'Customer pickup'] as const).map((m) => <button key={m} type="button" className={form.method === m ? 'active' : ''} onClick={() => setForm({ ...form, method: m })} data-testid={`si-method-${m.split(' ')[0].toLowerCase()}`}>{m}</button>)}</div></label>
+                <label className="co-field"><span>Booking method</span><div className="co-segment">{(['Freight forwarder', 'Customer pickup'] as const).map((m) => <button key={m} type="button" className={form.method === m ? 'active' : ''} onClick={() => setForm({ ...form, method: m })} data-testid={`si-method-${m.split(' ')[0].toLowerCase()}`}>{m}</button>)}</div></label>
                 {form.method === 'Freight forwarder' && <>
                   <div className="co-row"><label className="co-field"><span>Forwarder</span><input value={form.forwarder} onChange={(e) => setForm({ ...form, forwarder: e.target.value })} data-testid="si-forwarder" /></label><label className="co-field"><span>Contact name</span><input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} data-testid="si-contact" /></label></div>
                   <div className="co-row"><label className="co-field"><span>Email</span><input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} data-testid="si-email" /></label><label className="co-field"><span>Phone</span><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} data-testid="si-phone" /></label></div>
