@@ -228,7 +228,7 @@ function OrdersTable({ onViewAll, onOpen }: { onViewAll: () => void; onOpen: (o:
         <button className="dash-export" onClick={exportCsv} data-testid="orders-export-btn"><Download size={16} /> Export</button>
       </div>
       <div className="dash-table-wrap">
-        <table className="dash-table">
+        <table className="dash-table dash-table--orders">
           <thead>
             <tr>
               {columns.map((c) => (
@@ -350,7 +350,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           <SpendBars values={spendValues} labels={spendLabels} />
           <dl className="stat-meta">
             <div><dt>Year progress</dt><dd>{progress}%</dd></div>
-            <div><dt>Open amount</dt><dd>${openAmount} <span className="muted">· {openOrders.length} order{openOrders.length === 1 ? '' : 's'}</span></dd></div>
+            <div><dt>Open amount</dt><dd>{money(openAmount)} <span className="muted">· {openOrders.length} order{openOrders.length === 1 ? '' : 's'}</span></dd></div>
           </dl>
         </article>
 
@@ -360,7 +360,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <span className="stat-chip stat-chip--good"><CheckCircle2 /> No past-due balance</span>
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
-          <p className="stat-note">Combined across {openOrders.length} open orders. Nothing is overdue — your account is in good standing.</p>
+          <p className="stat-note">Across {openOrders.length} open orders — nothing is overdue.</p>
           <div className="stat-visual" aria-hidden="true"><div className="stat-track"><span className="seg seg--ink" style={{ width: '0%' }} /><span className="seg seg--accent" style={{ width: '100%' }} /></div><div className="stat-legend"><span><i className="seg--due" />Past due 0%</span><span><i className="seg--accent" />Current 100%</span></div></div>
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>$0.00</dd></div>
@@ -373,8 +373,8 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <span className="stat-label">Payment terms</span>
             <span className="stat-chip"><FileText /> Invoiced account</span>
           </div>
-          <strong className="stat-value stat-value--sm">50% Prepay, 50% Net 60</strong>
-          <p className="stat-note">Half is due when an order is placed; the remaining half is invoiced 60 days after shipment.</p>
+          <strong className="stat-value stat-value--terms"><span>50%</span><small>Prepay</small><em>/</em><span>50%</span><small>Net 60</small></strong>
+          <p className="stat-note">Half due at order, half invoiced 60 days after shipment.</p>
           <div className="stat-visual" aria-hidden="true"><div className="stat-track"><span className="seg seg--ink" style={{ width: '50%' }} /><span className="seg seg--accent" style={{ width: '50%' }} /></div><div className="stat-legend"><span><i className="seg--ink" />Prepay · at order</span><span><i className="seg--accent" />Net 60 · after ship</span></div></div>
           <dl className="stat-meta">
             <div><dt>Active orders</dt><dd>{openOrders.length} <span className="muted">open</span></dd></div>

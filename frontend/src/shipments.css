@@ -111,3 +111,17 @@ tr:hover .sh-view { border-color: #121415; }
 .od-lines > header h2 { font-size: 12px; }
 .sh-doc { color: #121415; } .sh-doc:hover { color: #0b8a69; } .sh-doc > svg:first-child { color: #d43a3a; } .sh-doc > svg:last-child { color: #686e73; }
 @media (max-width: 900px) { .sh-stages { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .sh-stages li { flex: 0 0 auto; padding: 0 10px; } }
+
+/* ── Mobile ─────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .sh-head { gap: 10px; }
+  .sh-head h1 { font-size: 24px; }
+  .sh-stages { padding: 12px 14px; gap: 6px; }
+  .sh-stages li { padding: 0 6px; font-size: 12px; }
+  .sh-reqs { grid-template-columns: 1fr; gap: 10px; }
+  .sh-req { padding: 12px 14px; }
+  .sh-req strong { font-size: 14px; } .sh-req span { font-size: 12.5px; }
+  .sh-toggle { gap: 14px; padding: 16px; }
+  .sh-toggle strong { font-size: 14.5px; } .sh-toggle span { font-size: 12.5px; }
+  .sh-sechead { flex-wrap: wrap; }
+}

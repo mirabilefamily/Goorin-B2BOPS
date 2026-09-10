@@ -1,0 +1,19 @@
+{
+  "summary": "Iteration 9 frontend-only smoke pass. Verified dashboard stat cards (ytd-spend/balance/terms) at desktop 1600px, spend-range-toggle switches 'Year to Date' <-> 'Last 12 months', terms card renders '50% Prepay / 50% Net 60', outstanding-balance shows $51.00 across 3 open orders and YTD open-amount shows '$51.00 · 3 orders'. Pre-Book overview lists Drop 1 (CLOSED, disabled), Drop 2 (CLOSED, disabled), Drop 3 (OPEN, enabled) in that order; clicking drop-1/drop-2 does nothing (buttons carry disabled attribute), drop-3 opens builder with prebook-back visible. Profile & Addresses no longer contains any 'Copy account' text. Marketplace loads 14 product elements. Shipments detail Back (data-testid=shipment-back) returns to #shipments. Mobile 390x844: Dashboard, My Orders (orders + line-items modes), Shipments list, Shipment detail, Pre-Book overview, Settings > Team all report document.documentElement.scrollWidth === 390 (no horizontal overflow). Mobile hamburger navigation works.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "None — Log In with empty fields lands on Dashboard as demo user Ryan M / Mirabile Distribution.",
+  "seed_data_creation": "None (all data mocked in frontend).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Pre-Book drop button testids are 'drop-1', 'drop-2', 'drop-3' (not 'prebook-drop-N'). Shipment detail back button testid is 'shipment-back'. All requested flows for iteration 9 passed."
+}

@@ -79,3 +79,74 @@
   .od-hero { padding: 22px 20px; } .od-stats { grid-template-columns: 1fr; gap: 10px; }
   .od-table th, .od-table td { padding-right: 12px; font-size: 13px; }
 }
+
+/* ── Mobile cards (orders / line items / shipments lists) ── */
+@media (max-width: 760px) {
+  .ord-bar { gap: 10px; }
+  .ord-bar .dash-segment { width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .ord-bar .dash-segment::-webkit-scrollbar { display: none; }
+  .ord-bar .dash-segment button { flex: 1 0 auto; height: 36px; padding: 0 12px; font-size: 13px; white-space: nowrap; gap: 6px; }
+  .ord-bar .dash-segment button em { min-width: 18px; height: 18px; font-size: 11px; }
+  .ord-bar > .mk-btn { flex: 0 0 auto; height: 36px; margin-left: auto; padding: 0 14px; font-size: 13px; }
+  .ord-bar .dash-segment + .dash-segment { width: auto; flex: 1 1 auto; }
+  .ord-tools { gap: 10px; padding: 14px 16px; }
+  .ord-tools .mk-select { height: 40px; }
+  .ord-summary { font-size: 13px; }
+  .ord-card .dash-table-wrap { overflow-x: hidden; }
+  .ord-table, .ord-table tbody { display: block; width: 100%; }
+  .ord-table tbody tr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 14px 16px; }
+  .ord-table tbody tr::after { content: ''; flex-basis: 100%; height: 0; margin: -8px 0 0; }
+  .ord-table td { display: inline-flex; align-items: center; min-width: 0; padding: 0 !important; border: 0; white-space: nowrap; font-size: 13px; color: #686e73; }
+  .ord-table td:first-child { flex: 1 1 0; min-width: calc(100% - 104px); order: 1; white-space: normal; }
+  .ord-table td:first-child .ord-id { min-width: 0; max-width: 100%; }
+  .ord-table td .ord-id span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ord-table .dash-td-total { order: 2; margin-left: 0; flex: 0 0 auto; align-self: flex-start; font-size: 15px; font-weight: 700; color: #121415; }
+  .ord-table td.muted, .ord-table .dash-td-chevron { display: none; }
+  .ord-table td .dash-pill { margin: 0; }
+  .ord-table td::before { color: #9aa09b; margin-right: 5px; }
+  .ord-table td.ord-sep::before { content: '·'; color: #c9cec7; margin-right: 8px; }
+  /* Orders: 1 id · 2 date · 3 ship · 4 factory · 5 shipment · 6 status · 7 payment · 8 units · 9 total */
+  .ord-table--orders td:nth-child(6) { order: 3; }
+  .ord-table--orders td:nth-child(7) { order: 4; }
+  .ord-table--orders td:nth-child(5) { order: 5; }
+  .ord-table--orders td:nth-child(5):has(> .muted) { display: none; }
+  .ord-table--orders tbody tr::after { order: 6; }
+  .ord-table--orders td:nth-child(2) { order: 7; }
+  .ord-table--orders td:nth-child(2)::before { content: 'Placed'; }
+  .ord-table--orders td:nth-child(3) { order: 8; }
+  .ord-table--orders td:nth-child(3)::before { content: '· Ships'; }
+  .ord-table--orders td:nth-child(8) { order: 9; }
+  .ord-table--orders td:nth-child(8)::before { content: '·'; color: #c9cec7; }
+  .ord-table--orders td:nth-child(8)::after { content: '\00a0units'; }
+  /* Line items: 1 id · 2 date · 3 status · 4 sku · 5 product · 6 ship · 7 shipment · 8 qty · 9 price · 10 amount */
+  .ord-table--lines td:nth-child(1) { font-size: 15px; font-weight: 700; color: #121415; }
+  .ord-table--lines td:nth-child(5) { order: 3; flex-basis: 100%; white-space: normal; color: #121415; font-weight: 500; font-size: 14px; }
+  .ord-table--lines td:nth-child(3) { order: 4; }
+  .ord-table--lines td:nth-child(7) { order: 5; }
+  .ord-table--lines td:nth-child(7):has(> .muted) { display: none; }
+  .ord-table--lines td:nth-child(4) { order: 6; font-size: 12px; }
+  .ord-table--lines tbody tr::after { order: 7; }
+  .ord-table--lines td:nth-child(8) { order: 8; }
+  .ord-table--lines td:nth-child(8)::before { content: 'Qty'; }
+  .ord-table--lines td:nth-child(9) { order: 9; }
+  .ord-table--lines td:nth-child(9)::before { content: '×'; }
+  .ord-table--lines td:nth-child(2) { order: 10; }
+  .ord-table--lines td:nth-child(2)::before { content: '· Placed'; }
+  .ord-table--lines td:nth-child(6) { display: none; }
+  /* Shipments: 1 id · 2 SO · 3 factory · 4 est ship · 5 created · 6 lines · 7 value · 8 COO · 9 status · 10 view */
+  .ord-table--ships td:nth-child(9) { order: 3; }
+  .ord-table--ships td:nth-child(8) { order: 4; }
+  .ord-table--ships td:nth-child(8):has(> .muted) { display: none; }
+  .ord-table--ships tbody tr::after { order: 5; }
+  .ord-table--ships td:nth-child(2) { order: 6; font-weight: 600; color: #121415; }
+  .ord-table--ships td:nth-child(2)::before { content: 'Order'; font-weight: 400; }
+  .ord-table--ships td:nth-child(4) { order: 7; }
+  .ord-table--ships td:nth-child(4)::before { content: '· Ships'; }
+  .ord-table--ships td:nth-child(6) { order: 8; }
+  .ord-table--ships td:nth-child(6)::before { content: '·'; color: #c9cec7; }
+  .ord-table--ships td:nth-child(6)::after { content: '\00a0lines'; }
+  .ord-table--ships td:nth-child(5) { display: none; }
+  .ord-table--ships .dash-td-chevron { display: inline-flex; order: 9; flex-basis: 100%; margin-top: 4px; }
+  .ord-table--ships .sh-view { width: 100%; justify-content: center; height: 36px; }
+}
+@media (max-width: 760px) { .ord-table, .tm-table { min-width: 0; } }

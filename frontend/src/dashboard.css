@@ -260,22 +260,22 @@
   .dash-segment button { flex: 1; }
   .dash-orders-tools { padding: 14px 16px; }
   .dash-export { justify-content: center; }
-  .dash-table-wrap { overflow-x: visible; }
-  .dash-table thead { display: none; }
-  .dash-table, .dash-table tbody { display: block; }
-  .dash-table tbody tr { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "id total" "date chevron" "ship chevron" "items chevron" "status status"; gap: 4px 12px; padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,.06); }
-  .dash-table tbody tr:last-child { border-bottom: 0; }
-  .dash-table td { display: block; padding: 0 !important; border: 0; white-space: normal; font-size: 13.5px; color: #686e73; }
-  .dash-table td:nth-child(1) { grid-area: id; font-size: 15px; }
-  .dash-table td:nth-child(2) { grid-area: date; }
-  .dash-table td:nth-child(2)::before { content: 'Placed '; }
-  .dash-table td:nth-child(3) { grid-area: ship; }
-  .dash-table td:nth-child(3)::before { content: 'Ships '; }
-  .dash-table td:nth-child(4) { grid-area: items; }
-  .dash-table td:nth-child(5) { grid-area: total; text-align: right; font-size: 15px; }
-  .dash-table td:nth-child(6) { grid-area: status; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-  .dash-table td:nth-child(6) .dash-pill { margin: 0; }
-  .dash-table td:nth-child(7) { grid-area: chevron; align-self: center; }
+  .dash-table-wrap:has(> .dash-table--orders) { overflow-x: visible; }
+  .dash-table--orders thead { display: none; }
+  .dash-table--orders, .dash-table--orders tbody { display: block; }
+  .dash-table--orders tbody tr { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "id total" "date chevron" "ship chevron" "items chevron" "status status"; gap: 4px 12px; padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,.06); }
+  .dash-table--orders tbody tr:last-child { border-bottom: 0; }
+  .dash-table--orders td { display: block; padding: 0 !important; border: 0; white-space: normal; font-size: 13.5px; color: #686e73; }
+  .dash-table--orders td:nth-child(1) { grid-area: id; font-size: 15px; }
+  .dash-table--orders td:nth-child(2) { grid-area: date; }
+  .dash-table--orders td:nth-child(2)::before { content: 'Placed '; }
+  .dash-table--orders td:nth-child(3) { grid-area: ship; }
+  .dash-table--orders td:nth-child(3)::before { content: 'Ships '; }
+  .dash-table--orders td:nth-child(4) { grid-area: items; }
+  .dash-table--orders td:nth-child(5) { grid-area: total; text-align: right; font-size: 15px; }
+  .dash-table--orders td:nth-child(6) { grid-area: status; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .dash-table--orders td:nth-child(6) .dash-pill { margin: 0; }
+  .dash-table--orders td:nth-child(7) { grid-area: chevron; align-self: center; }
   .dash-empty { padding: 32px 16px !important; }
   .dash-orders-foot { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
   .dash-drawer { width: 100vw; }

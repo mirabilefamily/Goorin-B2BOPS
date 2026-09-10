@@ -196,3 +196,12 @@
 .pb-how i { width: 28px; height: 28px; font-size: 12px; background: #121415; color: #fff; }
 .pb-how strong { font-size: 15px; } .pb-how span { font-size: 13.5px; }
 @media (max-width: 760px) { .pb-drop-meta { flex-direction: column; gap: 10px; padding-left: 0; } .pb-drop.closed { flex-direction: column; align-items: stretch; gap: 12px; } .pb-drop.closed .pb-drop-meta { padding: 0; flex-direction: row; gap: 20px; } .pb-drop.closed .pb-drop-head { flex-wrap: wrap; } }
+@media (max-width: 760px) {
+  .pb-drop.closed { padding: 14px 16px; gap: 10px; }
+  .pb-drop.closed .pb-drop-head { flex-wrap: nowrap; gap: 12px; }
+  .pb-drop-title strong { white-space: nowrap; }
+  .pb-drop.closed .pb-drop-pill { display: none; }
+  .pb-drop.closed .pb-drop-meta { flex-direction: row; flex-wrap: wrap; gap: 14px 24px; padding: 10px 0 0; border-top: 1px solid rgba(0,0,0,.05); }
+  .pb-drop.open .pb-drop-head { flex-wrap: wrap; }
+  .pb-drop.open .pb-drop-chev { display: none; }
+}

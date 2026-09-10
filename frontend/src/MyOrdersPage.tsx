@@ -108,7 +108,7 @@ export default function MyOrdersPage() {
           <select className="mk-select" value={pay} onChange={(e) => setPay(e.target.value)} data-testid="orders-payment">{payments.map((p) => <option key={p}>{p}</option>)}</select>
           <div className="ord-summary"><span data-testid="orders-count"><strong>{mode === 'orders' ? list.length : lineRows.length}</strong> {mode === 'orders' ? 'orders' : 'line items'}</span><i /><span>Total <strong>{money(total)}</strong></span></div>
         </div>
-        <div className="dash-table-wrap"><table className="dash-table ord-table">
+        <div className="dash-table-wrap"><table className={`dash-table ord-table ${mode === 'orders' ? 'ord-table--orders' : 'ord-table--lines'}`}>
           {mode === 'orders' ? (
             <>
               <thead><tr><Th k="id" label="Order" /><Th k="date" label="Order date" /><Th k="ship" label="Est. ship date" /><th>Factory</th><th>Shipment</th><th>Status</th><th>Payment</th><th>Units</th><Th k="total" label="Total" /><th /></tr></thead>

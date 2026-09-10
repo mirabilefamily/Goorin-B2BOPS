@@ -119,7 +119,7 @@ export default function ShipmentsPage() {
           <label className="dash-search"><Search /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by shipment #, SO, or factory…" data-testid="shipments-search" />{query && <button onClick={() => setQuery('')} aria-label="Clear"><X /></button>}</label>
           <div className="ord-summary"><span data-testid="shipments-count"><strong>{list.length}</strong> shipment{list.length === 1 ? '' : 's'}</span><i /><span>Total <strong>{money(total)}</strong></span></div>
         </div>
-        <div className="dash-table-wrap"><table className="dash-table ord-table">
+        <div className="dash-table-wrap"><table className="dash-table ord-table ord-table--ships">
           <thead><tr><th>Shipment</th><th>SO #(s)</th><th>Factory</th><th>Est. ship date</th><th>Created</th><th>Lines</th><th>Value</th><th>COO</th><th>Status</th><th /></tr></thead>
           <tbody>{list.map((s) => (
             <tr key={s.id} onClick={() => setOpen(s)} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setOpen(s)} data-testid={`shipment-row-${s.id}`}>
