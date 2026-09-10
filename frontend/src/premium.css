@@ -334,3 +334,70 @@ h1, h2, h3, .stat-value, .dash-hero h1, .pb-hero h1, .od-hero h1, .ac-hero h1 { 
 .stat--dark .stat-meta { background: rgba(255,255,255,.04); border-top-color: rgba(255,255,255,.08); }
 .stat--dark .stat-meta div + div { border-left-color: rgba(255,255,255,.1); }
 @media (max-width: 760px) { .stat-meta { margin: 16px -16px 0; padding: 12px 16px 14px; border-radius: 0 0 16px 16px; } }
+
+/* ═══════════════════════════════════════════════════════════
+   DESIGN SYSTEM · cohesion layer (loaded last, wins cascade)
+   Tokens: H1 28 · dark-hero H1 30 · H2 17 · label 11 caps ·
+   body 14 · muted 13 · radius 12/18 · ink #121415 · accent green
+   ═══════════════════════════════════════════════════════════ */
+:root { --ink: #121415; --ink-2: #565c60; --muted-2: #7a8184; --line: rgba(16,18,19,.09); --line-strong: rgba(16,18,19,.14); --r-card: 18px; --r-ctl: 12px; }
+
+/* Page titles (light) */
+.dash-hero h1, .ac-hero h1, .rs-folderhead h1, .sh-head h1, .set-page-head h1, .settings-page-header h1, .page-heading h1 { font-size: 28px; font-weight: 700; letter-spacing: -.03em; line-height: 1.15; color: var(--ink); }
+/* Page titles (dark heroes) */
+.od-hero h1, .pb-hero h1, .pb-hero--drop h1, .pb-hero--ov h1, .sh-hero h1 { font-size: clamp(26px, 2.3vw, 30px); font-weight: 700; letter-spacing: -.03em; line-height: 1.15; }
+/* Subtitles under titles */
+.dash-sub, .pb-lede, .ac-hero p, .set-page-head p, .od-hero-sub, .sh-hero-sub, .rs-folderhead p { font-size: 14px; line-height: 1.5; }
+/* Eyebrows */
+.pb-eyebrow, .dash-eyebrow, .od-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+/* Section headings */
+.sh-card h2, .dash-orders-head h2, .co-section h2, .tm-card h3, .set-section-head h2, .set-card-top h2, .pb-h2, .ac-sec h2, .ss-card h2, .ss-card h3, .dash-widget h2, .fw-card-head h2, .pb-review h2, .od-lines h2, .qa-head h2, .lb-info h3 { font-size: 17px; font-weight: 700; letter-spacing: -.02em; color: var(--ink); }
+.sh-card header p, .tm-card header p, .ac-sec header p, .ss-card header p, .dash-orders-head p { font-size: 13px; color: var(--ink-2); }
+/* Small-caps labels */
+.sh-card h3, .dash-drawer-section h3, .stat-label, .sh-facts dt, .pb-drop-meta dt, .stat-meta dt, .od-stats small, .sh-hero-stats small, .pb-chips small, .co-summary dt, .ac-terms small, .tm-summary small, .od-table th, .dash-table th, .dash-table th button, .ord-table th, .tm-table th, .rs-table th, .stat-axis, .stat-aging-b small { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); }
+/* Body + muted */
+.sh-facts dd, .pb-drop-meta dd, .od-table td, .dash-table td, .ord-table td, .tm-table td, .co-field input, .co-input, .mk-select, textarea.co-input { font-size: 14px; }
+.muted, .mk-sku, .stat-note, .co-note, .qa small, .ord-id span, .sh-checks li span, .tm-user span, .sh-hero-sub { font-size: 13px; }
+
+/* Cards */
+.stat, .dash-orders, .mk-card, .qa, .sh-card, .tm-card, .od-lines, .pb-drop, .pb-how, .pb-cart, .pb-toolbar, .pb-review, .ac-file, .rs-card, .set-card, .ss-card, .co-card, .mk-toolbar { border-radius: var(--r-card); border-color: var(--line); }
+
+/* Buttons — primary (ink) */
+.co-primary, .mk-add, .pb-drop-cta, .tm-send, .mk-checkout { background: var(--ink); color: #fff; border-radius: var(--r-ctl); font-weight: 600; letter-spacing: -.005em; }
+.co-primary { height: 48px; font-size: 15px; }
+.mk-add, .pb-drop-cta, .tm-send { height: 42px; font-size: 14px; }
+.co-primary:hover, .mk-add:hover, .pb-drop-cta:hover, .tm-send:hover { background: #2a2e30; }
+.mk-checkout { border-radius: 999px; }
+/* Buttons — secondary (outlined) */
+.mk-btn, .od-btn, .dash-export, .co-secondary, .sh-dlall, .mk-filters-btn { height: 42px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--r-ctl); background: #fff; color: var(--ink); font-size: 14px; font-weight: 600; }
+.co-secondary { height: 48px; font-size: 15px; }
+.mk-btn:hover, .od-btn:hover, .dash-export:hover, .co-secondary:hover, .sh-dlall:hover { border-color: var(--ink); background: #fff; box-shadow: none; }
+.sh-view { height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 600; }
+/* Buttons — text/link */
+.co-edit, .pb-back, .dash-link, .dash-orders-foot button, .ac-link { color: var(--ink); font-size: 13.5px; font-weight: 600; text-decoration: none; }
+.co-edit:hover, .pb-back:hover, .dash-link:hover, .ac-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.pb-back { color: var(--ink-2); }
+.sh-doc { color: var(--ink); }
+/* Segments */
+.dash-segment, .mk-segment, .co-segment { border-radius: var(--r-ctl); background: #eef0eb; padding: 3px; }
+.dash-segment button, .mk-segment button, .co-segment button { height: 36px; padding: 0 14px; border-radius: 9px; font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.dash-segment button.active, .mk-segment button.active, .co-segment button.active { color: var(--ink); background: #fff; box-shadow: 0 1px 2px rgba(16,18,19,.1), 0 0 0 1px var(--line); }
+/* Pills / chips */
+.dash-pill, .stat-chip, .mk-badge, .pb-drop-title em, .pb-drop-reserved, .stat-delta, .sh-checks li em { height: 26px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .01em; text-transform: none; }
+.pb-drop-title em, .sh-checks li em { height: 22px; padding: 0 8px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+/* Inputs */
+.co-field input, .co-input, .mk-select, .cs-btn, .dash-search, .mk-search, .tm-select { height: 44px; border-radius: var(--r-ctl); border: 1px solid var(--line-strong); font-size: 14px; }
+textarea.co-input, .sh-compose textarea, .sh-notes { height: auto; }
+.co-field > span { font-size: 13px; font-weight: 600; color: var(--ink); }
+.co-field input:focus, .co-input:focus, .mk-select:focus, .sh-compose textarea:focus, .dash-search:focus-within, .mk-search:focus-within { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(0,212,161,.22); outline: 0; }
+/* Tables */
+.dash-table th, .od-table th, .ord-table th, .tm-table th, .rs-table th { padding-top: 12px; padding-bottom: 12px; }
+.dash-table td, .od-table td, .ord-table td, .tm-table td, .rs-table td { color: var(--ink); }
+.dash-td-total, .od-table .dash-td-total, .ord-table .dash-td-total { font-weight: 700; font-variant-numeric: tabular-nums; }
+/* Focus ring everywhere */
+button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 760px) {
+  .dash-hero h1, .ac-hero h1, .rs-folderhead h1, .sh-head h1, .set-page-head h1 { font-size: 24px; }
+  .od-hero h1, .pb-hero h1, .pb-hero--drop h1, .pb-hero--ov h1, .sh-hero h1 { font-size: 24px; }
+  .co-primary, .co-secondary { height: 46px; }
+}

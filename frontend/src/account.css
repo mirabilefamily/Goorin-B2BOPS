@@ -110,3 +110,15 @@
 .ac-addr--new:hover { border-color: #121415; background: #fafbf9; transform: translateY(-1px); }
 @media (max-width: 1100px) { .ac-profile { grid-template-columns: 1fr; } .ac-side { position: static; } .ac-side .ac-terms { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 760px) { .ac-addrs { grid-template-columns: 1fr; } .ac-side .ac-terms { grid-template-columns: 1fr; } }
+
+/* ── Resources: folder cue on existing card ─────────────── */
+.rs-cover { height: 164px; padding-top: 18px; background: transparent; overflow: hidden; }
+.rs-cover::before { content: ''; position: absolute; left: 0; top: 0; width: 46%; height: 34px; background: #2a2e30; border-radius: 12px 16px 0 0; clip-path: polygon(0 0, 84% 0, 100% 100%, 0 100%); }
+.rs-cover::after { content: ''; position: absolute; left: 0; right: 0; top: 18px; bottom: 0; background: linear-gradient(135deg, #1b1d1e 0%, #0f1112 100%); border-radius: 0 14px 0 0; z-index: 0; }
+.rs-cover > * { z-index: 1; }
+.rs-cover > strong { top: 36px; }
+.rs-cover img { bottom: -12%; }
+.rs-tab { display: none; }
+.rs-latest { top: 32px; }
+.rs-card { border-top: 0; }
+.rs-card:hover .rs-cover::before { background: #3a3f42; }

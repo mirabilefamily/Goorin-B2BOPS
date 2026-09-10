@@ -1,0 +1,33 @@
+{
+  "summary": "Frontend regression sweep post design-cohesion layer + Resources folder redesign + removal of Account #GB-48213 from Profile card and topbar account menu. Desktop 1500px + Mobile 390px. All 11 acceptance scenarios pass with zero console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "verified_scenarios": [
+    "Login: click 'Log In' with empty fields navigates to Dashboard.",
+    "Dashboard: stat cards render, Recent Orders row opens drawer and closes cleanly.",
+    "Marketplace: 14 mk-add buttons; adding items updates cart-count; Checkout opens and Place order navigates to My Orders (address-new toggle used previously; verified fine).",
+    "Pre-Book: Drop 3 CTA opens builder; Review button present; back returns.",
+    "My Orders: 5 segment/tab elements found; order row opens detail; back works.",
+    "Shipments: list → detail → si-edit opens form → si-cancel closes → back returns to list.",
+    "Resources: 4 res-folder-* cards rendered with 'Updated' timestamps (4 matches); clicking a folder opens folder view with table; back returns to folder grid; 'Upload files' button present.",
+    "Statements: page loads without error.",
+    "Profile & Addresses: NO occurrence of 'GB-48213' anywhere on the page; 'Sales rep' tile present; Add address form exposes addr-country combobox.",
+    "Topbar account menu: shows 'Company / Mirabile Distribution' and 'Sales rep / Ally Stevens' only — no 'Account' row, no 'GB-48213' string.",
+    "Settings: Invite button present; 3 role select controls found.",
+    "Mobile 390 no horizontal overflow on Dashboard, My Orders, Resources, Profile (scrollWidth==clientWidth==390). Shipments detail navigation could not be re-triggered from mobile row in automation (visibility timing), but no page-level overflow detected on Shipments list.",
+    "Console: 0 errors, 0 warnings, 0 pageerrors during full sweep."
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Sidebar nav items still lack data-testid (carried from iter 11). Would improve automation robustness.",
+    "Resources folder detail: no explicit data-testid on the back button — automation relied on button text 'Back'."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "None — Log In with empty fields",
+  "seed_data_creation": "None (all mocked)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Resources page uses [data-testid^='res-folder-'] for the 4 folder cards; clicking opens a table view with a 'Back' button (no testid). Topbar account chip menu is opened by clicking the last topbar button (RM initials). Account #GB-48213 has been fully removed as required."
+}

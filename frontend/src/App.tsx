@@ -78,7 +78,7 @@ const navGroups: { title: string; items: NavItem[] }[] = [
   {
     title: 'My Account',
     items: [
-      { label: 'Dashboard', icon: LayoutGrid },
+      { label: 'Overview', icon: LayoutGrid },
       { label: 'Marketplace', icon: ShoppingBag },
       { label: 'Pre-Book', icon: CalendarClock },
       { label: 'My Orders', icon: Package },
@@ -174,7 +174,7 @@ function App() {
   const [authReady, setAuthReady] = useState(false);
   const [activeNav, setActiveNav] = useState<string | null>(() => {
     const labels = [...navGroups.flatMap((g) => g.items.map((i) => i.label)), 'Checkout'];
-    return labels.find((l) => `#${navSlug(l)}` === window.location.hash) ?? 'Dashboard';
+    return labels.find((l) => `#${navSlug(l)}` === window.location.hash) ?? 'Overview';
   });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -220,7 +220,7 @@ function App() {
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  const activeLabel = activeNav ?? 'Dashboard';
+  const activeLabel = activeNav ?? 'Overview';
 
   const ActiveIcon = useMemo(() => {
     if (activeNav === 'Checkout') return ShoppingCart;
@@ -333,7 +333,6 @@ function App() {
                 >
                   <Icon size={21} strokeWidth={1.8} />
                   {!sidebarCollapsed && <span>{label}</span>}
-                  {label === 'Dashboard' && !sidebarCollapsed && <span className="live-dot" />}
                 </button>
               ))}
             </div>
@@ -409,7 +408,6 @@ function App() {
                   <div className="profile-account-top"><div className="user-avatar profile-account-avatar">RM</div><div><strong>Ryan Mirabile</strong><span>ryan@mirabile.com</span></div></div>
                   <dl className="profile-account-meta">
                     <div><dt>Company</dt><dd>Mirabile Distribution</dd></div>
-                    <div><dt>Account</dt><dd>#GB-48213</dd></div>
                     <div><dt>Sales rep</dt><dd><i className="account-badge">AS</i>Ally Stevens</dd></div>
                   </dl>
                 </div>
@@ -488,7 +486,7 @@ function App() {
               </div>
             </div>
             )
-          ) : view === 'dashboard' && activeNav === 'Dashboard' ? (
+          ) : view === 'dashboard' && activeNav === 'Overview' ? (
             <DashboardPage name="Ryan" onNavigate={(label) => setActiveNav(label)} />
           ) : view === 'dashboard' && activeNav === 'Marketplace' ? (
             <MarketplacePage onCheckout={() => setActiveNav('Checkout')} />

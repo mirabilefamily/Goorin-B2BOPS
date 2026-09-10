@@ -72,7 +72,7 @@ export function ResourcesPage() {
       <div className="rs-grid">
         {folders.map((fo) => (
           <button key={fo.id} className="rs-card" onClick={() => setOpenId(fo.id)} data-testid={`res-folder-${fo.id}`}>
-            <div className="rs-cover">{fo.cover && <img src={fo.cover} alt="" />}<strong>{fo.name}</strong>{fo.latest && <em className="rs-latest">Latest</em>}<i className="rs-tab" /></div>
+            <div className="rs-cover">{fo.cover && <img src={fo.cover} alt="" />}<strong>{fo.name}</strong>{fo.latest && <em className="rs-latest">Latest</em>}</div>
             <div className="rs-body"><strong>{fo.name}</strong><span>{fo.date}</span></div>
             <div className="rs-foot"><div className="rs-kinds">{kinds(fo.files).map(([k, n]) => <em key={k}>{n} {k}</em>)}</div><ChevronRight /></div>
           </button>
@@ -146,7 +146,7 @@ export function ProfilePage() {
       </div>
       <aside className="ac-side">
       <section className="sh-card ac-sec"><header><div><h2>Credit terms</h2><p>Your current payment terms and credit status</p></div></header>
-        <div className="ac-terms"><div><small>Payment terms</small><strong>50% Prepay, 50% Net 60</strong></div><div><small>Credit limit</small><strong>{money(5000)}</strong><span>{money(4983)} available</span><div className="dash-bar ac-credit"><span style={{ width: '0.4%' }} /></div></div><div><small>Standing</small><strong className="ok">Good</strong><span>No past-due balance</span></div><div><small>Account</small><strong>#GB-48213</strong><span>Sales rep · Ally Stevens · ally@goorin.com</span></div></div>
+        <div className="ac-terms"><div><small>Payment terms</small><strong>50% Prepay, 50% Net 60</strong></div><div><small>Credit limit</small><strong>{money(5000)}</strong><span>{money(4983)} available</span><div className="dash-bar ac-credit"><span style={{ width: '0.4%' }} /></div></div><div><small>Standing</small><strong className="ok">Good</strong><span>No past-due balance</span></div><div><small>Sales rep</small><strong>Ally Stevens</strong><span>ally@goorin.com</span></div></div>
       </section>
       </aside>
     </div>
