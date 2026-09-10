@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
+import { useBackable } from '@/lib/nav';
 import './dashboard.css';
 
 type Props = { name: string; onNavigate: (label: string) => void };
@@ -300,6 +301,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState<'ytd' | 'trailing'>('ytd');
   const [selected, setSelected] = useState<Order | null>(null);
+  useBackable(!!selected, () => setSelected(null));
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 550);
@@ -359,6 +361,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className="stat-note">Combined across {openOrders.length} open orders. Nothing is overdue — your account is in good standing.</p>
+          <div className="stat-visual" aria-hidden="true"><div className="stat-track"><span className="seg seg--ink" style={{ width: '0%' }} /><span className="seg seg--accent" style={{ width: '100%' }} /></div><div className="stat-legend"><span><i className="seg--due" />Past due 0%</span><span><i className="seg--accent" />Current 100%</span></div></div>
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>$0.00</dd></div>
             <div><dt>Current balance</dt><dd>{money(openAmount)}</dd></div>
@@ -372,6 +375,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value stat-value--sm">50% Prepay, 50% Net 60</strong>
           <p className="stat-note">Half is due when an order is placed; the remaining half is invoiced 60 days after shipment.</p>
+          <div className="stat-visual" aria-hidden="true"><div className="stat-track"><span className="seg seg--ink" style={{ width: '50%' }} /><span className="seg seg--accent" style={{ width: '50%' }} /></div><div className="stat-legend"><span><i className="seg--ink" />Prepay · at order</span><span><i className="seg--accent" />Net 60 · after ship</span></div></div>
           <dl className="stat-meta">
             <div><dt>Active orders</dt><dd>{openOrders.length} <span className="muted">open</span></dd></div>
             <div><dt>Last order placed</dt><dd>{fmtDate(orders[0].date, { month: 'short', day: 'numeric' })} <span className="muted">· {daysAgo(orders[0].date)}</span></dd></div>

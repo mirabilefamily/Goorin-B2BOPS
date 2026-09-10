@@ -3,6 +3,7 @@ import { ArrowLeft, BookOpen, Box, Check, ChevronRight, Clock, Download, Info, L
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { Qty } from './Qty';
+import { useBackable } from '@/lib/nav';
 import { Lightbox, viewStyle } from './Lightbox';
 import './marketplace.css';
 import './checkout.css';
@@ -244,6 +245,7 @@ function DropBuilder({ drop, onBack, onSubmitted, qty, setQty }: { drop: Drop; o
 
 export default function PreBookPage({ onNavigate }: { onNavigate: (l: string) => void }) {
   const [drop, setDrop] = useState<Drop | null>(null);
+  useBackable(!!drop, () => setDrop(null));
   const [carts, setCarts] = useState<Record<number, Record<string, number>>>({});
   const reserved = Object.fromEntries(drops.map((d) => [d.id, Object.values(carts[d.id] ?? {}).reduce((s, n) => s + n, 0)]));
   if (drop) {

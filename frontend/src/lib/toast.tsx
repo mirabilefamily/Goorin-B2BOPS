@@ -48,16 +48,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: number) => void }) {
   const Icon = variantIcon[toast.variant];
+  const [paused, setPaused] = useState(false);
   useEffect(() => {
-    const timer = setTimeout(() => onDismiss(toast.id), 3200);
+    if (paused) return;
+    const timer = setTimeout(() => onDismiss(toast.id), 4000);
     return () => clearTimeout(timer);
-  }, [toast.id, onDismiss]);
+  }, [toast.id, onDismiss, paused]);
 
   return (
-    <div className={`toast toast-${toast.variant}`} role="status">
+    <div className={`toast toast-${toast.variant} ${paused ? 'is-paused' : ''}`} role="status" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} data-testid="toast">
       <span className="toast-icon"><Icon size={16} /></span>
       <span className="toast-message">{toast.message}</span>
-      <button className="toast-close" onClick={() => onDismiss(toast.id)} aria-label="Dismiss notification"><X size={14} /></button>
+      <button className="toast-close" onClick={() => onDismiss(toast.id)} aria-label="Dismiss notification" data-testid="toast-close"><X size={15} /></button>
+      <i className="toast-progress" />
     </div>
   );
 }

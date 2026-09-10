@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ArrowRight, Box, Clock, Download, Heart, Info, LayoutGrid, List, Maximize2, Plus, Search, TrendingUp, Truck, Upload, X } from 'lucide-react';
+import { ArrowRight, Box, Clock, Download, Heart, Info, LayoutGrid, List, Maximize2, Plus, Search, SlidersHorizontal, TrendingUp, Truck, Upload, X } from 'lucide-react';
 import { Lightbox, viewStyle } from './Lightbox';
+import { useBackable } from '@/lib/nav';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { useCart, useCountdown, type Product } from '@/lib/cart';
@@ -66,6 +67,9 @@ export default function MarketplacePage({ onCheckout }: Props) {
   const [favs, setFavs] = useState<Set<string>>(new Set());
   const [view, setView] = useState<'tile' | 'list'>('tile');
   const [open, setOpen] = useState<{ p: Product; i: number } | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const activeFilters = (collection !== collections[0] ? 1 : 0) + (shape !== shapes[0] ? 1 : 0) + (sort !== 'Featured' ? 1 : 0) + (favOnly ? 1 : 0);
+  useBackable(!!open, () => setOpen(null));
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -94,7 +98,8 @@ export default function MarketplacePage({ onCheckout }: Props) {
   return (
     <div className="mk" data-testid="marketplace-page">
       <div className="mk-toolbar">
-        <div className="mk-toolbar-row">
+        <div className={`mk-toolbar-row ${filtersOpen ? 'is-open' : ''}`}>
+          <button className="mk-btn mk-filters-btn" onClick={() => setFiltersOpen(!filtersOpen)} aria-expanded={filtersOpen} data-testid="mk-filters-toggle"><SlidersHorizontal /> Filters{activeFilters ? ` · ${activeFilters}` : ''}</button>
           <label className="mk-search"><Search /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search products, SKUs, collections" data-testid="mk-search" /></label>
           <select className="mk-select mk-select--wide" value={collection} onChange={(e) => setCollection(e.target.value)} data-testid="mk-collection">{collections.map((c) => <option key={c}>{c}</option>)}</select>
           <select className="mk-select" value={shape} onChange={(e) => setShape(e.target.value)} data-testid="mk-shape">{shapes.map((c) => <option key={c}>{c}</option>)}</select>

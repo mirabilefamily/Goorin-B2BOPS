@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, Check, CheckCircle2, Download, FileText, Lock, MessageSquare, Search, Send, Ship, X } from 'lucide-react';
+import { ArrowLeft, Check, CheckCircle2, Download, FileText, Lock, MessageSquare, Pencil, Search, Send, Ship, X } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { orders, orderTotal, orderUnits, type Order } from '@/lib/orders';
+import { useBackable } from '@/lib/nav';
 import './marketplace.css';
 import './dashboard.css';
 import './prebook.css';
@@ -24,6 +25,11 @@ function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => void; c
   const notify = useToast();
   const [msgs, setMsgs] = useState<{ who: string; text: string; at: string }[]>([]);
   const [draft, setDraft] = useState('');
+  const [si, setSi] = useState({ method: 'Freight forwarder' as 'Freight forwarder' | 'Goorin arranges' | 'Customer pickup', forwarder: s.forwarder, contact: 'Name', email: 'name@ff123.com', phone: '3213444590', country: 'USA', transport: s.transport, notes: '' });
+  const [form, setForm] = useState(si);
+  const [edit, setEdit] = useState(false);
+  const [docs, setDocs] = useState<string[]>([]);
+  const pickDocs = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.accept = '.pdf,.png,.jpg,.jpeg'; inp.onchange = () => { const names = Array.from(inp.files ?? []).map((f) => f.name); if (names.length) { setDocs((d) => [...names, ...d]); notify(`${names.length} document${names.length === 1 ? '' : 's'} uploaded`); } }; inp.click(); };
   const send = () => { if (!draft.trim()) return; setMsgs((m) => [...m, { who: 'Ryan M', text: draft.trim(), at: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }]); setDraft(''); };
   const total = orderTotal(s.order);
   return (
@@ -51,9 +57,23 @@ function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => void; c
           <section className="sh-card"><h3>Documents</h3>
             {['Packing List', 'Commercial Invoice', ...(coo ? ['Certificate of Origin'] : [])].map((d) => <button key={d} className="sh-doc" onClick={() => notify(`${d}.pdf downloading…`)} data-testid={`doc-${d.toLowerCase().replace(/\s+/g, '-')}`}><FileText /><span>{d} (PDF)</span><Download /></button>)}
           </section>
-          <section className="sh-card"><h3>Requirement 2: Shipping instructions</h3>
-            <dl className="sh-facts"><div className="full"><dt>Booking method</dt><dd>Freight forwarder</dd></div><div className="full"><dt>{s.forwarder}</dt><dd className="muted">Name · name@ff123.com · 3213444590 · USA</dd></div><div><dt>Transport</dt><dd>{s.transport}</dd></div><div><dt>Submitted</dt><dd>{fmt(s.created)}, 12:48 AM</dd></div></dl>
-            <div className="sh-upload" onClick={() => notify('Upload carrier labels (PDF, PNG, JPEG)', 'info')} data-testid="shipment-upload"><strong>Shipping labels &amp; documents</strong><span>Upload carrier labels or other shipping documents for the factory. PDF, PNG, and JPEG files are supported.</span></div>
+          <section className="sh-card" data-testid="shipping-instructions">
+            <div className="sh-sechead"><h3>Requirement 2: Shipping instructions</h3>{!edit && <button className="co-edit" onClick={() => { setForm(si); setEdit(true); }} data-testid="si-edit"><Pencil /> Edit</button>}</div>
+            {edit ? (
+              <div className="co-form sh-form" data-testid="si-form">
+                <label className="co-field"><span>Booking method</span><div className="co-segment">{(['Freight forwarder', 'Goorin arranges', 'Customer pickup'] as const).map((m) => <button key={m} type="button" className={form.method === m ? 'active' : ''} onClick={() => setForm({ ...form, method: m })} data-testid={`si-method-${m.split(' ')[0].toLowerCase()}`}>{m}</button>)}</div></label>
+                {form.method === 'Freight forwarder' && <>
+                  <div className="co-row"><label className="co-field"><span>Forwarder</span><input value={form.forwarder} onChange={(e) => setForm({ ...form, forwarder: e.target.value })} data-testid="si-forwarder" /></label><label className="co-field"><span>Contact name</span><input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} data-testid="si-contact" /></label></div>
+                  <div className="co-row"><label className="co-field"><span>Email</span><input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} data-testid="si-email" /></label><label className="co-field"><span>Phone</span><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} data-testid="si-phone" /></label></div>
+                </>}
+                <div className="co-row"><label className="co-field"><span>Transport</span><select className="mk-select" value={form.transport} onChange={(e) => setForm({ ...form, transport: e.target.value })} data-testid="si-transport">{['Ocean', 'Air', 'Ground'].map((t) => <option key={t}>{t}</option>)}</select></label><label className="co-field"><span>Country</span><input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} data-testid="si-country" /></label></div>
+                <label className="co-field"><span>Notes for the factory <em>(optional)</em></span><textarea className="co-input sh-notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Carrier account #, pickup windows, labeling…" data-testid="si-notes" /></label>
+                <div className="co-actions"><button className="co-secondary" onClick={() => setEdit(false)} data-testid="si-cancel">Cancel</button><button className="co-primary" disabled={form.method === 'Freight forwarder' && (!form.forwarder.trim() || !form.email.trim())} onClick={() => { setSi(form); setEdit(false); notify('Shipping instructions updated · factory notified'); }} data-testid="si-save">Save instructions</button></div>
+              </div>
+            ) : (
+              <dl className="sh-facts"><div className="full"><dt>Booking method</dt><dd data-testid="si-method">{si.method}</dd></div>{si.method === 'Freight forwarder' && <div className="full"><dt>{si.forwarder}</dt><dd className="muted">{si.contact} · {si.email} · {si.phone} · {si.country}</dd></div>}<div><dt>Transport</dt><dd data-testid="si-transport-value">{si.transport}</dd></div><div><dt>Submitted</dt><dd>{fmt(s.created)}, 12:48 AM</dd></div>{si.notes && <div className="full"><dt>Notes</dt><dd className="muted">{si.notes}</dd></div>}</dl>
+            )}
+            <div className="sh-upload" onClick={pickDocs} data-testid="shipment-upload"><strong>Shipping labels &amp; documents</strong><span>Upload carrier labels or other shipping documents for the factory. PDF, PNG, and JPEG files are supported.</span>{docs.length > 0 && <ul className="sh-doclist" data-testid="uploaded-docs">{docs.map((d) => <li key={d}><FileText /> {d}</li>)}</ul>}</div>
           </section>
           <section className="sh-card sh-toggle"><div><strong>Require a Certificate of Origin for every shipment</strong><span>Applies to new international shipments only. Existing shipments are not altered.</span></div><button role="switch" aria-checked={coo} className={`sh-switch ${coo ? 'on' : ''}`} onClick={() => setCoo(!coo)} data-testid="coo-toggle-detail"><i /></button></section>
         </div>
@@ -83,6 +103,7 @@ export default function ShipmentsPage() {
   const [scope, setScope] = useState<'All' | 'Active' | 'Completed'>('All');
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<Shipment | null>(null);
+  useBackable(!!open, () => setOpen(null));
   const list = useMemo(() => { const q = query.trim().toLowerCase(); return shipments.filter((s) => (scope === 'All' || (scope === 'Active' ? s.stage < 6 : s.stage >= 6)) && (!q || s.id.toLowerCase().includes(q) || s.order.id.toLowerCase().includes(q) || s.order.factory.toLowerCase().includes(q))); }, [scope, query]);
   const total = list.reduce((s, x) => s + orderTotal(x.order), 0);
   if (open) return <Detail s={open} onBack={() => setOpen(null)} coo={coo} setCoo={(v) => { setCoo(v); notify(v ? 'Certificate of Origin now required for new shipments' : 'Certificate of Origin requirement turned off'); }} />;
@@ -103,7 +124,7 @@ export default function ShipmentsPage() {
           <tbody>{list.map((s) => (
             <tr key={s.id} onClick={() => setOpen(s)} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setOpen(s)} data-testid={`shipment-row-${s.id}`}>
               <td><div className="ord-id"><strong>{s.id}</strong><span>{s.transport} · {s.incoterms}</span></div></td><td className="dash-td-id">{s.order.id}</td><td className="muted">{s.order.factory}</td><td>{fmt(s.order.shipStart)}</td><td>{fmt(s.created)}</td><td>{s.order.lines.length}</td><td className="dash-td-total">{money(orderTotal(s.order))}</td>
-              <td>{s.coo ? <span className="dash-pill tone-green"><Check /> On file</span> : <span className="muted">—</span>}</td><td><span className={`dash-pill tone-${stageTone(s)}`}><i />{stageLabel(s)}</span></td><td className="dash-td-chevron"><span className="sh-view">View</span></td>
+              <td>{s.coo ? <span className="dash-pill tone-green"><Check /> On file</span> : <span className="muted">—</span>}</td><td><span className={`dash-pill tone-${stageTone(s)}`}><i />{stageLabel(s)}</span></td><td className="dash-td-chevron"><span className="sh-view">View details</span></td>
             </tr>
           ))}</tbody></table></div>
         {list.length === 0 && <div className="mk-empty ord-empty" data-testid="shipments-empty"><Ship /><strong>No shipments match</strong><span>Try another search or filter.</span><button onClick={() => { setQuery(''); setScope('All'); }}>Clear filters</button></div>}

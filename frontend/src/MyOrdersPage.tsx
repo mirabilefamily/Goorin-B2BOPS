@@ -5,6 +5,7 @@ import { money } from '@/lib/money';
 import { useCart } from '@/lib/cart';
 import { products } from '@/lib/products';
 import { orders, orderTotal, orderUnits, type Order } from '@/lib/orders';
+import { useBackable } from '@/lib/nav';
 import './marketplace.css';
 import './dashboard.css';
 import './prebook.css';
@@ -74,6 +75,7 @@ export default function MyOrdersPage() {
   const [pay, setPay] = useState(payments[0]);
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'date', dir: 'desc' });
   const [open, setOpen] = useState<Order | null>(null);
+  useBackable(!!open, () => setOpen(null));
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();

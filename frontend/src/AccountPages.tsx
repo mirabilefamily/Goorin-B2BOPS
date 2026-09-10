@@ -1,46 +1,81 @@
 import { useState } from 'react';
-import { Copy, Download, FileText, FolderOpen, Image as ImageIcon, Link2, MapPin, Pencil, Plus, Save, Share2, Trash2, Upload, Video } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, Download, FileText, FolderOpen, Image as ImageIcon, Link2, MapPin, Pencil, Plus, Save, Search, Share2, Upload, Video } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
+import { useBackable } from '@/lib/nav';
 import './marketplace.css';
 import './dashboard.css';
 import './checkout.css';
 import './orders.css';
 import './account.css';
 
-type Res = { id: string; name: string; type: 'pdf' | 'zip' | 'img' | 'video'; size: string; folder: string; updated: string; shared: boolean; thumb?: string };
-const seed: Res[] = [
-  { id: 'r1', name: 'SS27 Lookbook.pdf', type: 'pdf', size: '18.4 MB', folder: 'Lookbooks', updated: 'Sep 1, 2026', shared: true },
-  { id: 'r2', name: 'Farm Animal Collection – Line Sheet.pdf', type: 'pdf', size: '6.2 MB', folder: 'Line sheets', updated: 'Aug 28, 2026', shared: true },
-  { id: 'r3', name: 'Product photography – Truckers.zip', type: 'zip', size: '412 MB', folder: 'Photography', updated: 'Aug 20, 2026', shared: false, thumb: '/products/lone-wolf.webp' },
-  { id: 'r4', name: 'Lone Wolf hero.webp', type: 'img', size: '1.1 MB', folder: 'Photography', updated: 'Aug 20, 2026', shared: true, thumb: '/products/lone-wolf.webp' },
-  { id: 'r5', name: 'Brand guidelines 2026.pdf', type: 'pdf', size: '9.8 MB', folder: 'Brand', updated: 'Jul 2, 2026', shared: false },
-  { id: 'r6', name: 'Retail display walkthrough.mp4', type: 'video', size: '96 MB', folder: 'Sales materials', updated: 'Jun 14, 2026', shared: false },
+type Res = { id: string; name: string; ext: string; type: 'pdf' | 'zip' | 'img' | 'video'; size: string; updated: string; thumb?: string; shared?: boolean };
+type Folder = { id: string; name: string; date: string; latest?: boolean; cover?: string; files: Res[] };
+const seedFolders: Folder[] = [
+  { id: 'ss27', name: 'SS27', date: 'Sep 2026', latest: true, cover: '/products/lone-wolf.webp', files: [
+    { id: 'f1', name: 'SS27 Lookbook', ext: '.pdf', type: 'pdf', size: '18.4 MB', updated: 'Sep 2026' },
+    { id: 'f2', name: 'Farm Animal Collection – Line Sheet', ext: '.pdf', type: 'pdf', size: '6.2 MB', updated: 'Sep 2026' },
+    { id: 'f3', name: 'lone_wolf_hero', ext: '.webp', type: 'img', size: '1.1 MB', updated: 'Aug 2026', thumb: '/products/lone-wolf.webp' },
+    { id: 'f4', name: 'panther_hero', ext: '.webp', type: 'img', size: '0.9 MB', updated: 'Aug 2026', thumb: '/products/panther.webp' } ] },
+  { id: 'fw26', name: 'FW26', date: 'Mar 2026', cover: '/products/black-sheep.webp', files: [
+    { id: 'f5', name: 'FW26 Lookbook', ext: '.pdf', type: 'pdf', size: '21.0 MB', updated: 'Mar 2026' },
+    { id: 'f6', name: 'Product photography – Truckers', ext: '.zip', type: 'zip', size: '412 MB', updated: 'Mar 2026' },
+    { id: 'f7', name: 'black_sheep_hero', ext: '.webp', type: 'img', size: '1.0 MB', updated: 'Mar 2026', thumb: '/products/black-sheep.webp' } ] },
+  { id: 'brand', name: 'Brand Assets', date: 'Jul 2026', files: [
+    { id: 'f8', name: 'b2b_ops_dark', ext: '.webp', type: 'img', size: '34.5 KB', updated: 'Jul 2026', thumb: '/b2b_ops_dark.webp' },
+    { id: 'f9', name: 'Brand guidelines 2026', ext: '.pdf', type: 'pdf', size: '9.8 MB', updated: 'Jul 2026' } ] },
+  { id: 'sales', name: 'Sales Materials', date: 'Jun 2026', files: [
+    { id: 'f10', name: 'Retail display walkthrough', ext: '.mp4', type: 'video', size: '96 MB', updated: 'Jun 2026' } ] },
 ];
 const Icon = ({ t }: { t: Res['type'] }) => (t === 'img' ? <ImageIcon /> : t === 'video' ? <Video /> : t === 'zip' ? <FolderOpen /> : <FileText />);
+const kinds = (fs: Res[]) => { const c: Record<string, number> = {}; fs.forEach((f) => { const k = f.type === 'img' ? 'IMG' : f.type.toUpperCase(); c[k] = (c[k] ?? 0) + 1; }); return Object.entries(c); };
 
 export function ResourcesPage() {
   const notify = useToast();
-  const [items, setItems] = useState(seed);
-  const [folder, setFolder] = useState('All');
+  const [folders, setFolders] = useState(seedFolders);
+  const [openId, setOpenId] = useState<string | null>(null);
+  useBackable(!!openId, () => { setOpenId(null); setQ(''); });
   const [q, setQ] = useState('');
-  const folders = ['All', ...Array.from(new Set(seed.map((r) => r.folder)))];
-  const list = items.filter((r) => (folder === 'All' || r.folder === folder) && r.name.toLowerCase().includes(q.toLowerCase()));
-  const share = (r: Res) => { navigator.clipboard?.writeText(`https://b2b.goorin.com/share/${r.id}`).catch(() => {}); setItems((xs) => xs.map((x) => (x.id === r.id ? { ...x, shared: true } : x))); notify('Share link copied · expires in 30 days'); };
-  const upload = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.onchange = () => { const f = Array.from(inp.files ?? []); setItems((xs) => [...f.map((x, i) => ({ id: `u${Date.now()}${i}`, name: x.name, type: (x.type.startsWith('image') ? 'img' : x.type.startsWith('video') ? 'video' : x.name.endsWith('.zip') ? 'zip' : 'pdf') as Res['type'], size: `${(x.size / 1048576).toFixed(1)} MB`, folder: 'My uploads', updated: 'Just now', shared: false })), ...xs]); notify(`${f.length} file${f.length === 1 ? '' : 's'} uploaded`); }; inp.click(); };
+  const folder = folders.find((f) => f.id === openId) ?? null;
+  const upload = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.onchange = () => { const fs = Array.from(inp.files ?? []); const target = folder?.id ?? 'uploads'; setFolders((all) => { const exists = all.some((f) => f.id === target); const add = fs.map((x, i) => { const dot = x.name.lastIndexOf('.'); return { id: `u${Date.now()}${i}`, name: dot > 0 ? x.name.slice(0, dot) : x.name, ext: dot > 0 ? x.name.slice(dot) : '', type: (x.type.startsWith('image') ? 'img' : x.type.startsWith('video') ? 'video' : x.name.endsWith('.zip') ? 'zip' : 'pdf') as Res['type'], size: x.size > 1048576 ? `${(x.size / 1048576).toFixed(1)} MB` : `${(x.size / 1024).toFixed(1)} KB`, updated: 'Just now' }; }); return exists ? all.map((f) => (f.id === target ? { ...f, files: [...add, ...f.files] } : f)) : [{ id: 'uploads', name: 'My Uploads', date: 'Just now', files: add }, ...all]; }); notify(`${fs.length} file${fs.length === 1 ? '' : 's'} uploaded`); }; inp.click(); };
+  const share = (f: Res) => { navigator.clipboard?.writeText(`https://b2b.goorin.com/share/${f.id}`).catch(() => {}); setFolders((all) => all.map((fo) => ({ ...fo, files: fo.files.map((x) => (x.id === f.id ? { ...x, shared: true } : x)) }))); notify('Share link copied · expires in 30 days'); };
+
+  if (folder) {
+    const files = folder.files.filter((f) => (f.name + f.ext).toLowerCase().includes(q.toLowerCase()));
+    return (
+      <div className="ord" data-testid="resources-folder">
+        <nav className="rs-crumb"><button onClick={() => { setOpenId(null); setQ(''); }} data-testid="res-back"><ChevronLeft /> Resources</button><span>{folder.name}</span></nav>
+        <div className="rs-folderhead">
+          <span className="rs-foldericon"><FolderOpen /></span>
+          <div><h1>{folder.name} {folder.latest && <em className="rs-latest rs-latest--blue">Latest</em>}</h1><p>{folder.date} · {folder.files.length} file{folder.files.length === 1 ? '' : 's'}</p></div>
+          <div className="rs-tools"><label className="dash-search"><Search /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter files..." data-testid="res-filter" /></label><button className="od-btn od-btn--dark" onClick={upload} data-testid="res-upload"><Upload /> Upload</button></div>
+        </div>
+        <section className="dash-orders ord-card"><div className="dash-table-wrap"><table className="dash-table od-table rs-table">
+          <thead><tr><th>Name</th><th>Updated</th><th>Size</th><th className="r">Action</th></tr></thead>
+          <tbody>{files.map((f) => (
+            <tr key={f.id} data-testid={`res-file-${f.id}`}>
+              <td><div className="rs-file"><span className={`rs-thumb t-${f.type}`}>{f.thumb ? <img src={f.thumb} alt="" /> : <Icon t={f.type} />}</span><strong>{f.name} <small>{f.ext}</small></strong>{f.shared && <em className="dash-pill tone-green"><Link2 /> Shared</em>}</div></td>
+              <td className="muted">{f.updated}</td><td className="muted">{f.size}</td>
+              <td className="r"><div className="rs-actions"><button className="od-btn" onClick={() => share(f)} aria-label="Share" data-testid={`res-share-${f.id}`}><Share2 /></button><button className="od-btn" onClick={() => notify(`${f.name}${f.ext} downloading…`)} data-testid={`res-dl-${f.id}`}><Download /> Download</button></div></td>
+            </tr>
+          ))}</tbody></table></div>
+          {files.length === 0 && <div className="mk-empty ord-empty" data-testid="res-empty"><FolderOpen /><strong>No files match</strong><span>Try a different filter.</span></div>}
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="ord" data-testid="resources-page">
-      <div className="ac-hero"><div><h1>Resources</h1><p>Lookbooks, line sheets, photography and sales materials shared by your Goorin Bros. rep — plus files you share back.</p></div><button className="od-btn od-btn--dark" onClick={upload} data-testid="res-upload"><Upload /> Upload files</button></div>
-      <div className="ord-bar"><div className="dash-segment" role="tablist">{folders.map((f) => <button key={f} role="tab" aria-selected={folder === f} className={folder === f ? 'active' : ''} onClick={() => setFolder(f)} data-testid={`res-folder-${f.toLowerCase().replace(/\s+/g, '-')}`}>{f}</button>)}</div><label className="dash-search ac-search"><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search files…" data-testid="res-search" /></label></div>
-      <div className="ac-files">
-        {list.map((r) => (
-          <article key={r.id} className="ac-file" data-testid={`res-${r.id}`}>
-            <div className={`ac-file-thumb t-${r.type}`}>{r.thumb ? <img src={r.thumb} alt="" /> : <Icon t={r.type} />}{r.shared && <span className="ac-shared"><Link2 /> Shared</span>}</div>
-            <div className="ac-file-body"><strong title={r.name}>{r.name}</strong><span>{r.folder} · {r.size} · {r.updated}</span></div>
-            <div className="ac-file-actions"><button onClick={() => notify(`${r.name} downloading…`)} aria-label="Download" data-testid={`res-dl-${r.id}`}><Download /></button><button onClick={() => share(r)} aria-label="Share link" data-testid={`res-share-${r.id}`}><Share2 /></button>{r.folder === 'My uploads' && <button onClick={() => setItems((xs) => xs.filter((x) => x.id !== r.id))} aria-label="Delete"><Trash2 /></button>}</div>
-          </article>
+      <div className="ac-hero"><div><h1>Resources</h1><p>Seasonal lookbooks, line sheets, photography and brand assets — organized by collection.</p></div><button className="od-btn od-btn--dark" onClick={upload} data-testid="res-upload"><Upload /> Upload files</button></div>
+      <div className="rs-grid">
+        {folders.map((fo) => (
+          <button key={fo.id} className="rs-card" onClick={() => setOpenId(fo.id)} data-testid={`res-folder-${fo.id}`}>
+            <div className="rs-cover">{fo.cover && <img src={fo.cover} alt="" />}<strong>{fo.name}</strong>{fo.latest && <em className="rs-latest">Latest</em>}<i className="rs-tab" /></div>
+            <div className="rs-body"><strong>{fo.name}</strong><span>{fo.date}</span></div>
+            <div className="rs-foot"><div className="rs-kinds">{kinds(fo.files).map(([k, n]) => <em key={k}>{n} {k}</em>)}</div><ChevronRight /></div>
+          </button>
         ))}
-        {list.length === 0 && <div className="mk-empty" data-testid="res-empty"><FolderOpen /><strong>No files here yet</strong><span>Upload files to share them with your rep, or try another folder.</span></div>}
       </div>
     </div>
   );

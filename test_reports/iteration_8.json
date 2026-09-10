@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only retest of iteration_7's HIGH deep-link race fix (App.tsx activeNav useState initializer reads window.location.hash on mount). All 5 deep-links verified: hard reload on #shipments, #my-orders, #resources, #pre-book, #profile-addresses renders the correct *-page with the hash preserved. Reload on #statements keeps statements-page and hash intact. Dashboard visuals verified: stat-ytd-spend settles to $4,563.00 (uses count-up animation from ~$4,494 to $4,563 over ~2.5s), .stat-visual count=2 (one for stat-balance, one for stat-terms), stat-balance legend shows 'Past due 0%' + 'Current 100%', stat-terms legend shows 'Prepay · at order' + 'Net 60 · after ship'. Back-nav regression: Dashboard→Marketplace→My Orders then go_back returns to Marketplace (hash=#marketplace), second go_back returns to Dashboard (hash=#dashboard). Opening order-row-SO56680 pushes order-detail sub-view, go_back closes detail keeping orders-page visible (hash=#my-orders). Shipments regression: si-edit → fill si-forwarder/si-email → si-save fires 'Shipping instructions updated · factory notified' toast; toast-close dismisses individual toast. No console errors observed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "App.tsx: The activeNav useState initializer fix is correct and idiomatic. However, the mount-time effect at line 209 still runs immediately with the derived activeNav and calls history.pushState({nav}, '', '#slug'). If a future refactor accidentally passes a Checkout deep-hash (#checkout) into that initializer, cart-empty routing won't be re-validated. Consider guarding Checkout: only allow if cart.count>0.",
+    "App.tsx: `useState` initializer reads window.location.hash directly — this is SSR-unsafe but the app is CRA (client-only), so acceptable.",
+    "iteration_7 stat-ytd-spend uses a count-up animation; automated tests must wait ~2.5s (or poll) before asserting the settled $4,563.00 value. Consider exposing data-value attribute equal to the final value for testability."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100% (all requested checks pass)"},
+  "test_credentials": "Empty-field Log in (mock auth) per /app/memory/test_credentials.md",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Deep-link race fix confirmed. When using page.goto with only a hash-fragment change on the SAME path, playwright treats it as an in-document navigation and does NOT remount React — you must call `await page.evaluate(\"location.hash='#foo'\")` and then `await page.reload()` to trigger a real cold-load. Also stat-ytd-spend animates from ~4494 → 4563 over ~2.5s, so wait_for_timeout(3000) before asserting the value. Login persists in localStorage across tests.",
+  "rca of the issue": "N/A — bug fixed. Root cause (per iteration_7): initial activeNav='Dashboard' triggered effect-A which pushState'd '#dashboard' before effect-B could read location.hash. Fix in App.tsx line 176-179 lazily initializes activeNav from window.location.hash so effect-A's pushState is a no-op for matching deep-link hashes."
+}

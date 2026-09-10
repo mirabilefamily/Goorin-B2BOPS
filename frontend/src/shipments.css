@@ -56,3 +56,16 @@
 .sh-view { color: #1f5fe0; font-weight: 600; font-size: 14px; }
 @media (max-width: 1240px) { .sh-grid { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .sh-reqs, .sh-facts { grid-template-columns: 1fr; } .sh-stages li + li::before { width: 14px; margin: 0 6px; } .sh-compose { flex-direction: column; } .sh-compose .co-primary { width: 100%; } .sh-card { padding: 18px 16px; } }
+.sh-sechead { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.sh-sechead h3 { margin: 0; }
+.sh-form { margin-top: 4px; gap: 14px; }
+.sh-form .co-field span em { font-style: normal; font-weight: 400; color: #686e73; }
+.sh-form .mk-select { height: 48px; width: 100%; }
+.sh-notes { min-height: 76px; padding: 12px 14px; resize: vertical; line-height: 1.45; }
+.sh-doclist { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.sh-doclist li { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #121415; font-weight: 500; }
+.sh-doclist li svg { width: 14px; height: 14px; color: #686e73; }
+.sh-view { display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(0,0,0,.12); background: #fff; color: #121415; font-size: 13px; font-weight: 600; transition: border-color .14s ease; }
+tr:hover .sh-view { border-color: #121415; }
+.sh-req { align-items: center; }
+.sh-stages li { font-size: 13px; }

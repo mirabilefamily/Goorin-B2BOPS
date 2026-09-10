@@ -66,7 +66,9 @@ import MyOrdersPage from './MyOrdersPage';
 import ShipmentsPage from './ShipmentsPage';
 import { ResourcesPage, StatementsPage, ProfilePage } from './AccountPages';
 import { TeamAccess } from './TeamAccess';
+import { SimpleSettings } from './SimpleSettings';
 import { useCart } from '@/lib/cart';
+import { navSlug } from '@/lib/nav';
 
 type NavItem = {
   label: string;
@@ -171,7 +173,10 @@ function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [guest, setGuest] = useState(false);
   const [authReady, setAuthReady] = useState(false);
-  const [activeNav, setActiveNav] = useState<string | null>('Dashboard');
+  const [activeNav, setActiveNav] = useState<string | null>(() => {
+    const labels = [...navGroups.flatMap((g) => g.items.map((i) => i.label)), 'Checkout'];
+    return labels.find((l) => `#${navSlug(l)}` === window.location.hash) ?? 'Dashboard';
+  });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -204,7 +209,17 @@ function App() {
   useEffect(() => {
     setSelectedConnection(null);
     document.querySelector('.page-content')?.scrollTo({ top: 0 });
+    if (activeNav && window.history.state?.nav !== activeNav) {
+      const stale = window.history.state?.sub;
+      window.history[stale ? 'replaceState' : 'pushState']({ nav: activeNav }, '', `#${navSlug(activeNav)}`);
+    }
   }, [activeNav]);
+
+  useEffect(() => {
+    const onPop = (e: PopStateEvent) => { if (e.state?.nav) setActiveNav(e.state.nav); };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const activeLabel = activeNav ?? 'Dashboard';
 
@@ -519,85 +534,8 @@ function App() {
               <div className="set-main">
                 {settingsTab === 'users' && <TeamAccess />}
 
-                {settingsTab === 'workspace' && (
-                  <>
-                    <section className="set-section">
-                      <div className="set-section-head"><h2>Execution defaults</h2><p>Default settings for new flows.</p></div>
-                      <div className="set-card">
-                        <div className="set-grid-2">
-                          <label className="set-field"><span>Default retry attempts</span><input type="number" min="0" value={retryAttempts} onChange={(e) => setRetryAttempts(e.target.value)} /><em>Number of times to retry a failed flow before giving up.</em></label>
-                          <label className="set-field"><span>Default backoff (seconds)</span><input type="number" min="0" value={backoff} onChange={(e) => setBackoff(e.target.value)} /><em>Delay between retry attempts.</em></label>
-                        </div>
-                      </div>
-                    </section>
-
-                    <section className="set-section">
-                      <div className="set-section-head"><h2>Data retention</h2><p>Configure how long to keep run history and logs.</p></div>
-                      <div className="set-card">
-                        <label className="set-field set-field-narrow"><span>Run history retention (days)</span><input type="number" min="1" value={retention} onChange={(e) => setRetention(e.target.value)} /><em>Run records older than this are permanently deleted to save space.</em></label>
-                        <div className="set-divider" />
-                        <div className="set-danger">
-                          <span className="set-danger-icon"><AlertTriangle size={18} /></span>
-                          <div className="set-danger-copy"><strong>Clear all run history</strong><p>Permanently delete every completed run record (success, failed, throttled, interrupted) along with their payloads and logs. Currently-running syncs are preserved.</p></div>
-                          <button className="set-danger-btn" onClick={clearHistory}><Trash2 size={15} /> Clear History</button>
-                        </div>
-                      </div>
-                    </section>
-
-                    <section className="set-section">
-                      <div className="set-section-head"><h2>Resend Integration</h2><p>Configure Resend for sending invite and password-reset emails.</p></div>
-                      <div className="set-card">
-                        <div className="set-resend-head">
-                          <span className="set-resend-icon">R</span>
-                          <strong>Resend Settings</strong>
-                          <span className="set-connected"><CheckCircle2 size={13} /> CONNECTED (API KEY)</span>
-                        </div>
-                        <p className="set-resend-sub">Sending as <code>sync@goorin.io</code></p>
-                        <label className="set-field"><span>Resend API key</span><input type="password" value={resendKey} onChange={(e) => setResendKey(e.target.value)} /><em>Get your API key from <a href="https://resend.com/api-keys" target="_blank" rel="noreferrer">resend.com/api-keys</a>. Stored encrypted.</em></label>
-                      </div>
-                    </section>
-
-                    <div className="set-save-row"><button className="primary-button" onClick={saveProfile}><Save size={15} /> Save Changes</button></div>
-                  </>
-                )}
-
-                {settingsTab === 'notifications' && (
-                  <>
-                    <section className="set-section">
-                      <div className="set-section-head"><h2>In-app notifications</h2><p>Controls notifications that appear in the bell icon in the top right.</p></div>
-                      <div className="set-card">
-                        <label className="set-check-row">
-                          <input type="checkbox" checked={inAppEnabled} onChange={() => setInAppEnabled(!inAppEnabled)} />
-                          <div>
-                            <div className="set-check-title"><Bell size={15} /> Enable in-app notifications</div>
-                            <p>When enabled, flow runs will create notifications in the bell based on each flow's alert mode ("on failure" or "always").</p>
-                          </div>
-                        </label>
-                      </div>
-                    </section>
-
-                    <section className="set-section">
-                      <div className="set-section-head"><h2>External delivery</h2><p>Optionally send alerts to email or webhooks in addition to the notification bell.</p></div>
-                      <div className="set-card">
-                        <div className="set-grid-2">
-                          <label className="set-field"><span><Mail size={13} /> Alert email</span><input type="text" value={alertEmail} onChange={(e) => setAlertEmail(e.target.value)} /><em>Separate multiple addresses with commas.</em></label>
-                          <label className="set-field"><span><Cable size={13} /> Webhook URL</span><input type="text" placeholder="https://hooks.slack.com/..." value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} /><em>Send alerts to Slack, Discord, or other services.</em></label>
-                        </div>
-                        <label className="set-field set-field-narrow"><span>Prolonged-outage threshold</span>
-                          <select value={outageThreshold} onChange={(e) => setOutageThreshold(e.target.value)}>
-                            <option>5 (default)</option>
-                            <option>3</option>
-                            <option>10</option>
-                            <option>0 (disable)</option>
-                          </select>
-                          <em>Send a single escalation alert after this many consecutive transient interruptions for the same flow. Leave blank to use the default (5). Set to 0 to disable.</em>
-                        </label>
-                      </div>
-                    </section>
-
-                    <div className="set-save-row"><button className="primary-button" onClick={saveProfile}><Save size={15} /> Save Changes</button></div>
-                  </>
-                )}
+                {settingsTab === 'workspace' && <SimpleSettings section="company" />}
+                {settingsTab === 'notifications' && <SimpleSettings section="notifications" />}
               </div>
             </div>
           )}
