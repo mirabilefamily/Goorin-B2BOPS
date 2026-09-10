@@ -7,7 +7,7 @@ const EVT = 'goorin:terms';
 export const termsLabel: Record<Terms, string> = { invoiced: '50% Prepay, 50% Net 60', card: 'Credit card · Pay in full' };
 export const cardOnFile = { brand: 'Visa', last4: '4242', exp: '08/28', name: 'Ryan Mirabile' };
 
-const read = (): Terms => ((typeof window !== 'undefined' && (localStorage.getItem(KEY) as Terms)) || 'invoiced');
+const read = (): Terms => ((typeof window !== 'undefined' && (localStorage.getItem(KEY) as Terms)) || 'card');
 
 export function useTerms(): [Terms, (t: Terms) => void] {
   const [terms, set] = useState<Terms>(read);
