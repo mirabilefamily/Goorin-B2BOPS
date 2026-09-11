@@ -90,6 +90,29 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
     onComplete();
   };
 
+  const addressForm = (
+                <div className="co-form co-form-card" data-testid="address-form">
+                  <div className="co-form-head"><strong>{editingIdx === null ? 'New address' : 'Edit address'}</strong><span>Fields marked optional can be left blank.</span></div>
+                  <Field label="Full name" value={addr.name} onChange={set('name')} testId="addr-name" />
+                  <Field label="Company" optional value={addr.company} onChange={set('company')} testId="addr-company" />
+                  <div className="co-row"><Field label="Email" value={addr.email} onChange={set('email')} testId="addr-email" /><Field label="Phone" value={addr.phone} onChange={set('phone')} testId="addr-phone" /></div>
+                  <Field label="Address" value={addr.line1} onChange={set('line1')} placeholder="Start typing to search..." testId="addr-line1" />
+                  <Field label="Apt, suite, etc." optional value={addr.line2} onChange={set('line2')} testId="addr-line2" />
+                  <div className="co-row"><Field label="City" value={addr.city} onChange={set('city')} testId="addr-city" /><Field label="State" value={addr.state} onChange={set('state')} testId="addr-state" /></div>
+                  <div className="co-row"><Field label="ZIP" value={addr.zip} onChange={set('zip')} testId="addr-zip" /><CountrySelect value={addr.country} onChange={set('country')} testId="addr-country" /></div>
+                  <div className="co-field"><span>Use address for</span>
+                    <div className="co-segment" role="radiogroup">{(['Delivery', 'Invoice', 'Both'] as const).map((o) => <button key={o} type="button" role="radio" aria-checked={useFor === o} className={useFor === o ? 'active' : ''} onClick={() => setUseFor(o)} data-testid={`usefor-${o.toLowerCase()}`}>{o}</button>)}</div>
+                  </div>
+                  <div className="co-form-foot">
+                    {editingIdx === null ? <label className="co-check"><input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} data-testid="save-address" /><span /> Save to my account for next time</label> : <span className="co-note" style={{ margin: 0 }}>Changes apply to this address on your account.</span>}
+                    <div className="co-form-actions">
+                      <button type="button" className="co-secondary co-secondary--sm" onClick={() => { setAddrMode('saved'); setAddr(blank); setEditingIdx(null); }} data-testid="addr-cancel">Cancel</button>
+                      <button type="button" className="co-primary co-primary--sm" onClick={saveNewAddress} data-testid="addr-save">{editingIdx === null ? 'Save address' : 'Save changes'}</button>
+                    </div>
+                  </div>
+                </div>
+  );
+
   return (
     <div className="co" data-testid="checkout-page">
       <div className="co-main">
@@ -119,32 +142,12 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
             <section className="co-section">
               <div className="co-section-head"><h2>Shipping address</h2><span>Choose an address on file or add a new one</span></div>
               <div className="co-address-list" role="radiogroup">
-                {addresses.map((a, i) => <AddressCard key={a.line1 + i} a={a} radio selected={addrMode === 'saved' && selectedIdx === i} onSelect={() => { setAddrMode('saved'); setSelectedIdx(i); }} tag={i === 0 ? 'Both' : useFor} onEdit={() => { setAddr(a); setEditingIdx(i); setAddrMode('new'); }} />)}
+                {addresses.map((a, i) => <div key={a.line1 + i} className={`co-address-slot ${addrMode === 'new' && editingIdx === i ? 'is-editing' : ''}`}><AddressCard a={a} radio selected={addrMode === 'saved' && selectedIdx === i} onSelect={() => { setAddrMode('saved'); setSelectedIdx(i); }} tag={i === 0 ? 'Both' : useFor} onEdit={() => { setAddr(a); setEditingIdx(i); setAddrMode('new'); }} />{addrMode === 'new' && editingIdx === i && addressForm}</div>)}
                 <button type="button" className={`co-address co-address--new ${addrMode === 'new' && editingIdx === null ? 'is-selected' : ''}`} onClick={() => { setAddr(blank); setEditingIdx(null); setAddrMode('new'); }} role="radio" aria-checked={addrMode === 'new' && editingIdx === null} data-testid="address-new"><span className="co-radio"><i /></span><strong>+ Add a new address</strong></button>
+              {addrMode === 'new' && editingIdx === null && addressForm}
               </div>
 
-              {addrMode === 'new' && (
-                <div className="co-form co-form-card" data-testid="address-form">
-                  <div className="co-form-head"><strong>{editingIdx === null ? 'New address' : 'Edit address'}</strong><span>Fields marked optional can be left blank.</span></div>
-                  <Field label="Full name" value={addr.name} onChange={set('name')} testId="addr-name" />
-                  <Field label="Company" optional value={addr.company} onChange={set('company')} testId="addr-company" />
-                  <div className="co-row"><Field label="Email" value={addr.email} onChange={set('email')} testId="addr-email" /><Field label="Phone" value={addr.phone} onChange={set('phone')} testId="addr-phone" /></div>
-                  <Field label="Address" value={addr.line1} onChange={set('line1')} placeholder="Start typing to search..." testId="addr-line1" />
-                  <Field label="Apt, suite, etc." optional value={addr.line2} onChange={set('line2')} testId="addr-line2" />
-                  <div className="co-row"><Field label="City" value={addr.city} onChange={set('city')} testId="addr-city" /><Field label="State" value={addr.state} onChange={set('state')} testId="addr-state" /></div>
-                  <div className="co-row"><Field label="ZIP" value={addr.zip} onChange={set('zip')} testId="addr-zip" /><CountrySelect value={addr.country} onChange={set('country')} testId="addr-country" /></div>
-                  <div className="co-field"><span>Use address for</span>
-                    <div className="co-segment" role="radiogroup">{(['Delivery', 'Invoice', 'Both'] as const).map((o) => <button key={o} type="button" role="radio" aria-checked={useFor === o} className={useFor === o ? 'active' : ''} onClick={() => setUseFor(o)} data-testid={`usefor-${o.toLowerCase()}`}>{o}</button>)}</div>
-                  </div>
-                  <div className="co-form-foot">
-                    {editingIdx === null ? <label className="co-check"><input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} data-testid="save-address" /><span /> Save to my account for next time</label> : <span className="co-note" style={{ margin: 0 }}>Changes apply to this address on your account.</span>}
-                    <div className="co-form-actions">
-                      <button type="button" className="co-secondary co-secondary--sm" onClick={() => { setAddrMode('saved'); setAddr(blank); setEditingIdx(null); }} data-testid="addr-cancel">Cancel</button>
-                      <button type="button" className="co-primary co-primary--sm" onClick={saveNewAddress} data-testid="addr-save">{editingIdx === null ? 'Save address' : 'Save changes'}</button>
-                    </div>
-                  </div>
-                </div>
-              )}
+
             </section>
 
             <section className="co-section">
