@@ -423,7 +423,8 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const lastYear = range === 'ytd' ? 3860 : 5120;
   const delta = Math.round(((spendTotal - lastYear) / lastYear) * 100);
   const balanceShown = useCountUp(openAmount);
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const now = new Date();
+  const todayParts = { weekday: now.toLocaleDateString('en-US', { weekday: 'long' }), day: now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }), year: String(now.getFullYear()) };
 
   const actions = [
     { label: 'Marketplace', title: 'Browse Catalog', sub: 'Shop current in-stock styles at wholesale pricing.', cta: 'Shop now', icon: ShoppingBag },
@@ -443,7 +444,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           <p className="dash-sub">Here's a snapshot of Mirabile Distribution's account.</p>
         </div>
         <div className="dash-hero-meta">
-          <span className="dash-date"><CalendarDays />{today}</span>
+          <div className="dash-date dash-date--block" data-testid="dashboard-date"><span className="dash-date-ico"><CalendarDays /></span><span className="dash-date-txt"><small>{todayParts.weekday}</small><strong>{todayParts.day}</strong><em>{todayParts.year}</em></span></div>
         </div>
       </header>
 

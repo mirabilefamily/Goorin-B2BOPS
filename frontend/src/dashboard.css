@@ -282,3 +282,15 @@
   .dash-drawer-head, .dash-drawer-section, .dash-drawer-pills, .dash-drawer-foot { padding-left: 20px; padding-right: 20px; }
   .dash-timeline li strong { font-size: 12px; }
 }
+
+/* Hero date block, vertically centered with heading */
+.dash-hero { align-items: center; }
+.dash-hero-meta { align-self: center; }
+.dash-date--block { height: auto; padding: 10px 14px 10px 10px; gap: 12px; border-radius: 14px; background: #fff; border: 1px solid rgba(16,18,19,.08); box-shadow: 0 1px 2px rgba(16,18,19,.04); }
+.dash-date-ico { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: #121415; color: #fff; }
+.dash-date--block .dash-date-ico svg { width: 17px; height: 17px; color: #fff; }
+.dash-date-txt { display: flex; flex-direction: column; line-height: 1.15; }
+.dash-date-txt small { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #7a8184; }
+.dash-date-txt strong { font-size: 15px; font-weight: 700; letter-spacing: -.01em; color: #121415; }
+.dash-date-txt em { font-style: normal; font-size: 11.5px; color: #8e9396; }
+@media (max-width: 760px) { .dash-hero { align-items: flex-start; } .dash-date--block { padding: 8px 12px 8px 8px; } }
