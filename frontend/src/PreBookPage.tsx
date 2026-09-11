@@ -107,7 +107,7 @@ function DropBuilder({ drop, onBack, onSubmitted, qty, setQty }: { drop: Drop; o
   return (
     <div className="pb pb--builder" data-testid="prebook-drop-page">
       <div className="pb-topline">
-        <div><button className="pb-back" onClick={onBack} data-testid="prebook-back"><ArrowLeft /> Back to pre-book</button><strong>Drop {drop.id}</strong></div>
+        <div><button className="pb-back pb-back--pill" onClick={onBack} data-testid="prebook-back"><ArrowLeft /> Pre-Book</button></div>
         <ol className="pb-steps" data-testid="prebook-steps">
           <li className={step === 1 ? 'current' : 'done'}><span>{step > 1 ? <Check /> : 1}</span>Build order</li>
           <li className={step === 2 ? 'current' : ''}><span>2</span>Review &amp; submit</li>

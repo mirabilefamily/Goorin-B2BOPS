@@ -42,6 +42,8 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
   const timer = useCountdown(cart.reservedUntil);
   const [step, setStep] = useState<Step>(2);
   const [addrMode, setAddrMode] = useState<'saved' | 'new'>('saved');
+  const [addresses, setAddresses] = useState<Address[]>([saved]);
+  const [selectedIdx, setSelectedIdx] = useState(0);
   const [addr, setAddr] = useState<Address>(blank);
   const [useFor, setUseFor] = useState<'Delivery' | 'Invoice' | 'Both'>('Delivery');
   const [saveAddr, setSaveAddr] = useState(true);
@@ -64,6 +66,16 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
 
   const canContinue = issues.length === 0;
 
+  const saveNewAddress = () => {
+    const missing = [['name', 'Full name'], ['line1', 'Address'], ['city', 'City'], ['state', 'State'], ['zip', 'ZIP']].filter(([k]) => !addr[k as keyof Address].trim()).map(([, l]) => l);
+    if (missing.length) { notify(`Please fill in ${missing.join(', ')}`, 'error'); return; }
+    setAddresses((list) => [...list, addr]);
+    setSelectedIdx(addresses.length);
+    setAddrMode('saved');
+    setAddr(blank);
+    notify(saveAddr ? 'Address saved to your account' : 'Address added for this order', 'success');
+  };
+
   const placeOrder = () => {
     notify(`Order placed · ${cart.count} item${cart.count === 1 ? '' : 's'} · ${money(cart.total)}`, 'success');
     cart.clear();
@@ -73,18 +85,19 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
   return (
     <div className="co" data-testid="checkout-page">
       <div className="co-main">
-        <div className="co-top">
-          <button className="co-back" onClick={onBack} data-testid="checkout-back"><ChevronLeft /> Back to cart</button>
+        <div className="co-top co-top--row">
+          <button className="co-back" onClick={() => (step === 3 ? setStep(2) : onBack())} data-testid="checkout-back"><ChevronLeft /> Back</button>
+          <ol className="co-steps" data-testid="checkout-steps">
+            {[['Cart', 1], ['Shipping', 2], ['Payment', 3]].map(([label, n], i) => (
+              <li key={label as string} className={step > (n as number) ? 'done' : step === n ? 'current' : ''}>
+                <span className="co-step-dot">{step > (n as number) ? <Check /> : n}</span>
+                <span className="co-step-label">{label}</span>
+                {i < 2 && <span className="co-step-line" />}
+              </li>
+            ))}
+          </ol>
+          <span className="co-stepcount" data-testid="checkout-stepcount">Step {step} of 3 <em>· {step === 2 ? 'Shipping' : 'Payment'}</em></span>
         </div>
-        <ol className="co-steps" data-testid="checkout-steps">
-          {[['Cart', 1], ['Shipping', 2], ['Payment', 3]].map(([label, n], i) => (
-            <li key={label as string} className={step > (n as number) ? 'done' : step === n ? 'current' : ''}>
-              <span className="co-step-dot">{step > (n as number) ? <Check /> : n}</span>
-              <span className="co-step-label">{label}</span>
-              {i < 2 && <span className="co-step-line" />}
-            </li>
-          ))}
-        </ol>
 
         {timer && <div className="co-reserve" data-testid="checkout-reserve"><Clock /> Inventory reserved · <strong>{timer} left</strong></div>}
 
@@ -98,12 +111,13 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
             <section className="co-section">
               <div className="co-section-head"><h2>Shipping address</h2><span>Choose an address on file or add a new one</span></div>
               <div className="co-address-list" role="radiogroup">
-                <AddressCard a={saved} radio selected={addrMode === 'saved'} onSelect={() => setAddrMode('saved')} tag="Both" />
+                {addresses.map((a, i) => <AddressCard key={a.line1 + i} a={a} radio selected={addrMode === 'saved' && selectedIdx === i} onSelect={() => { setAddrMode('saved'); setSelectedIdx(i); }} tag={i === 0 ? 'Both' : useFor} />)}
                 <button type="button" className={`co-address co-address--new ${addrMode === 'new' ? 'is-selected' : ''}`} onClick={() => setAddrMode('new')} role="radio" aria-checked={addrMode === 'new'} data-testid="address-new"><span className="co-radio"><i /></span><strong>+ Add a new address</strong></button>
               </div>
 
               {addrMode === 'new' && (
-                <div className="co-form" data-testid="address-form">
+                <div className="co-form co-form-card" data-testid="address-form">
+                  <div className="co-form-head"><strong>New address</strong><span>Fields marked optional can be left blank.</span></div>
                   <Field label="Full name" value={addr.name} onChange={set('name')} testId="addr-name" />
                   <Field label="Company" optional value={addr.company} onChange={set('company')} testId="addr-company" />
                   <div className="co-row"><Field label="Email" value={addr.email} onChange={set('email')} testId="addr-email" /><Field label="Phone" value={addr.phone} onChange={set('phone')} testId="addr-phone" /></div>
@@ -114,7 +128,13 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
                   <div className="co-field"><span>Use address for</span>
                     <div className="co-segment" role="radiogroup">{(['Delivery', 'Invoice', 'Both'] as const).map((o) => <button key={o} type="button" role="radio" aria-checked={useFor === o} className={useFor === o ? 'active' : ''} onClick={() => setUseFor(o)} data-testid={`usefor-${o.toLowerCase()}`}>{o}</button>)}</div>
                   </div>
-                  <label className="co-check"><input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} data-testid="save-address" /><span /> Save this address to my account for next time</label>
+                  <div className="co-form-foot">
+                    <label className="co-check"><input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} data-testid="save-address" /><span /> Save to my account for next time</label>
+                    <div className="co-form-actions">
+                      <button type="button" className="co-secondary co-secondary--sm" onClick={() => { setAddrMode('saved'); setAddr(blank); }} data-testid="addr-cancel">Cancel</button>
+                      <button type="button" className="co-primary co-primary--sm" onClick={saveNewAddress} data-testid="addr-save">Save address</button>
+                    </div>
+                  </div>
                 </div>
               )}
             </section>
@@ -162,7 +182,7 @@ export default function CheckoutPage({ onBack, onComplete }: Props) {
             </section>
             <section className="co-section">
               <h2>Ship to</h2>
-              <AddressCard a={addrMode === 'saved' ? saved : { ...saved, ...addr }} tag={useFor} />
+              <AddressCard a={addrMode === 'saved' ? addresses[selectedIdx] : { ...saved, ...addr }} tag={selectedIdx === 0 ? 'Both' : useFor} />
               {po && <p className="co-note">Customer PO: <strong>{po}</strong></p>}
             </section>
             <div className="co-actions">

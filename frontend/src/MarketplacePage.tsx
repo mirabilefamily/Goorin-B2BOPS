@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowRight, Box, Clock, Download, Heart, Info, LayoutGrid, List, Maximize2, Plus, Search, SlidersHorizontal, TrendingUp, Truck, Upload, X } from 'lucide-react';
 import { Lightbox, viewStyle } from './Lightbox';
 import { useBackable } from '@/lib/nav';
@@ -140,7 +141,7 @@ export default function MarketplacePage({ onCheckout }: Props) {
 
       {open && <Lightbox p={open.p} start={open.i} inCart={qtyOf(open.p.id)} onAdd={() => { cart.add(open.p); notify(`${open.p.name} added to cart`); }} onQty={(n) => cart.setQty(open.p.id, n)} onClose={() => setOpen(null)} />}
 
-      {cart.count > 0 && (
+      {cart.count > 0 && createPortal(
         <div className="mk-cartbar-wrap" data-testid="cart-bar">
           <div className="mk-reserve"><Clock /> Inventory reserved · <strong>{timer} left</strong></div>
           <div className="mk-cartbar">
@@ -148,7 +149,8 @@ export default function MarketplacePage({ onCheckout }: Props) {
             <div className="mk-cart-sum"><strong data-testid="cart-bar-count">{cart.count} item{cart.count === 1 ? '' : 's'}</strong><i /><strong data-testid="cart-bar-total">{money(cart.total)}</strong></div>
             <button className="mk-checkout" onClick={onCheckout} data-testid="cart-bar-checkout">Checkout <ArrowRight /></button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

@@ -262,3 +262,18 @@
   .pb-drop-cta { width: 100%; justify-content: center; }
 }
 @media (max-width: 760px) { .pb-season { padding-bottom: 40px; } .pb-season-pt small { display: none; } .pb-season-today b { font-size: 9.5px; } }
+
+/* Drop builder topline */
+.pb-topline { align-items: center; padding: 2px 0; }
+.pb-topline > div { flex-direction: row; align-items: center; }
+.pb-back--pill { height: 38px; padding: 0 14px 0 10px; border: 1px solid rgba(16,18,19,.14); border-radius: 999px; background: #fff; color: #121415; font-size: 13.5px; font-weight: 600; transition: border-color .15s ease, transform .15s ease; }
+.pb-back--pill:hover { border-color: #121415; color: #121415; text-decoration: none; }
+.pb-back--pill:hover svg { transform: translateX(-2px); }
+.pb-back--pill svg { transition: transform .15s ease; }
+.pb-steps li { font-size: 15px; }
+.pb-steps li span { width: 30px; height: 30px; font-size: 13px; }
+.pb-steps li + li::before { width: 48px; }
+.pb-closes { height: 34px; padding: 0 12px 0 10px; border-radius: 999px; background: #e6f7f0; color: #0a7a5b; font-size: 13px; font-weight: 600; }
+.pb-closes svg { color: #0a7a5b; width: 15px; height: 15px; }
+.pb-closes strong { color: #0a7a5b; }
+@media (max-width: 900px) { .pb-topline { grid-template-columns: 1fr auto; } .pb-steps { grid-column: 1 / -1; order: 3; justify-content: center; } }

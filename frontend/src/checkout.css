@@ -158,3 +158,31 @@
 .co-lines li > .co-line-body > span, .co-totals div, .co-secure { color: #565c60; }
 .co-qty button { border-color: rgba(0,0,0,.18); }
 .co-summary { border-left-color: rgba(0,0,0,.1); }
+
+/* Back button + step count */
+.co-top { justify-content: space-between; align-items: center; gap: 12px; }
+.co-back { height: 38px; padding: 0 14px 0 10px; border: 1px solid rgba(16,18,19,.14); border-radius: 999px; background: #fff; color: #121415; font-size: 13.5px; font-weight: 600; transition: border-color .15s ease, background-color .15s ease, transform .15s ease; }
+.co-back:hover { border-color: #121415; background: #fff; }
+.co-back:hover svg { transform: translateX(-2px); }
+.co-back svg { width: 16px; height: 16px; transition: transform .15s ease; }
+.co-stepcount { font-size: 13px; font-weight: 600; color: #121415; }
+.co-stepcount em { font-style: normal; font-weight: 500; color: #7a8184; }
+
+/* Top row: back · steps · count */
+.co-top--row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid rgba(0,0,0,.08); }
+.co-top--row .co-steps { margin: 0; padding: 0; border: 0; }
+.co-top--row .co-stepcount { justify-self: end; }
+.co-steps li .co-step-label { font-size: 15px; }
+.co-step-dot { width: 30px; height: 30px; font-size: 13px; }
+.co-step-line { width: 48px; }
+@media (max-width: 900px) { .co-top--row { grid-template-columns: 1fr auto; } .co-top--row .co-steps { grid-column: 1 / -1; order: 3; justify-content: center; } }
+/* New address card */
+.co-form-card { margin-top: 14px; padding: 20px 22px 18px; border-radius: 18px; background: #fff; border: 1px solid rgba(16,18,19,.09); box-shadow: 0 1px 2px rgba(16,18,19,.04); }
+.co-form-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid rgba(0,0,0,.06); }
+.co-form-head strong { font-size: 16px; font-weight: 700; color: #121415; }
+.co-form-head span { font-size: 12.5px; color: #7a8184; }
+.co-form-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 6px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,.06); }
+.co-form-foot .co-check { margin: 0; }
+.co-form-actions { display: flex; gap: 10px; margin-left: auto; }
+.co-primary--sm, .co-secondary--sm { height: 42px !important; padding: 0 18px; font-size: 14px !important; width: auto; }
+@media (max-width: 760px) { .co-form-card { padding: 16px; } .co-form-actions { width: 100%; } .co-form-actions button { flex: 1; } }
