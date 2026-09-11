@@ -62,7 +62,7 @@ const ytdSpend = [846, 0, 282, 1692, 0, 564, 1128, 34, 17, 0, 0, 0];
 const trailingSpend = [420, 610, 380, ...ytdSpend.slice(0, 9)];
 const trailingMonths = ['Oct', 'Nov', 'Dec', ...months.slice(0, 9)];
 
-const compact = (n: number) => (n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n}`);
+const compact = (n: number) => (n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2).replace(/\.?0+$/, '')}M` : n >= 1000 ? `$${(n / 1000).toFixed(n >= 100_000 ? 0 : 1).replace(/\.0$/, '')}k` : `$${Math.round(n)}`);
 const fmtDate = (iso: string, opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', opts);
 
 const daysAgo = (iso: string) => {
@@ -102,21 +102,26 @@ function SpendBars({ values, labels }: { values: number[]; labels: string[] }) {
 
 function AgingStrip({ current, late = [0, 0, 0] }: { current: number; late?: [number, number, number] }) {
   const buckets = [
-    { label: 'Current', amount: current },
-    { label: '1–30', amount: late[0] },
-    { label: '31–60', amount: late[1] },
-    { label: '60+', amount: late[2] },
+    { label: 'Current', amount: current, tone: 'ok' },
+    { label: '1–30 days', amount: late[0], tone: 'warn' },
+    { label: '31–60 days', amount: late[1], tone: 'late' },
+    { label: '60+ days', amount: late[2], tone: 'late' },
   ];
-  const max = Math.max(...buckets.map((b) => b.amount), 1);
+  const total = buckets.reduce((t, b) => t + b.amount, 0) || 1;
   return (
     <div className="stat-visual stat-aging" role="img" aria-label="Receivables aging" data-testid="stat-aging">
-      {buckets.map((b, i) => (
-        <div key={b.label} className={`stat-aging-b ${b.amount > 0 ? 'has' : ''} ${i >= 2 ? 'late' : ''} ${i === 1 ? 'warn' : ''}`}>
-          <i style={{ height: b.amount > 0 ? `${Math.max(10, (b.amount / max) * 100)}%` : '6px' }} />
-          <small>{b.label}</small>
-          <strong>{b.amount > 0 ? money(b.amount) : '—'}</strong>
-        </div>
-      ))}
+      <div className="stat-aging-bar">
+        {buckets.map((b) => b.amount > 0 && <i key={b.label} className={b.tone} style={{ flexBasis: `${Math.max(3, (b.amount / total) * 100)}%` }} title={`${b.label} · ${money(b.amount)}`} />)}
+      </div>
+      <div className="stat-aging-tiles">
+        {buckets.map((b) => (
+          <div key={b.label} className={`stat-aging-b ${b.amount > 0 ? 'has' : ''} ${b.tone}`}>
+            <small><i />{b.label}</small>
+            <strong>{b.amount > 0 ? money(b.amount) : '—'}</strong>
+            {b.amount > 0 && <span>{Math.round((b.amount / total) * 100)}%</span>}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -142,8 +147,10 @@ function DueByMonth({ dues }: { dues: Due[] }) {
   const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
   const max = Math.max(...rows.map((r) => r.amount), 1);
   const shown = rows;
+  const more = rows.length - 3;
   return (
-    <ul className="stat-visual stat-sched stat-due-list" aria-label="Invoiced payments due by month" data-testid="stat-due-months">
+    <div className="stat-visual stat-due-wrap">
+    <ul className="stat-sched stat-due-list" aria-label="Invoiced payments due by month" data-testid="stat-due-months">
       {shown.map((r, i) => (
         <li key={r.label + r.year} className={i === 0 ? 'paid' : ''}>
           <b>{r.label}</b>
@@ -152,6 +159,8 @@ function DueByMonth({ dues }: { dues: Due[] }) {
         </li>
       ))}
     </ul>
+    {more > 0 && <small className="stat-due-more" data-testid="stat-due-more">Scroll for {more} more month{more === 1 ? '' : 's'}</small>}
+    </div>
   );
 }
 
@@ -458,8 +467,8 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <span className={`stat-chip ${pastDue > 0 ? 'stat-chip--bad' : 'stat-chip--good'}`}>{pastDue > 0 ? <AlertCircle /> : <CheckCircle2 />} {pastDue > 0 ? 'Past due balance' : 'No past-due balance'}</span>
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
-          <p className="stat-note">Across {openOrders.length} open orders — {pastDue > 0 ? 'action required.' : 'nothing is overdue.'}</p>
-          <AgingStrip current={openAmount - pastDue} late={aging} />
+          <p className={`stat-note ${pastDue > 0 ? 'bad' : ''}`}>Across {openOrders.length} open orders — {pastDue > 0 ? <b>action required.</b> : 'nothing is overdue.'}</p>
+          <AgingStrip current={Math.max(0, openAmount - pastDue)} late={aging} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
             <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of $5,000</span></dd></div>
