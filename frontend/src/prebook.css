@@ -277,3 +277,5 @@
 .pb-closes svg { color: #0a7a5b; width: 15px; height: 15px; }
 .pb-closes strong { color: #0a7a5b; }
 @media (max-width: 900px) { .pb-topline { grid-template-columns: 1fr auto; } .pb-steps { grid-column: 1 / -1; order: 3; justify-content: center; } }
+.pb-drop.open .pb-drop-meta { border-top: 0; padding-top: 6px; margin-top: 2px; }
+.pb-drop.open { gap: 12px; }
