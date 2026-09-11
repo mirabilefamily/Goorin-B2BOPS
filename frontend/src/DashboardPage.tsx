@@ -9,6 +9,7 @@ import {
   CalendarDays,
   CreditCard,
   CheckCircle2,
+  AlertCircle,
   ChevronRight,
   Download,
   Package,
@@ -99,18 +100,19 @@ function SpendBars({ values, labels }: { values: number[]; labels: string[] }) {
   );
 }
 
-function AgingStrip({ current }: { current: number }) {
+function AgingStrip({ current, late = [0, 0, 0] }: { current: number; late?: [number, number, number] }) {
   const buckets = [
     { label: 'Current', amount: current },
-    { label: '1–30', amount: 0 },
-    { label: '31–60', amount: 0 },
-    { label: '60+', amount: 0 },
+    { label: '1–30', amount: late[0] },
+    { label: '31–60', amount: late[1] },
+    { label: '60+', amount: late[2] },
   ];
+  const max = Math.max(...buckets.map((b) => b.amount), 1);
   return (
     <div className="stat-visual stat-aging" role="img" aria-label="Receivables aging" data-testid="stat-aging">
       {buckets.map((b, i) => (
-        <div key={b.label} className={`stat-aging-b ${b.amount > 0 ? 'has' : ''} ${i >= 2 ? 'late' : ''}`}>
-          <i />
+        <div key={b.label} className={`stat-aging-b ${b.amount > 0 ? 'has' : ''} ${i >= 2 ? 'late' : ''} ${i === 1 ? 'warn' : ''}`}>
+          <i style={{ height: b.amount > 0 ? `${Math.max(10, (b.amount / max) * 100)}%` : '6px' }} />
           <small>{b.label}</small>
           <strong>{b.amount > 0 ? money(b.amount) : '—'}</strong>
         </div>
@@ -139,8 +141,7 @@ function DueByMonth({ dues }: { dues: Due[] }) {
   });
   const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
   const max = Math.max(...rows.map((r) => r.amount), 1);
-  const shown = rows.slice(0, 3);
-  const rest = rows.slice(3);
+  const shown = rows;
   return (
     <ul className="stat-visual stat-sched stat-due-list" aria-label="Invoiced payments due by month" data-testid="stat-due-months">
       {shown.map((r, i) => (
@@ -150,7 +151,6 @@ function DueByMonth({ dues }: { dues: Due[] }) {
           <em>{money(r.amount)}</em>
         </li>
       ))}
-      {rest.length > 0 && <li className="more"><b>+{rest.length}</b><span><strong>Later</strong><small>{rest.map((r) => r.label).join(', ')}</small></span><em>{money(rest.reduce((t, r) => t + r.amount, 0))}</em></li>}
     </ul>
   );
 }
@@ -405,6 +405,8 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const spendTotal = spendValues.reduce((s, v) => s + v, 0);
   const spendShown = useCountUp(spendTotal);
   const [terms] = useTerms();
+  const aging: [number, number, number] = [0, 0, 0];
+  const pastDue = aging.reduce((t, n) => t + n, 0);
   const dues = paymentsDue(openOrders);
   const dueTotal = dues.reduce((t, d) => t + d.amount, 0);
   const nextDue = dues.find((d) => d.date.getTime() >= Date.now()) ?? dues[0];
@@ -453,13 +455,13 @@ export default function DashboardPage({ name, onNavigate }: Props) {
         <article className="stat dash-reveal" style={{ animationDelay: '.16s' }} data-testid="stat-balance">
           <div className="stat-head">
             <span className="stat-label">Outstanding balance</span>
-            <span className="stat-chip stat-chip--good"><CheckCircle2 /> No past-due balance</span>
+            <span className={`stat-chip ${pastDue > 0 ? 'stat-chip--bad' : 'stat-chip--good'}`}>{pastDue > 0 ? <AlertCircle /> : <CheckCircle2 />} {pastDue > 0 ? 'Past due balance' : 'No past-due balance'}</span>
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
-          <p className="stat-note">Across {openOrders.length} open orders — nothing is overdue.</p>
-          <AgingStrip current={openAmount} />
+          <p className="stat-note">Across {openOrders.length} open orders — {pastDue > 0 ? 'action required.' : 'nothing is overdue.'}</p>
+          <AgingStrip current={openAmount - pastDue} late={aging} />
           <dl className="stat-meta">
-            <div><dt>Past due</dt><dd>$0.00</dd></div>
+            <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
             <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of $5,000</span></dd></div>
           </dl>
         </article>

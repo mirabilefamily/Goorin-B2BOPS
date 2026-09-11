@@ -421,3 +421,17 @@ button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px
 .ac-termsseg button { height: 30px; padding: 0 10px; font-size: 12.5px; }
 .stat-head .stat-label { white-space: nowrap; }
 .stat-head .stat-chip, .stat-head .stat-toggle { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Terms accounts: bounded heights, proportional aging ── */
+.stat-visual--chart { flex: 1 1 auto; }
+.stat-chart { flex: 1 1 auto; height: auto; min-height: 72px; }
+.stat-aging { flex: 1 1 auto; min-height: 110px; align-items: stretch; }
+.stat-aging-b { justify-content: flex-end; height: 100%; }
+.stat-aging-b i { flex: 0 0 auto; max-height: min(88px, calc(100% - 44px)); border-radius: 6px; }
+.stat-aging-b.warn.has i { background: #f2b544; }
+.stat-aging-b.late.has i { background: #ff3048; }
+.stat-aging-b.warn.has strong, .stat-aging-b.late.has strong { color: #121415; }
+.stat-chip--bad { background: #fdecec; color: #c8332f; border-color: transparent; }
+.stat-due-list { max-height: 214px; overflow-y: auto; scrollbar-width: thin; padding-right: 2px; margin-right: -2px; }
+.stat-due-list li { flex: 0 0 auto; }
+.stat-due-list::-webkit-scrollbar { width: 4px; } .stat-due-list::-webkit-scrollbar-thumb { background: rgba(16,18,19,.15); border-radius: 4px; }
