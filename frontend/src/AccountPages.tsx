@@ -30,6 +30,7 @@ const seedFolders: Folder[] = [
     { id: 'f10', name: 'Retail display walkthrough', ext: '.mp4', type: 'video', size: '96 MB', updated: 'Jun 2026' } ] },
 ];
 const Icon = ({ t }: { t: Res['type'] }) => (t === 'img' ? <ImageIcon /> : t === 'video' ? <Video /> : t === 'zip' ? <FolderOpen /> : <FileText />);
+const totalSize = (files: { size: string }[]) => { const mb = files.reduce((t, f) => t + parseFloat(f.size), 0); return mb >= 1000 ? `${(mb / 1000).toFixed(1)} GB` : `${mb.toFixed(1)} MB`; };
 const kinds = (fs: Res[]) => { const c: Record<string, number> = {}; fs.forEach((f) => { const k = f.type === 'img' ? 'IMG' : f.type.toUpperCase(); c[k] = (c[k] ?? 0) + 1; }); return Object.entries(c); };
 
 export function ResourcesPage() {
@@ -46,19 +47,24 @@ export function ResourcesPage() {
     const files = folder.files.filter((f) => (f.name + f.ext).toLowerCase().includes(q.toLowerCase()));
     return (
       <div className="ord" data-testid="resources-folder">
-        <nav className="rs-crumb"><button onClick={() => { setOpenId(null); setQ(''); }} data-testid="res-back"><ChevronLeft /> Resources</button><span>{folder.name}</span></nav>
-        <div className="rs-folderhead">
-          <span className="rs-foldericon"><FolderOpen /></span>
-          <div><h1>{folder.name} {folder.latest && <em className="rs-latest rs-latest--blue">Latest</em>}</h1><p>{folder.date} · {folder.files.length} file{folder.files.length === 1 ? '' : 's'}</p></div>
-          <div className="rs-tools"><label className="dash-search"><Search /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter files..." data-testid="res-filter" /></label><button className="od-btn od-btn--dark" onClick={upload} data-testid="res-upload"><Upload /> Upload</button></div>
-        </div>
+        <nav className="rs-crumb"><button className="pb-back pb-back--pill" onClick={() => { setOpenId(null); setQ(''); }} data-testid="res-back"><ChevronLeft /> Resources</button></nav>
+        <header className="rs-fhero" data-testid="res-folder-hero">
+          <div className="rs-fhero-main">
+            <p className="pb-eyebrow">Resources · Folder</p>
+            <h1>{folder.name} {folder.latest && <em className="rs-latest">Latest</em>}</h1>
+            <p className="rs-fhero-meta">{folder.files.length} file{folder.files.length === 1 ? '' : 's'} · {totalSize(folder.files)} · Updated {folder.date}</p>
+          </div>
+          <div className="rs-tools"><label className="dash-search rs-search"><Search /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter files..." data-testid="res-filter" /></label><button className="mk-btn rs-btn-ghost" onClick={() => notify(`${folder.files.length} files downloading…`)} data-testid="res-download-all"><Download /> Download all</button><button className="mk-add rs-btn-upload" onClick={upload} data-testid="res-upload"><Upload /> Upload</button></div>
+          <i className="rs-tab" />
+        </header>
         <section className="dash-orders ord-card"><div className="dash-table-wrap"><table className="dash-table od-table rs-table">
-          <thead><tr><th>Name</th><th>Updated</th><th>Size</th><th className="r">Action</th></tr></thead>
+          <thead><tr><th>Name</th><th>Type</th><th>Updated</th><th>Size</th><th className="r">Actions</th></tr></thead>
           <tbody>{files.map((f) => (
             <tr key={f.id} data-testid={`res-file-${f.id}`}>
-              <td><div className="rs-file"><span className={`rs-thumb t-${f.type}`}>{f.thumb ? <img src={f.thumb} alt="" /> : <Icon t={f.type} />}</span><strong>{f.name} <small>{f.ext}</small></strong>{f.shared && <em className="dash-pill tone-green"><Link2 /> Shared</em>}</div></td>
-              <td className="muted">{f.updated}</td><td className="muted">{f.size}</td>
-              <td className="r"><div className="rs-actions"><button className="od-btn" onClick={() => share(f)} aria-label="Share" data-testid={`res-share-${f.id}`}><Share2 /></button><button className="od-btn" onClick={() => notify(`${f.name}${f.ext} downloading…`)} data-testid={`res-dl-${f.id}`}><Download /> Download</button></div></td>
+              <td><div className="rs-file"><span className={`rs-thumb t-${f.type}`}>{f.thumb ? <img src={f.thumb} alt="" /> : <Icon t={f.type} />}</span><span className="rs-file-name"><strong>{f.name}</strong><small>{f.name}{f.ext}</small></span>{f.shared && <em className="dash-pill tone-green"><Link2 /> Shared</em>}</div></td>
+              <td><span className={`rs-type t-${f.type}`}>{f.type === 'img' ? 'Image' : f.type.toUpperCase()}</span></td>
+              <td className="muted">{f.updated}</td><td className="muted mono">{f.size}</td>
+              <td className="r"><div className="rs-actions"><button className="od-btn" onClick={() => share(f)} aria-label="Share" data-testid={`res-share-${f.id}`}><Share2 /></button><button className="od-btn" onClick={() => notify(`${f.name}${f.ext} downloading…`)} aria-label="Download" data-testid={`res-dl-${f.id}`}><Download /></button></div></td>
             </tr>
           ))}</tbody></table></div>
           {files.length === 0 && <div className="mk-empty ord-empty" data-testid="res-empty"><FolderOpen /><strong>No files match</strong><span>Try a different filter.</span></div>}
@@ -73,7 +79,7 @@ export function ResourcesPage() {
       <div className="rs-grid">
         {folders.map((fo) => (
           <button key={fo.id} className="rs-card" onClick={() => setOpenId(fo.id)} data-testid={`res-folder-${fo.id}`}>
-            <div className="rs-cover"><strong>{fo.name}</strong>{fo.latest && <em className="rs-latest">Latest</em>}<i className="rs-tab" /></div>
+            <div className="rs-cover"><span className="rs-cover-icon"><FolderOpen /></span><strong>{fo.name}</strong>{fo.latest && <em className="rs-latest">Latest</em>}<span className="rs-cover-count">{fo.files.length} file{fo.files.length === 1 ? '' : 's'}</span></div>
             <div className="rs-body"><strong>{fo.name}</strong><span>{fo.date}</span></div>
             <div className="rs-foot"><div className="rs-kinds">{kinds(fo.files).map(([k, n]) => <em key={k}>{n} {k}</em>)}</div><ChevronRight /></div>
           </button>
