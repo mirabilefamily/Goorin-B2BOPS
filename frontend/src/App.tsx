@@ -326,7 +326,7 @@ function App() {
               {!sidebarCollapsed && <p className="nav-label">{group.title}</p>}
               {group.items.map(({ label, icon: Icon }) => (
                 <button
-                  className={`nav-item ${activeNav === label ? 'active' : ''}`}
+                  className={`nav-item ${activeNav === label || (activeNav === 'Checkout' && label === 'Marketplace') ? 'active' : ''}`}
                   key={label}
                   onClick={() => { setActiveNav(label); setView('dashboard'); setMobileOpen(false); }}
                   title={sidebarCollapsed ? label : undefined}
