@@ -311,6 +311,35 @@ function AgingBars({ current, late = [0, 0, 0], limit = 5000 }: { current: numbe
   );
 }
 
+function AgingSimple({ current, late = [0, 0, 0] }: { current: number; late?: [number, number, number] }) {
+  const parts = [
+    { label: 'Current', amount: current, tone: 'ok' },
+    { label: '1–30 days', amount: late[0], tone: 'warn' },
+    { label: '31–60 days', amount: late[1], tone: 'late' },
+    { label: '60+ days', amount: late[2], tone: 'late' },
+  ];
+  const total = parts.reduce((t, p) => t + p.amount, 0) || 1;
+  return (
+    <div className="stat-visual stat-simple" data-testid="stat-aging">
+      <div className="stat-simple-bar">{parts.map((p) => p.amount > 0 && <i key={p.label} className={p.tone} style={{ flexBasis: `${(p.amount / total) * 100}%` }} />)}</div>
+      <ul className="stat-simple-legend">
+        {parts.map((p) => <li key={p.label} className={`${p.tone} ${p.amount > 0 ? 'has' : ''}`}><i /><span>{p.label}</span><strong>{p.amount > 0 ? money(p.amount) : '—'}</strong></li>)}
+      </ul>
+    </div>
+  );
+}
+
+function DueSimple({ dues }: { dues: Due[] }) {
+  const groups = new Map<string, { label: string; amount: number; date: Date; count: number }>();
+  dues.forEach((x) => { const k = `${x.date.getFullYear()}-${String(x.date.getMonth()).padStart(2, '0')}`; const g = groups.get(k) ?? { label: x.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), amount: 0, date: x.date, count: 0 }; g.amount += x.amount; g.count += 1; groups.set(k, g); });
+  const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
+  return (
+    <div className="stat-visual stat-simple-wrap"><ul className="stat-simple-list" data-testid="stat-due-months">
+      {rows.map((r, i) => <li key={r.label} className={i === 0 ? 'next' : ''}><span><strong>{r.label}</strong><small>{r.count} invoice{r.count === 1 ? '' : 's'} · {daysUntil(r.date)}</small></span><em>{money(r.amount)}</em></li>)}
+    </ul></div>
+  );
+}
+
 type SortKey = 'id' | 'date' | 'shipDate' | 'items' | 'total' | 'status';
 
 const columns: { key: SortKey; label: string }[] = [
@@ -585,7 +614,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className={`stat-note ${pastDue > 0 ? 'bad' : ''}`}>Across {openOrders.length} open orders — {pastDue > 0 ? <b>action required.</b> : 'nothing is overdue.'}</p>
-          <AgingBars current={Math.max(0, openAmount - pastDue)} late={aging} />
+          <AgingSimple current={Math.max(0, openAmount - pastDue)} late={aging} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
             <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of {compact(5000)}</span></dd></div>
@@ -600,7 +629,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(dueTotal)}</strong>
           <p className="stat-note">{dues.length} invoice{dues.length === 1 ? '' : 's'} across {openOrders.length} open orders, by due month.</p>
-          <DueTimeline dues={dues} />
+          <DueSimple dues={dues} />
           <dl className="stat-meta">
             <div><dt>Next payment</dt><dd data-testid="next-payment">{nextDue ? <>{money(nextDue.amount)} <span className="muted">· {nextDue.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></> : '—'}</dd></div>
             <div><dt>Due in 30 days</dt><dd>{money(due30)}</dd></div>
