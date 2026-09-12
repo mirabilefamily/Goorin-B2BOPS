@@ -221,26 +221,37 @@ function SpendArea({ values, labels }: { values: number[]; labels: string[] }) {
   );
 }
 
-function AgingRing({ current, late = [0, 0, 0] }: { current: number; late?: [number, number, number] }) {
+function AgingRing({ current, late = [0, 0, 0], limit = 5000 }: { current: number; late?: [number, number, number]; limit?: number }) {
   const parts = [
     { label: 'Current', amount: current, color: '#00d4a1' },
     { label: '1–30 days', amount: late[0], color: '#f2b544' },
     { label: '31–60 days', amount: late[1], color: '#ff7a59' },
     { label: '60+ days', amount: late[2], color: '#ff3048' },
   ];
-  const total = parts.reduce((t, p) => t + p.amount, 0) || 1;
-  const R = 36, C = 2 * Math.PI * R;
+  const total = parts.reduce((t, p) => t + p.amount, 0);
+  const R = 40, C = 2 * Math.PI * R;
+  const live = parts.filter((p) => p.amount > 0);
+  const gap = live.length > 1 ? 3 : 0;
   let acc = 0;
+  const used = Math.min(100, (total / limit) * 100);
   return (
-    <div className="stat-visual stat-ring" data-testid="stat-aging">
-      <svg viewBox="0 0 96 96" role="img" aria-label="Receivables aging">
-        <circle cx="48" cy="48" r={R} fill="none" stroke="#eef0eb" strokeWidth="10" />
-        {parts.map((p) => { const len = (p.amount / total) * C; const el = p.amount > 0 && <circle key={p.label} cx="48" cy="48" r={R} fill="none" stroke={p.color} strokeWidth="10" strokeDasharray={`${Math.max(0, len - 2)} ${C - Math.max(0, len - 2)}`} strokeDashoffset={-acc} transform="rotate(-90 48 48)" strokeLinecap="butt" />; acc += len; return el; })}
-      </svg>
-      <div className="stat-ring-center"><strong>{Math.round((current / total) * 100)}%</strong><small>current</small></div>
-      <ul className="stat-ring-legend">
-        {parts.map((p) => <li key={p.label} className={p.amount > 0 ? 'has' : ''}><i style={{ background: p.color }} /><span>{p.label}</span><strong>{p.amount > 0 ? money(p.amount) : '—'}</strong></li>)}
-      </ul>
+    <div className="stat-visual stat-ring-wrap">
+      <div className="stat-ring" data-testid="stat-aging">
+        <div className="stat-ring-chart">
+          <svg viewBox="0 0 100 100" role="img" aria-label="Receivables aging">
+            <circle cx="50" cy="50" r={R} fill="none" stroke="#eef0eb" strokeWidth="11" />
+            {live.map((p) => { const len = (p.amount / (total || 1)) * C; const el = <circle key={p.label} cx="50" cy="50" r={R} fill="none" stroke={p.color} strokeWidth="11" strokeDasharray={`${Math.max(0, len - gap)} ${C - Math.max(0, len - gap)}`} strokeDashoffset={-acc} transform="rotate(-90 50 50)" />; acc += len; return el; })}
+          </svg>
+          <div className="stat-ring-center"><strong>{total > 0 ? `${Math.round((current / total) * 100)}%` : '—'}</strong><small>current</small></div>
+        </div>
+        <ul className="stat-ring-legend">
+          {parts.map((p) => <li key={p.label} className={p.amount > 0 ? 'has' : ''}><i style={{ background: p.color }} /><span>{p.label}</span><em>{p.amount > 0 && total > 0 ? `${Math.round((p.amount / total) * 100)}%` : ''}</em><strong>{p.amount > 0 ? money(p.amount) : '—'}</strong></li>)}
+        </ul>
+      </div>
+      <div className="stat-credit" data-testid="stat-credit-usage">
+        <div className="stat-credit-row"><span>Credit used</span><strong>{used < 1 && total > 0 ? '<1' : Math.round(used)}% <em>· {money(total)} of {compact(limit)}</em></strong></div>
+        <div className="stat-credit-bar"><i style={{ width: `${Math.max(1.5, used)}%` }} /></div>
+      </div>
     </div>
   );
 }
