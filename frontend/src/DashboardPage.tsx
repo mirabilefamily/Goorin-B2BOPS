@@ -340,6 +340,40 @@ function DueSimple({ dues }: { dues: Due[] }) {
   );
 }
 
+function AgingFigures({ current, late = [0, 0, 0], limit = 5000 }: { current: number; late?: [number, number, number]; limit?: number }) {
+  const pastDue = late.reduce((t, n) => t + n, 0);
+  const total = current + pastDue;
+  const used = total / limit * 100;
+  return (
+    <div className="stat-visual stat-figs" data-testid="stat-aging">
+      <div className="stat-figs-grid">
+        <div className="stat-fig ok"><small>Current</small><strong>{money(current)}</strong><span>Not yet due</span></div>
+        <div className={`stat-fig ${pastDue > 0 ? 'late has' : 'late'}`}><small>Past due</small><strong>{money(pastDue)}</strong><span>{pastDue > 0 ? `${late[0] > 0 ? '1–30' : late[1] > 0 ? '31–60' : '60+'} days` : 'Nothing overdue'}</span></div>
+      </div>
+      <div className="stat-figs-foot"><span>Credit used</span><div className="stat-figs-track"><i style={{ width: `${Math.max(1.5, Math.min(100, used))}%` }} /></div><strong>{used < 1 && total > 0 ? '<1' : Math.round(used)}%</strong></div>
+    </div>
+  );
+}
+
+function DueTiles({ dues }: { dues: Due[] }) {
+  const groups = new Map<string, { m: string; y: string; amount: number; date: Date; count: number }>();
+  dues.forEach((x) => { const k = `${x.date.getFullYear()}-${String(x.date.getMonth()).padStart(2, '0')}`; const g = groups.get(k) ?? { m: x.date.toLocaleDateString('en-US', { month: 'short' }), y: String(x.date.getFullYear()), amount: 0, date: x.date, count: 0 }; g.amount += x.amount; g.count += 1; groups.set(k, g); });
+  const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
+  return (
+    <div className="stat-visual stat-tiles-wrap">
+      <div className="stat-tiles" data-testid="stat-due-months">
+        {rows.map((r, i) => (
+          <div key={r.m + r.y} className={`stat-tile ${i === 0 ? 'next' : ''}`}>
+            <small>{r.m} <em>{r.y}</em></small>
+            <strong>{r.amount >= 100000 ? compact(r.amount) : money(r.amount)}</strong>
+            <span>{daysUntil(r.date)} · {r.count} inv</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 type SortKey = 'id' | 'date' | 'shipDate' | 'items' | 'total' | 'status';
 
 const columns: { key: SortKey; label: string }[] = [
@@ -614,7 +648,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className={`stat-note ${pastDue > 0 ? 'bad' : ''}`}>Across {openOrders.length} open orders — {pastDue > 0 ? <b>action required.</b> : 'nothing is overdue.'}</p>
-          <AgingSimple current={Math.max(0, openAmount - pastDue)} late={aging} />
+          <AgingFigures current={Math.max(0, openAmount - pastDue)} late={aging} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
             <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of {compact(5000)}</span></dd></div>
@@ -629,7 +663,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(dueTotal)}</strong>
           <p className="stat-note">{dues.length} invoice{dues.length === 1 ? '' : 's'} across {openOrders.length} open orders, by due month.</p>
-          <DueSimple dues={dues} />
+          <DueTiles dues={dues} />
           <dl className="stat-meta">
             <div><dt>Next payment</dt><dd data-testid="next-payment">{nextDue ? <>{money(nextDue.amount)} <span className="muted">· {nextDue.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></> : '—'}</dd></div>
             <div><dt>Due in 30 days</dt><dd>{money(due30)}</dd></div>
