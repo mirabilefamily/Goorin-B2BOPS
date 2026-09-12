@@ -529,3 +529,38 @@ button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px
 .stat-ring-legend li em { min-width: 0; } .stat-ring-legend li em:empty { display: none; }
 .stat-ring-legend li strong { min-width: 0; }
 .stat-ring-legend li { padding: 6px 0; }
+
+/* ── Balance card variant C: horizontal aging bars ──────── */
+.stat-hbars-wrap { display: flex; flex-direction: column; justify-content: flex-end; gap: 18px; min-height: 0; }
+.stat-hbars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.stat-hbars li { display: grid; grid-template-columns: 82px minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.stat-hbars-label { font-size: 12.5px; font-weight: 600; color: #8e9396; white-space: nowrap; }
+.stat-hbars li.has .stat-hbars-label { color: #121415; }
+.stat-hbars-track { display: block; height: 10px; border-radius: 6px; background: #eef0eb; overflow: hidden; }
+.stat-hbars-track i { display: block; height: 100%; border-radius: 6px; background: #d3d7d2; transform-origin: left; animation: stat-grow-x .7s cubic-bezier(.2,.7,.2,1) both .15s; }
+.stat-hbars li.ok.has .stat-hbars-track i { background: var(--accent); }
+.stat-hbars li.warn.has .stat-hbars-track i { background: #f2b544; }
+.stat-hbars li.late.has .stat-hbars-track i { background: #ff3048; }
+.stat-hbars li strong { font-size: 13px; font-weight: 700; color: #b6bbb6; font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; }
+.stat-hbars li.has strong { color: #121415; }
+.stat-hbars li.late.has strong { color: #c8332f; }
+@media (max-width: 760px) { .stat-hbars li { grid-template-columns: 72px 1fr auto; gap: 10px; } }
+
+/* Balance rows: 5 uniform rows incl. credit */
+.stat-hbars { gap: 9px; }
+.stat-hbars li { grid-template-columns: 84px minmax(0, 1fr) 62px 44px; gap: 10px; }
+.stat-hbars li em { font-style: normal; font-size: 11.5px; color: #8e9396; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat-hbars li em span { display: none; }
+.stat-hbars li strong { min-width: 0; }
+.stat-hbars-none { color: #c9cec7; }
+.stat-hbars li:not(.has) .stat-hbars-track { background: repeating-linear-gradient(90deg, #eceee9 0 6px, transparent 6px 10px); opacity: .9; }
+.stat-hbars li.credit { margin-top: 6px; padding-top: 12px; border-top: 1px dashed rgba(16,18,19,.12); }
+.stat-hbars li.credit .stat-hbars-track i { background: #121415; }
+.stat-hbars li.credit strong { color: #121415; }
+.stat-hbars-wrap { gap: 0; }
+.stat-hbars-wrap > .stat-credit { display: none; }
+/* Due timeline: relative dates instead of bars */
+.stat-tl-row u { display: none; }
+.stat-tl-when { flex: 0 0 auto; color: #8e9396; }
+.stat-tl li.next .stat-tl-when { color: #0a7a5b; font-weight: 600; }
+.stat-tl li { padding-bottom: 14px; }

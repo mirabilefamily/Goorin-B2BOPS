@@ -256,11 +256,11 @@ function AgingRing({ current, late = [0, 0, 0], limit = 5000 }: { current: numbe
   );
 }
 
+const daysUntil = (d: Date) => { const n = Math.round((d.getTime() - Date.now()) / 86400000); return n < 0 ? `${-n}d overdue` : n === 0 ? 'today' : n < 60 ? `in ${n}d` : `in ${Math.round(n / 30)} mo`; };
 function DueTimeline({ dues }: { dues: Due[] }) {
   const groups = new Map<string, { label: string; amount: number; orders: string[]; date: Date }>();
   dues.forEach((x) => { const k = `${x.date.getFullYear()}-${String(x.date.getMonth()).padStart(2, '0')}`; const g = groups.get(k) ?? { label: x.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), amount: 0, orders: [], date: x.date }; g.amount += x.amount; if (!g.orders.includes(x.order)) g.orders.push(x.order); groups.set(k, g); });
   const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
-  const max = Math.max(...rows.map((r) => r.amount), 1);
   return (
     <div className="stat-visual stat-due-wrap">
       <ol className="stat-tl" data-testid="stat-due-months">
@@ -269,12 +269,44 @@ function DueTimeline({ dues }: { dues: Due[] }) {
             <i />
             <div className="stat-tl-body">
               <div className="stat-tl-row"><strong>{r.label}</strong><em>{money(r.amount)}</em></div>
-              <div className="stat-tl-row"><small>{r.orders.join(' · ')}</small><u style={{ width: `${Math.max(8, (r.amount / max) * 100)}%` }} /></div>
+              <div className="stat-tl-row"><small>{r.orders.length} invoice{r.orders.length === 1 ? '' : 's'} · {r.orders.join(', ')}</small><small className="stat-tl-when">{daysUntil(r.date)}</small></div>
             </div>
           </li>
         ))}
       </ol>
       {rows.length > 3 && <small className="stat-due-more">Scroll for {rows.length - 3} more month{rows.length - 3 === 1 ? '' : 's'}</small>}
+    </div>
+  );
+}
+
+function AgingBars({ current, late = [0, 0, 0], limit = 5000 }: { current: number; late?: [number, number, number]; limit?: number }) {
+  const parts = [
+    { label: 'Current', amount: current, tone: 'ok' },
+    { label: '1–30 days', amount: late[0], tone: 'warn' },
+    { label: '31–60 days', amount: late[1], tone: 'late' },
+    { label: '60+ days', amount: late[2], tone: 'late' },
+  ];
+  const total = parts.reduce((t, p) => t + p.amount, 0);
+  const max = Math.max(...parts.map((p) => p.amount), 1);
+  const used = Math.min(100, (total / limit) * 100);
+  return (
+    <div className="stat-visual stat-hbars-wrap">
+      <ul className="stat-hbars" data-testid="stat-aging">
+        {parts.map((p) => (
+          <li key={p.label} className={`${p.tone} ${p.amount > 0 ? 'has' : ''}`}>
+            <span className="stat-hbars-label">{p.label}</span>
+            <span className="stat-hbars-track"><i style={{ width: p.amount > 0 ? `${Math.max(4, (p.amount / max) * 100)}%` : '0%' }} /></span>
+            <strong>{p.amount > 0 ? money(p.amount) : <span className="stat-hbars-none">—</span>}</strong>
+            <em>{p.amount > 0 && total > 0 ? `${Math.round((p.amount / total) * 100)}%` : ''}</em>
+          </li>
+        ))}
+        <li className="credit has" data-testid="stat-credit-usage">
+          <span className="stat-hbars-label">Credit used</span>
+          <span className="stat-hbars-track"><i style={{ width: `${Math.max(1.5, used)}%` }} /></span>
+          <strong>{money(total)}</strong>
+          <em>{used < 1 && total > 0 ? '<1' : Math.round(used)}% <span>of {compact(limit)}</span></em>
+        </li>
+      </ul>
     </div>
   );
 }
@@ -553,7 +585,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className={`stat-note ${pastDue > 0 ? 'bad' : ''}`}>Across {openOrders.length} open orders — {pastDue > 0 ? <b>action required.</b> : 'nothing is overdue.'}</p>
-          <AgingRing current={Math.max(0, openAmount - pastDue)} late={aging} />
+          <AgingBars current={Math.max(0, openAmount - pastDue)} late={aging} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
             <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of {compact(5000)}</span></dd></div>
