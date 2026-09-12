@@ -195,6 +195,79 @@ function CardPaymentsCard({ open, delay }: { open: Order[]; delay: string }) {
   );
 }
 
+function SpendArea({ values, labels }: { values: number[]; labels: string[] }) {
+  const W = 320, H = 96, pad = 8;
+  const max = Math.max(...values, 1);
+  const pts = values.map((v, i) => [pad + (i * (W - pad * 2)) / Math.max(1, values.length - 1), H - pad - (v / max) * (H - pad * 2)] as const);
+  const curve = pts.map((p, i) => {
+    if (i === 0) return `M${p[0]},${p[1]}`;
+    const prev = pts[i - 1]; const cx = (prev[0] + p[0]) / 2;
+    return `C${cx},${prev[1]} ${cx},${p[1]} ${p[0]},${p[1]}`;
+  }).join(' ');
+  const last = pts[pts.length - 1];
+  return (
+    <div className="stat-visual stat-visual--chart stat-area" data-testid="spend-area">
+      <div className="stat-area-plot">
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Monthly spend">
+          <defs><linearGradient id="spendFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#00d4a1" stopOpacity=".32" /><stop offset="1" stopColor="#00d4a1" stopOpacity="0" /></linearGradient></defs>
+          <path d={`${curve} L${last[0]},${H} L${pts[0][0]},${H} Z`} fill="url(#spendFill)" />
+          <path d={curve} fill="none" stroke="#00d4a1" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        </svg>
+        <span className="stat-area-dot" style={{ left: `${(last[0] / W) * 100}%`, top: `${(last[1] / H) * 100}%` }} />
+        <span className="stat-area-val" style={{ left: `${(last[0] / W) * 100}%`, top: `${(last[1] / H) * 100}%` }}>{compact(values[values.length - 1])}</span>
+      </div>
+      <div className="stat-axis"><span>{labels[0]}</span><span>{labels[Math.floor(labels.length / 2)]}</span><span>{labels[labels.length - 1]}</span></div>
+    </div>
+  );
+}
+
+function AgingRing({ current, late = [0, 0, 0] }: { current: number; late?: [number, number, number] }) {
+  const parts = [
+    { label: 'Current', amount: current, color: '#00d4a1' },
+    { label: '1–30 days', amount: late[0], color: '#f2b544' },
+    { label: '31–60 days', amount: late[1], color: '#ff7a59' },
+    { label: '60+ days', amount: late[2], color: '#ff3048' },
+  ];
+  const total = parts.reduce((t, p) => t + p.amount, 0) || 1;
+  const R = 36, C = 2 * Math.PI * R;
+  let acc = 0;
+  return (
+    <div className="stat-visual stat-ring" data-testid="stat-aging">
+      <svg viewBox="0 0 96 96" role="img" aria-label="Receivables aging">
+        <circle cx="48" cy="48" r={R} fill="none" stroke="#eef0eb" strokeWidth="10" />
+        {parts.map((p) => { const len = (p.amount / total) * C; const el = p.amount > 0 && <circle key={p.label} cx="48" cy="48" r={R} fill="none" stroke={p.color} strokeWidth="10" strokeDasharray={`${Math.max(0, len - 2)} ${C - Math.max(0, len - 2)}`} strokeDashoffset={-acc} transform="rotate(-90 48 48)" strokeLinecap="butt" />; acc += len; return el; })}
+      </svg>
+      <div className="stat-ring-center"><strong>{Math.round((current / total) * 100)}%</strong><small>current</small></div>
+      <ul className="stat-ring-legend">
+        {parts.map((p) => <li key={p.label} className={p.amount > 0 ? 'has' : ''}><i style={{ background: p.color }} /><span>{p.label}</span><strong>{p.amount > 0 ? money(p.amount) : '—'}</strong></li>)}
+      </ul>
+    </div>
+  );
+}
+
+function DueTimeline({ dues }: { dues: Due[] }) {
+  const groups = new Map<string, { label: string; amount: number; orders: string[]; date: Date }>();
+  dues.forEach((x) => { const k = `${x.date.getFullYear()}-${String(x.date.getMonth()).padStart(2, '0')}`; const g = groups.get(k) ?? { label: x.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), amount: 0, orders: [], date: x.date }; g.amount += x.amount; if (!g.orders.includes(x.order)) g.orders.push(x.order); groups.set(k, g); });
+  const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
+  const max = Math.max(...rows.map((r) => r.amount), 1);
+  return (
+    <div className="stat-visual stat-due-wrap">
+      <ol className="stat-tl" data-testid="stat-due-months">
+        {rows.map((r, i) => (
+          <li key={r.label} className={i === 0 ? 'next' : ''}>
+            <i />
+            <div className="stat-tl-body">
+              <div className="stat-tl-row"><strong>{r.label}</strong><em>{money(r.amount)}</em></div>
+              <div className="stat-tl-row"><small>{r.orders.join(' · ')}</small><u style={{ width: `${Math.max(8, (r.amount / max) * 100)}%` }} /></div>
+            </div>
+          </li>
+        ))}
+      </ol>
+      {rows.length > 3 && <small className="stat-due-more">Scroll for {rows.length - 3} more month{rows.length - 3 === 1 ? '' : 's'}</small>}
+    </div>
+  );
+}
+
 type SortKey = 'id' | 'date' | 'shipDate' | 'items' | 'total' | 'status';
 
 const columns: { key: SortKey; label: string }[] = [
@@ -455,7 +528,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
             <button className="stat-toggle" onClick={() => setRange(range === 'ytd' ? 'trailing' : 'ytd')} data-testid="spend-range-toggle">{range === 'ytd' ? 'Year to Date' : 'Last 12 months'}<ArrowUpDown /></button>
           </div>
           <div className="stat-value-row"><strong className="stat-value">{money(spendShown)}</strong><span className={`stat-delta ${delta >= 0 ? 'up' : 'down'}`} data-testid="spend-delta">{delta >= 0 ? <ArrowUp /> : <ArrowDown />}{Math.abs(delta)}% vs LY</span></div>
-          <SpendBars values={spendValues} labels={spendLabels} />
+          <SpendArea values={spendValues} labels={spendLabels} />
           <dl className="stat-meta">
             <div><dt>Year progress</dt><dd>{progress}%</dd></div>
             <div><dt>Open amount</dt><dd>{money(openAmount)} <span className="muted">· {openOrders.length} order{openOrders.length === 1 ? '' : 's'}</span></dd></div>
@@ -469,10 +542,10 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className={`stat-note ${pastDue > 0 ? 'bad' : ''}`}>Across {openOrders.length} open orders — {pastDue > 0 ? <b>action required.</b> : 'nothing is overdue.'}</p>
-          <AgingStrip current={Math.max(0, openAmount - pastDue)} late={aging} />
+          <AgingRing current={Math.max(0, openAmount - pastDue)} late={aging} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
-            <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of $5,000</span></dd></div>
+            <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of {compact(5000)}</span></dd></div>
           </dl>
         </article>
 
@@ -484,7 +557,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(dueTotal)}</strong>
           <p className="stat-note">{dues.length} invoice{dues.length === 1 ? '' : 's'} across {openOrders.length} open orders, by due month.</p>
-          <DueByMonth dues={dues} />
+          <DueTimeline dues={dues} />
           <dl className="stat-meta">
             <div><dt>Next payment</dt><dd data-testid="next-payment">{nextDue ? <>{money(nextDue.amount)} <span className="muted">· {nextDue.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></> : '—'}</dd></div>
             <div><dt>Due in 30 days</dt><dd>{money(due30)}</dd></div>

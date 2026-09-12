@@ -464,3 +464,44 @@ button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px
 @media (max-width: 760px) { .stat-aging-b small { font-size: 10px; } }
 .stat-aging-tiles .stat-aging-b small i { display: inline-block; width: 7px; height: 7px; max-height: none; border-radius: 2px; animation: none; transform: none; }
 .stat-aging-tiles .stat-aging-b.has.ok small i { background: var(--accent); }
+
+/* ── Stat variant B: area · ring · timeline ─────────────── */
+.stat-area { position: relative; }
+.stat-area svg { width: 100%; height: 96px; flex: 1 1 auto; min-height: 84px; display: block; overflow: visible; }
+.stat-area-val { position: absolute; transform: translate(-100%, -160%); font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.stat-area .stat-axis { margin-top: 8px; }
+.stat-ring { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 16px; align-items: center; min-height: 110px; flex-direction: row; }
+.stat-ring svg { width: 104px; height: 104px; }
+.stat-ring-pct { font-size: 16px; font-weight: 700; fill: #121415; letter-spacing: -.02em; }
+.stat-ring-lbl { font-size: 8px; font-weight: 600; fill: #8e9396; letter-spacing: .08em; text-transform: uppercase; }
+.stat-ring-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.stat-ring-legend li { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 12.5px; color: #8e9396; }
+.stat-ring-legend li i { width: 8px; height: 8px; border-radius: 2px; opacity: .35; }
+.stat-ring-legend li.has i { opacity: 1; }
+.stat-ring-legend li.has span { color: #121415; }
+.stat-ring-legend li strong { font-size: 12.5px; font-weight: 700; color: #b6bbb6; font-variant-numeric: tabular-nums; }
+.stat-ring-legend li.has strong { color: #121415; }
+.stat-tl { list-style: none; margin: 0; padding: 0 0 0 4px; display: flex; flex-direction: column; gap: 0; height: 152px; overflow-y: auto; scrollbar-width: thin; }
+.stat-tl li { position: relative; display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 12px; padding: 0 0 12px; }
+.stat-tl li::before { content: ''; position: absolute; left: 5px; top: 14px; bottom: -2px; width: 2px; background: #eceee9; }
+.stat-tl li:last-child::before { display: none; }
+.stat-tl li i { width: 12px; height: 12px; margin-top: 3px; border-radius: 50%; background: #fff; border: 2px solid #c9cec7; box-sizing: border-box; z-index: 1; }
+.stat-tl li.next i { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 4px rgba(0,212,161,.18); }
+.stat-tl-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.stat-tl-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.stat-tl-row strong { font-size: 13.5px; font-weight: 700; color: #121415; }
+.stat-tl li.next strong { color: #0a7a5b; }
+.stat-tl-row em { font-style: normal; font-size: 13.5px; font-weight: 700; color: #121415; font-variant-numeric: tabular-nums; }
+.stat-tl-row small { font-size: 12px; color: #8e9396; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-tl-row u { display: block; height: 4px; max-width: 40%; border-radius: 2px; background: #e3e6e1; text-decoration: none; flex: 0 0 auto; }
+.stat-tl li.next u { background: var(--accent); }
+@media (max-width: 760px) { .stat-ring { grid-template-columns: 88px 1fr; } .stat-ring svg { width: 88px; height: 88px; } }
+.stat-area-plot { position: relative; flex: 1 1 auto; min-height: 84px; }
+.stat-area-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.stat-area-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-sizing: border-box; transform: translate(-50%, -50%); box-shadow: 0 0 0 4px rgba(0,212,161,.2); }
+.stat-area-val { transform: translate(-100%, -170%); margin-left: -6px; }
+.stat-ring { position: relative; }
+.stat-ring-center { position: absolute; left: 0; width: 104px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; line-height: 1.1; pointer-events: none; }
+.stat-ring-center strong { font-size: 17px; font-weight: 700; letter-spacing: -.02em; color: #121415; }
+.stat-ring-center small { font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #8e9396; }
+@media (max-width: 760px) { .stat-ring-center { width: 88px; } }
