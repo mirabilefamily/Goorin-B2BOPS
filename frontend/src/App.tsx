@@ -509,29 +509,34 @@ function App() {
               <div><h1>{activeLabel}</h1><p>This section is coming soon.</p></div>
             </div>
           ) : (
-            <div className="set-page">
-              <div className="set-page-head">
-                <h1>Settings</h1>
-                <p>{settingsSubtitle[settingsTab]}</p>
+            <div className="set-page set-page--v2" data-testid="settings-page">
+              <div className="ac-hero set-hero">
+                <div><h1>Settings</h1><p>Manage who can access this account and how it behaves.</p></div>
+                <span className="set-autosave"><Check size={14} /> Changes save automatically</span>
               </div>
-              <nav className="set-nav">
-                {settingsTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    className={`set-nav-item ${settingsTab === tab.id ? 'active' : ''}`}
-                    onClick={() => setSettingsTab(tab.id)}
-                  >
-                    <tab.icon size={17} strokeWidth={1.8} />
-                    <span>{tab.label}</span>
-                  </button>
-                ))}
-              </nav>
-
-              <div className="set-main">
-                {settingsTab === 'users' && <TeamAccess />}
-
-                {settingsTab === 'workspace' && <SimpleSettings section="company" />}
-                {settingsTab === 'notifications' && <SimpleSettings section="notifications" />}
+              <div className="set-grid">
+                <aside className="set-side">
+                  <div className="set-account">
+                    <span className="set-account-avatar">MD</span>
+                    <div><strong>Mirabile Distribution</strong><small>Wholesale account · Net 60</small></div>
+                  </div>
+                  <nav className="set-nav set-nav--v" aria-label="Settings sections">
+                    {settingsTabs.map((tab) => (
+                      <button key={tab.id} className={`set-nav-item ${settingsTab === tab.id ? 'active' : ''}`} onClick={() => setSettingsTab(tab.id)} data-testid={`settings-tab-${tab.id}`}>
+                        <i><tab.icon size={16} strokeWidth={1.9} /></i>
+                        <span><b>{tab.label}</b><small>{settingsSubtitle[tab.id]}</small></span>
+                        <ChevronRight size={15} />
+                      </button>
+                    ))}
+                  </nav>
+                  <button className="set-side-link" onClick={() => setActiveNav('Profile & Addresses')} data-testid="settings-goto-profile"><User size={15} /> Profile, addresses & payment terms</button>
+                </aside>
+                <div className="set-main">
+                  <div className="set-section-head"><h2>{settingsTabs.find((t) => t.id === settingsTab)?.label}</h2><p>{settingsSubtitle[settingsTab]}</p></div>
+                  {settingsTab === 'users' && <TeamAccess />}
+                  {settingsTab === 'workspace' && <SimpleSettings section="company" />}
+                  {settingsTab === 'notifications' && <SimpleSettings section="notifications" />}
+                </div>
               </div>
             </div>
           )}
