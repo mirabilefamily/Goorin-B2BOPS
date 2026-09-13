@@ -62,3 +62,4 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 - 2026-06: Balance card = 5 uniform rows (4 aging buckets + dashed-divider "Credit used" row) with amount + share %; empty buckets use dashed tracks. Due timeline rows show "N invoices · SO refs" and relative timing ("in 42d", "in 4 mo") instead of bars.
 - 2026-06: Stat cards "simple" variant active: AgingSimple (slim stacked bar + 4-row hairline legend) and DueSimple (hairline list: month, "n invoices · in Xd", amount). Other variants kept in file.
 - 2026-06: Stat cards variant D active: AgingFigures (Current / Past due figure blocks w/ accent border + credit-used line) and DueTiles (month tiles, next = dark; scrolls if >3). Other variants kept.
+- 2026-06: Stat cards variant E active: CreditGauge (half-arc credit utilization, Current/Past due tiles) + DueRunway (7-month runway w/ today marker and amount bars at due months).

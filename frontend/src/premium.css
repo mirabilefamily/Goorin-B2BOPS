@@ -625,3 +625,32 @@ button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px
 @media (max-width: 760px) { .stat-fig strong { font-size: 19px; } .stat-tile strong { font-size: 16px; } }
 .stat-tile span { font-size: 11px; }
 .stat-tile { padding: 12px 12px 11px; }
+
+/* ── Variant E: credit gauge + due runway ───────────────── */
+.stat-gauge-wrap { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; align-items: center; min-height: 0; flex-direction: row; }
+.stat-gauge { position: relative; width: 150px; }
+.stat-gauge svg { width: 150px; height: 82px; display: block; overflow: visible; }
+.stat-gauge-center { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.stat-gauge-center strong { font-size: 22px; font-weight: 700; letter-spacing: -.02em; color: #121415; }
+.stat-gauge-center small { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #8e9396; margin-top: 2px; }
+.stat-gauge-legend { display: flex; flex-direction: column; gap: 8px; }
+.stat-gauge-legend > div { display: grid; grid-template-columns: 8px 1fr; grid-template-rows: auto auto; column-gap: 10px; row-gap: 2px; align-items: center; padding: 10px 12px; border-radius: 12px; background: #f6f8f5; }
+.stat-gauge-legend > div i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); grid-row: 1; }
+.stat-gauge-legend > div.late i { background: #d9dcd6; } .stat-gauge-legend > div.late.has i { background: #ff3048; }
+.stat-gauge-legend > div span { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #7a8184; }
+.stat-gauge-legend > div strong { grid-column: 2; font-size: 16px; font-weight: 700; color: #121415; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.stat-gauge-legend > div.late:not(.has) strong { color: #9aa0a3; } .stat-gauge-legend > div.late.has { background: #fff3f3; } .stat-gauge-legend > div.late.has strong { color: #c8332f; }
+.stat-runway-wrap { display: flex; flex-direction: column; justify-content: flex-end; min-height: 0; }
+.stat-runway { display: flex; flex-direction: column; gap: 8px; padding: 0 6px; }
+.stat-runway-track { position: relative; height: 86px; border-bottom: 2px solid #eceee9; }
+.stat-runway-now { position: absolute; bottom: -2px; width: 2px; height: 100%; background: repeating-linear-gradient(180deg, #c9cec7 0 4px, transparent 4px 8px); transform: translateX(-50%); }
+.stat-runway-pt { position: absolute; bottom: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.stat-runway-pt em { display: block; width: 14px; border-radius: 6px 6px 2px 2px; background: #d3d7d2; transform-origin: bottom; animation: stat-grow .6s cubic-bezier(.2,.7,.2,1) both .2s; }
+.stat-runway-pt.next em { background: var(--accent); }
+.stat-runway-pt strong { order: -1; font-size: 12px; font-weight: 700; color: #121415; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.stat-runway-pt.next strong { color: #0a7a5b; }
+.stat-runway-axis { display: flex; justify-content: space-between; }
+.stat-runway-axis span { flex: 1; text-align: center; font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #b6bbb6; }
+.stat-runway-axis span:first-child { text-align: left; } .stat-runway-axis span:last-child { text-align: right; }
+.stat-runway-axis span.has { color: #121415; }
+@media (max-width: 760px) { .stat-gauge-wrap { grid-template-columns: 1fr; justify-items: center; } .stat-gauge-legend { width: 100%; flex-direction: row; } .stat-gauge-legend > div { flex: 1; } }

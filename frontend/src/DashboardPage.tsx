@@ -374,6 +374,60 @@ function DueTiles({ dues }: { dues: Due[] }) {
   );
 }
 
+function CreditGauge({ current, late = [0, 0, 0], limit = 5000 }: { current: number; late?: [number, number, number]; limit?: number }) {
+  const pastDue = late.reduce((t, n) => t + n, 0);
+  const total = current + pastDue;
+  const used = Math.min(100, (total / limit) * 100);
+  const R = 54, C = Math.PI * R;
+  const okLen = (Math.min(100, (current / limit) * 100) / 100) * C;
+  const lateLen = (Math.min(100, (pastDue / limit) * 100) / 100) * C;
+  return (
+    <div className="stat-visual stat-gauge-wrap" data-testid="stat-aging">
+      <div className="stat-gauge">
+        <svg viewBox="0 0 132 72" role="img" aria-label="Credit utilization">
+          <path d="M12 66 A54 54 0 0 1 120 66" fill="none" stroke="#eef0eb" strokeWidth="12" strokeLinecap="round" />
+          {current > 0 && <path d="M12 66 A54 54 0 0 1 120 66" fill="none" stroke="#00d4a1" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${Math.max(2, okLen)} ${C}`} />}
+          {pastDue > 0 && <path d="M12 66 A54 54 0 0 1 120 66" fill="none" stroke="#ff3048" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${Math.max(2, lateLen)} ${C}`} strokeDashoffset={-okLen} />}
+        </svg>
+        <div className="stat-gauge-center"><strong>{used < 1 && total > 0 ? '<1' : Math.round(used)}%</strong><small>of {compact(limit)} credit</small></div>
+      </div>
+      <div className="stat-gauge-legend">
+        <div className="ok"><i /><span>Current</span><strong>{money(current)}</strong></div>
+        <div className={pastDue > 0 ? 'late has' : 'late'}><i /><span>Past due</span><strong>{money(pastDue)}</strong></div>
+      </div>
+    </div>
+  );
+}
+
+function DueRunway({ dues }: { dues: Due[] }) {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const months = Array.from({ length: 7 }, (_, i) => new Date(now.getFullYear(), now.getMonth() + i, 1));
+  const end = months[months.length - 1].getTime();
+  const span = end - start || 1;
+  const groups = new Map<string, { label: string; amount: number; date: Date; count: number }>();
+  dues.forEach((x) => { const k = `${x.date.getFullYear()}-${String(x.date.getMonth()).padStart(2, '0')}`; const g = groups.get(k) ?? { label: x.date.toLocaleDateString('en-US', { month: 'short' }), amount: 0, date: new Date(x.date.getFullYear(), x.date.getMonth(), 15), count: 0 }; g.amount += x.amount; g.count += 1; groups.set(k, g); });
+  const rows = [...groups.values()].sort((a, b) => a.date.getTime() - b.date.getTime());
+  const pct = (d: Date) => Math.min(100, Math.max(0, ((d.getTime() - start) / span) * 100));
+  const max = Math.max(...rows.map((r) => r.amount), 1);
+  return (
+    <div className="stat-visual stat-runway-wrap">
+      <div className="stat-runway" data-testid="stat-due-months">
+        <div className="stat-runway-track">
+          <span className="stat-runway-now" style={{ left: `${pct(now)}%` }} />
+          {rows.map((r, i) => (
+            <div key={r.label + r.date.getFullYear()} className={`stat-runway-pt ${i === 0 ? 'next' : ''}`} style={{ left: `${pct(r.date)}%` }}>
+              <em style={{ height: `${18 + (r.amount / max) * 34}px` }} />
+              <strong>{r.amount >= 100000 ? compact(r.amount) : money(r.amount)}</strong>
+            </div>
+          ))}
+        </div>
+        <div className="stat-runway-axis">{months.map((m) => <span key={m.getTime()} className={rows.some((r) => r.date.getMonth() === m.getMonth() && r.date.getFullYear() === m.getFullYear()) ? 'has' : ''}>{m.toLocaleDateString('en-US', { month: 'short' })}</span>)}</div>
+      </div>
+    </div>
+  );
+}
+
 type SortKey = 'id' | 'date' | 'shipDate' | 'items' | 'total' | 'status';
 
 const columns: { key: SortKey; label: string }[] = [
@@ -648,7 +702,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className={`stat-note ${pastDue > 0 ? 'bad' : ''}`}>Across {openOrders.length} open orders — {pastDue > 0 ? <b>action required.</b> : 'nothing is overdue.'}</p>
-          <AgingFigures current={Math.max(0, openAmount - pastDue)} late={aging} />
+          <CreditGauge current={Math.max(0, openAmount - pastDue)} late={aging} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
             <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of {compact(5000)}</span></dd></div>
@@ -663,7 +717,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(dueTotal)}</strong>
           <p className="stat-note">{dues.length} invoice{dues.length === 1 ? '' : 's'} across {openOrders.length} open orders, by due month.</p>
-          <DueTiles dues={dues} />
+          <DueRunway dues={dues} />
           <dl className="stat-meta">
             <div><dt>Next payment</dt><dd data-testid="next-payment">{nextDue ? <>{money(nextDue.amount)} <span className="muted">· {nextDue.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></> : '—'}</dd></div>
             <div><dt>Due in 30 days</dt><dd>{money(due30)}</dd></div>
