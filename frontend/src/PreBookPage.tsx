@@ -40,13 +40,19 @@ function Overview({ onOpen, reserved }: { onOpen: (d: Drop) => void; reserved: R
 
   return (
     <div className="pb" data-testid="prebook-page">
-      <section className="pb-hero pb-hero--ov">
+      <section className="pb-hero pb-hero--ov pb-hero--v3">
         <div className="pb-hero-main">
           <p className="pb-eyebrow">Seasonal pre-book · {next.season}</p>
           <h1>Pre-Book Window Open</h1>
           <p className="pb-lede">Reserve units ahead of production. Orders confirm once each drop hits its minimum-order quantity.</p>
+          <p className="pb-hero-facts"><span><b>{drops.filter((d) => d.status === 'open').length}</b> drop open</span><i /><span><b>{drops.filter((d) => d.status === 'closed').length}</b> closed</span><i /><span>Ships <b>{next.ship}</b></span></p>
         </div>
-        <div className="pb-deadline" data-testid="prebook-next-deadline"><small>Next deadline</small><strong>{next.deadline}</strong><span>Drop {next.id}</span><span>{next.daysLeft} days left</span></div>
+        <div className="pb-deadline pb-deadline--v3" data-testid="prebook-next-deadline">
+          <div className="pb-deadline-top"><small>Next deadline · Drop {next.id}</small><em>{next.daysLeft} days left</em></div>
+          <strong>{next.deadline}</strong>
+          <div className="pb-deadline-bar"><i style={{ width: `${Math.max(6, Math.min(100, 100 - (next.daysLeft / 45) * 100))}%` }} /></div>
+          <span>Order by {next.orderBy}</span>
+        </div>
       </section>
 
       <div className="pb-cols">
