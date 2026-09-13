@@ -70,3 +70,4 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 - 2026-06: Pre-Book mobile hero condensed (lede hidden, compact deadline row).
 - 2026-06: Drop builder hero v3: compact, "Drop 3 · OPEN" tag, facts strip (Order by w/ time + days left, Ships, Reserved units + styles) as joined dl (pb-facts); mobile 2+1 grid, lede hidden.
 - 2026-06: Drop builder mobile: compact toolbar (search row + view toggle/Template/Import in one row), 2-col product grid with smaller type/controls, cart panel static.
+- 2026-06: Stat cards variant G active: CreditMeter (Current/Past due tiles + tick-marked credit meter with marker + note) and DueCalendar (calendar-tile rows OCT/24 etc.).

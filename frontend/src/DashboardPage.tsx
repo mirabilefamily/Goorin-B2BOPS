@@ -470,6 +470,44 @@ function DueDataBars({ dues }: { dues: Due[] }) {
   );
 }
 
+function CreditMeter({ current, late = [0, 0, 0], limit = 5000 }: { current: number; late?: [number, number, number]; limit?: number }) {
+  const pastDue = late.reduce((t, n) => t + n, 0);
+  const total = current + pastDue;
+  const used = Math.min(100, (total / limit) * 100);
+  return (
+    <div className="stat-visual stat-meter" data-testid="stat-aging">
+      <div className="stat-meter-split">
+        <div className="ok"><small>Current</small><strong>{money(current)}</strong></div>
+        <div className={pastDue > 0 ? 'late has' : 'late'}><small>Past due</small><strong>{money(pastDue)}</strong></div>
+      </div>
+      <div className="stat-meter-scale">
+        <div className="stat-meter-track"><i style={{ width: `${Math.max(1, used)}%` }} /><b style={{ left: `${Math.max(1, used)}%` }} /></div>
+        <div className="stat-meter-ticks">{[0, 25, 50, 75, 100].map((t) => <span key={t}>{t === 0 ? '$0' : t === 100 ? compact(limit) : `${t}%`}</span>)}</div>
+      </div>
+      <p className="stat-meter-note"><strong>{used < 1 && total > 0 ? '<1' : Math.round(used)}%</strong> of credit line used · {money(Math.max(0, limit - total))} available</p>
+    </div>
+  );
+}
+
+function DueCalendar({ dues }: { dues: Due[] }) {
+  const groups = new Map<string, { m: string; d: string; y: string; amount: number; date: Date; orders: string[] }>();
+  dues.forEach((x) => { const k = `${x.date.getFullYear()}-${String(x.date.getMonth()).padStart(2, '0')}`; const first = groups.get(k); const g = first ?? { m: x.date.toLocaleDateString('en-US', { month: 'short' }), d: String(x.date.getDate()), y: String(x.date.getFullYear()), amount: 0, date: x.date, orders: [] }; g.amount += x.amount; if (!g.orders.includes(x.order)) g.orders.push(x.order); if (x.date < g.date) { g.date = x.date; g.d = String(x.date.getDate()); } groups.set(k, g); });
+  const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
+  return (
+    <div className="stat-visual stat-cal-wrap">
+      <ul className="stat-cal" data-testid="stat-due-months">
+        {rows.map((r, i) => (
+          <li key={r.m + r.y} className={i === 0 ? 'next' : ''}>
+            <span className="stat-cal-tile"><small>{r.m}</small><b>{r.d}</b></span>
+            <span className="stat-cal-text"><strong>{r.m} {r.y}</strong><small>{r.orders.length} invoice{r.orders.length === 1 ? '' : 's'} · {daysUntil(r.date)}</small></span>
+            <em>{money(r.amount)}</em>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 type SortKey = 'id' | 'date' | 'shipDate' | 'items' | 'total' | 'status';
 
 const columns: { key: SortKey; label: string }[] = [
@@ -744,7 +782,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className={`stat-note ${pastDue > 0 ? 'bad' : ''}`}>Across {openOrders.length} open orders — {pastDue > 0 ? <b>action required.</b> : 'nothing is overdue.'}</p>
-          <CreditLine current={Math.max(0, openAmount - pastDue)} late={aging} />
+          <CreditMeter current={Math.max(0, openAmount - pastDue)} late={aging} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
             <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of {compact(5000)}</span></dd></div>
@@ -759,7 +797,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(dueTotal)}</strong>
           <p className="stat-note">{dues.length} invoice{dues.length === 1 ? '' : 's'} across {openOrders.length} open orders, by due month.</p>
-          <DueDataBars dues={dues} />
+          <DueCalendar dues={dues} />
           <dl className="stat-meta">
             <div><dt>Next payment</dt><dd data-testid="next-payment">{nextDue ? <>{money(nextDue.amount)} <span className="muted">· {nextDue.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></> : '—'}</dd></div>
             <div><dt>Due in 30 days</dt><dd>{money(due30)}</dd></div>

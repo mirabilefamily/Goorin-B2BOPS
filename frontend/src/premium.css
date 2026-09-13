@@ -680,3 +680,39 @@ button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px
 .stat-db li em { font-style: normal; font-size: 13.5px; font-weight: 700; color: #121415; font-variant-numeric: tabular-nums; }
 .stat-db li.next strong, .stat-db li.next small { color: #0a7a5b; }
 @media (max-width: 760px) { .stat-cl-cols strong { font-size: 16px; } .stat-cl-cols > div { padding: 0 10px; } }
+
+/* ── Variant G: tick meter + calendar tiles ─────────────── */
+.stat-meter { display: flex; flex-direction: column; justify-content: flex-end; gap: 16px; min-height: 0; }
+.stat-meter-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-meter-split > div { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: 12px; background: #f6f8f5; }
+.stat-meter-split small { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #7a8184; }
+.stat-meter-split strong { font-size: 20px; font-weight: 700; letter-spacing: -.02em; color: #121415; font-variant-numeric: tabular-nums; }
+.stat-meter-split > div.ok strong { color: #0a7a5b; }
+.stat-meter-split > div.late:not(.has) strong { color: #9aa0a3; }
+.stat-meter-split > div.late.has { background: #fff3f3; } .stat-meter-split > div.late.has strong { color: #c8332f; }
+.stat-meter-scale { display: flex; flex-direction: column; gap: 6px; }
+.stat-meter-track { position: relative; height: 8px; border-radius: 6px; background: #eef0eb; }
+.stat-meter-track i { display: block; height: 100%; border-radius: 6px; background: var(--accent); transform-origin: left; animation: stat-grow-x .7s cubic-bezier(.2,.7,.2,1) both .2s; }
+.stat-meter-track b { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 3px solid var(--accent); box-sizing: border-box; transform: translate(-50%, -50%); box-shadow: 0 1px 4px rgba(16,18,19,.18); }
+.stat-meter-ticks { display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 600; color: #b6bbb6; letter-spacing: .04em; }
+.stat-meter-ticks span { position: relative; padding-top: 6px; }
+.stat-meter-ticks span::before { content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 4px; background: #d9dcd6; }
+.stat-meter-ticks span:first-child::before { left: 0; } .stat-meter-ticks span:last-child::before { left: auto; right: 0; }
+.stat-meter-note { margin: 0; font-size: 12.5px; color: #7a8184; }
+.stat-meter-note strong { color: #121415; }
+.stat-cal-wrap { display: flex; flex-direction: column; justify-content: flex-end; min-height: 0; }
+.stat-cal { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; max-height: 190px; overflow-y: auto; scrollbar-width: thin; }
+.stat-cal li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid rgba(16,18,19,.06); }
+.stat-cal li:first-child { border-top: 0; }
+.stat-cal-tile { display: flex; flex-direction: column; align-items: center; width: 44px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(16,18,19,.1); background: #fff; }
+.stat-cal-tile small { width: 100%; text-align: center; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: #121415; color: #fff; padding: 3px 0; }
+.stat-cal-tile b { font-size: 16px; font-weight: 700; color: #121415; padding: 3px 0 4px; letter-spacing: -.02em; }
+.stat-cal li.next .stat-cal-tile small { background: var(--accent); color: #0b3f31; }
+.stat-cal-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.stat-cal-text strong { font-size: 13.5px; font-weight: 700; color: #121415; }
+.stat-cal-text small { font-size: 12px; color: #8e9396; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-cal li.next .stat-cal-text small { color: #0a7a5b; }
+.stat-cal li em { font-style: normal; font-size: 14px; font-weight: 700; color: #121415; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) { .stat-meter-split strong { font-size: 18px; } }
+.stat-cal { max-height: 216px; }
+.stat-cal li { padding: 7px 0; }
