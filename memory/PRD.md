@@ -72,3 +72,4 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 - 2026-06: Drop builder mobile: compact toolbar (search row + view toggle/Template/Import in one row), 2-col product grid with smaller type/controls, cart panel static.
 - 2026-06: Stat cards variant G active: CreditMeter (Current/Past due tiles + tick-marked credit meter with marker + note) and DueCalendar (calendar-tile rows OCT/24 etc.).
 - 2026-06: Card-terms accounts: middle card = "Open orders" (OpenOrdersCard: value, units chip, In production / Ready to ship tiles, fulfillment progress meter Placed→Shipped, next ship date, footer Orders YTD / Average order) replacing Outstanding balance (no credit line for card customers).
+- 2026-06: OpenOrdersCard reworked: no fabricated production stages — list of open orders (id, est. ship date, Charged / Awaiting charge tag from payment status, amount); note = "$34 charged · $17 to be charged".

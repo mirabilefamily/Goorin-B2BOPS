@@ -511,13 +511,12 @@ function DueCalendar({ dues }: { dues: Due[] }) {
 function OpenOrdersCard({ open, delay }: { open: Order[]; delay: string }) {
   const value = open.reduce((t, o) => t + o.total, 0);
   const units = open.reduce((t, o) => t + o.lines.reduce((u, l) => u + l.qty, 0), 0);
-  const ready = open.filter((o) => !!o.tracking);
-  const production = open.filter((o) => !o.tracking);
+  const charged = open.filter((o) => o.payment !== 'Not invoiced');
+  const awaiting = open.filter((o) => o.payment === 'Not invoiced');
   const sum = (list: Order[]) => list.reduce((t, o) => t + o.total, 0);
-  const next = [...open].sort((a, b) => a.shipDate.localeCompare(b.shipDate))[0];
+  const rows = [...open].sort((a, b) => a.shipDate.localeCompare(b.shipDate));
   const ytd = orders.filter((o) => o.status !== 'Cancelled' && o.date.startsWith('2026'));
   const avg = ytd.length ? ytd.reduce((t, o) => t + o.total, 0) / ytd.length : 0;
-  const pct = value > 0 ? Math.round((sum(ready) / value) * 100) : 0;
   return (
     <article className="stat dash-reveal" style={{ animationDelay: delay }} data-testid="stat-open-orders">
       <div className="stat-head">
@@ -525,17 +524,17 @@ function OpenOrdersCard({ open, delay }: { open: Order[]; delay: string }) {
         <span className="stat-chip"><Package /> {units.toLocaleString()} units on order</span>
       </div>
       <strong className="stat-value">{money(value)}</strong>
-      <p className="stat-note">{open.length} order{open.length === 1 ? '' : 's'} in progress · card charged before each ships.</p>
-      <div className="stat-visual stat-meter">
-        <div className="stat-meter-split">
-          <div className="ok"><small>In production</small><strong>{money(sum(production))}</strong><span className="stat-meter-sub">{production.length} order{production.length === 1 ? '' : 's'}</span></div>
-          <div className={ready.length ? 'ok has-alt' : 'late'}><small>Ready to ship</small><strong>{money(sum(ready))}</strong><span className="stat-meter-sub">{ready.length} order{ready.length === 1 ? '' : 's'}</span></div>
-        </div>
-        <div className="stat-meter-scale">
-          <div className="stat-meter-track"><i style={{ width: `${Math.max(1, pct)}%` }} /><b style={{ left: `${Math.max(1, pct)}%` }} /></div>
-          <div className="stat-meter-ticks"><span>Placed</span><span>In production</span><span>Ready</span><span>Shipped</span></div>
-        </div>
-        <p className="stat-meter-note"><strong>{pct}%</strong> of open value is ready to ship · next ships {next ? fmtDate(next.shipDate, { month: 'short', day: 'numeric' }) : '—'}</p>
+      <p className="stat-note">{money(sum(charged))} charged · {money(sum(awaiting))} to be charged</p>
+      <div className="stat-visual stat-oo">
+        <ul className="stat-oo-list" data-testid="open-orders-list">
+          {rows.map((o) => (
+            <li key={o.id}>
+              <span className="stat-oo-id"><strong>{o.id}</strong><small>{o.estimated ? 'Est. ships' : 'Ships'} {fmtDate(o.shipDate, { month: 'short', day: 'numeric' })}</small></span>
+              <span className={`stat-oo-tag ${o.payment === 'Not invoiced' ? 'wait' : 'done'}`}>{o.payment === 'Not invoiced' ? 'Awaiting charge' : 'Charged'}</span>
+              <em>{money(o.total)}</em>
+            </li>
+          ))}
+        </ul>
       </div>
       <dl className="stat-meta">
         <div><dt>Orders YTD</dt><dd>{ytd.length} <span className="muted">placed</span></dd></div>
