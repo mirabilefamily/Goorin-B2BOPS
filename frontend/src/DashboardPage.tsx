@@ -428,6 +428,48 @@ function DueRunway({ dues }: { dues: Due[] }) {
   );
 }
 
+function CreditLine({ current, late = [0, 0, 0], limit = 5000 }: { current: number; late?: [number, number, number]; limit?: number }) {
+  const pastDue = late.reduce((t, n) => t + n, 0);
+  const total = current + pastDue;
+  const avail = Math.max(0, limit - total);
+  const pct = (n: number) => Math.min(100, (n / limit) * 100);
+  return (
+    <div className="stat-visual stat-cl" data-testid="stat-aging">
+      <div className="stat-cl-cols">
+        <div className="ok"><small>Current</small><strong>{money(current)}</strong></div>
+        <div className={pastDue > 0 ? 'late has' : 'late'}><small>Past due</small><strong>{money(pastDue)}</strong></div>
+        <div><small>Available</small><strong>{money(avail)}</strong></div>
+      </div>
+      <div className="stat-cl-bar" aria-label="Credit line usage">
+        <i className="ok" style={{ width: `${Math.max(1, pct(current))}%` }} />
+        {pastDue > 0 && <i className="late" style={{ width: `${Math.max(1, pct(pastDue))}%` }} />}
+      </div>
+      <div className="stat-cl-ends"><span>{money(total)} used</span><span>{compact(limit)} credit line</span></div>
+    </div>
+  );
+}
+
+function DueDataBars({ dues }: { dues: Due[] }) {
+  const groups = new Map<string, { label: string; amount: number; date: Date; count: number }>();
+  dues.forEach((x) => { const k = `${x.date.getFullYear()}-${String(x.date.getMonth()).padStart(2, '0')}`; const g = groups.get(k) ?? { label: x.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), amount: 0, date: x.date, count: 0 }; g.amount += x.amount; g.count += 1; groups.set(k, g); });
+  const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, g]) => g);
+  const max = Math.max(...rows.map((r) => r.amount), 1);
+  return (
+    <div className="stat-visual stat-db-wrap">
+      <ul className="stat-db" data-testid="stat-due-months">
+        {rows.map((r, i) => (
+          <li key={r.label} className={i === 0 ? 'next' : ''}>
+            <i style={{ width: `${Math.max(6, (r.amount / max) * 100)}%` }} />
+            <strong>{r.label}</strong>
+            <small>{daysUntil(r.date)}</small>
+            <em>{money(r.amount)}</em>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 type SortKey = 'id' | 'date' | 'shipDate' | 'items' | 'total' | 'status';
 
 const columns: { key: SortKey; label: string }[] = [
@@ -702,7 +744,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(balanceShown)}</strong>
           <p className={`stat-note ${pastDue > 0 ? 'bad' : ''}`}>Across {openOrders.length} open orders — {pastDue > 0 ? <b>action required.</b> : 'nothing is overdue.'}</p>
-          <CreditGauge current={Math.max(0, openAmount - pastDue)} late={aging} />
+          <CreditLine current={Math.max(0, openAmount - pastDue)} late={aging} />
           <dl className="stat-meta">
             <div><dt>Past due</dt><dd>{money(pastDue)}</dd></div>
             <div><dt>Credit available</dt><dd>{money(5000 - openAmount)} <span className="muted">of {compact(5000)}</span></dd></div>
@@ -717,7 +759,7 @@ export default function DashboardPage({ name, onNavigate }: Props) {
           </div>
           <strong className="stat-value">{money(dueTotal)}</strong>
           <p className="stat-note">{dues.length} invoice{dues.length === 1 ? '' : 's'} across {openOrders.length} open orders, by due month.</p>
-          <DueRunway dues={dues} />
+          <DueDataBars dues={dues} />
           <dl className="stat-meta">
             <div><dt>Next payment</dt><dd data-testid="next-payment">{nextDue ? <>{money(nextDue.amount)} <span className="muted">· {nextDue.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></> : '—'}</dd></div>
             <div><dt>Due in 30 days</dt><dd>{money(due30)}</dd></div>
