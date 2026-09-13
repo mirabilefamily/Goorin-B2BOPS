@@ -68,3 +68,4 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 - 2026-06: Settings mobile: 3-tile icon nav (Team / Company / Alerts short labels via tab.short), compact account card, autosave chip left-aligned, 2×2→4-col compact team stats. Fixed grid min-width bug with minmax(0,1fr).
 - 2026-06: Pre-Book hero v3: compact, facts line (1 drop open · 2 closed · Ships …), deadline panel = label + days-left chip, big date, countdown bar, "Order by". Mobile: hero stacks, open drop card keeps icon+title row, full-width CTA, 2-col meta.
 - 2026-06: Pre-Book mobile hero condensed (lede hidden, compact deadline row).
+- 2026-06: Drop builder hero v3: compact, "Drop 3 · OPEN" tag, facts strip (Order by w/ time + days left, Ships, Reserved units + styles) as joined dl (pb-facts); mobile 2+1 grid, lede hidden.

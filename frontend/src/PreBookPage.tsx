@@ -121,17 +121,17 @@ function DropBuilder({ drop, onBack, onSubmitted, qty, setQty }: { drop: Drop; o
         <span className="pb-closes"><Clock /> Closes <strong>{drop.deadline}</strong></span>
       </div>
 
-      <section className="pb-hero pb-hero--drop">
-        <div>
+      <section className="pb-hero pb-hero--drop pb-hero--drop3">
+        <div className="pb-hero-main">
           <p className="pb-eyebrow">Pre-book drop · {drop.season}</p>
-          <h1>Drop {drop.id}</h1>
+          <h1>Drop {drop.id} <em className="pb-open-tag">Open</em></h1>
           <p className="pb-lede pb-lede--sm">Reserve quantities below. Styles confirm once they reach their minimum order quantity.</p>
         </div>
-        <div className="pb-chips">
-            <div><small>Order deadline</small><strong>{drop.orderBy} <span>· 12:00 PM</span></strong></div>
-            <div><small>Ship window</small><strong>{drop.ship}</strong></div>
-            <div><small>Reserved</small><strong data-testid="pb-hero-units">{units} <span>units</span></strong></div>
-        </div>
+        <dl className="pb-facts" data-testid="pb-hero-facts">
+          <div><dt>Order by</dt><dd>{drop.orderBy}<small>12:00 PM · {drop.daysLeft} days left</small></dd></div>
+          <div><dt>Ships</dt><dd>{drop.ship.replace(/, 20\d\d/, '')}<small>Est. window</small></dd></div>
+          <div className={units > 0 ? 'has' : ''}><dt>Reserved</dt><dd data-testid="pb-hero-units">{units} <span>units</span><small>{units > 0 ? `${lines.length} style${lines.length === 1 ? '' : 's'}` : 'Nothing yet'}</small></dd></div>
+        </dl>
       </section>
 
       <div className="pb-build">
