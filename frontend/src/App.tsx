@@ -135,10 +135,10 @@ type Member = {
   you?: boolean;
 };
 
-const settingsTabs: { id: SettingsTab; label: string; icon: typeof User }[] = [
-  { id: 'users', label: 'Team access', icon: Users },
-  { id: 'workspace', label: 'Company preferences', icon: SlidersHorizontal },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
+const settingsTabs: { id: SettingsTab; label: string; short: string; icon: typeof User }[] = [
+  { id: 'users', label: 'Team access', short: 'Team', icon: Users },
+  { id: 'workspace', label: 'Company preferences', short: 'Company', icon: SlidersHorizontal },
+  { id: 'notifications', label: 'Notifications', short: 'Alerts', icon: Bell },
 ];
 
 const settingsSubtitle: Record<SettingsTab, string> = {
@@ -524,7 +524,7 @@ function App() {
                     {settingsTabs.map((tab) => (
                       <button key={tab.id} className={`set-nav-item ${settingsTab === tab.id ? 'active' : ''}`} onClick={() => setSettingsTab(tab.id)} data-testid={`settings-tab-${tab.id}`}>
                         <i><tab.icon size={16} strokeWidth={1.9} /></i>
-                        <span><b>{tab.label}</b><small>{settingsSubtitle[tab.id]}</small></span>
+                        <span><b>{tab.label}</b><u>{tab.short}</u><small>{settingsSubtitle[tab.id]}</small></span>
                         <ChevronRight size={15} />
                       </button>
                     ))}

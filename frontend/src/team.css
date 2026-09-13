@@ -106,3 +106,33 @@
 .set-nav--v .set-nav-item, .set-nav--v .set-nav-item:not(:first-child) { margin-left: 0; }
 .set-nav--v .set-nav-item i { flex: none; min-width: 34px; }
 .set-nav--v .set-nav-item i svg { width: 16px; height: 16px; }
+.set-nav--v .set-nav-item u { display: none; text-decoration: none; }
+/* Desktop refinements */
+.set-grid { gap: 24px; }
+.set-main .tm { gap: 16px; }
+@media (max-width: 1000px) {
+  .set-page--v2 { gap: 14px; }
+  .set-hero { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .set-autosave { height: 26px; padding: 0 10px; font-size: 12px; }
+  .set-side { gap: 8px; }
+  .set-account { padding: 12px 14px; border-radius: 14px; }
+  .set-account-avatar { width: 34px; height: 34px; font-size: 12px; }
+  .set-account strong { font-size: 14px; }
+  .set-nav--v { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 14px; overflow: hidden; }
+  .set-nav--v .set-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px 6px; border-radius: 10px; }
+  .set-nav--v .set-nav-item i { width: 30px; height: 30px; min-width: 30px; border-radius: 9px; }
+  .set-nav--v .set-nav-item span { align-items: center; }
+  .set-nav--v .set-nav-item b { display: none; }
+  .set-nav--v .set-nav-item u { display: block; font-size: 12.5px; font-weight: 600; color: #565c60; }
+  .set-nav--v .set-nav-item.active u { color: #121415; }
+  .set-nav--v .set-nav-item > svg { display: none; }
+  .set-side-link { padding: 6px 4px; font-size: 12.5px; }
+  .set-section-head h2 { font-size: 18px; }
+  .set-section-head p { font-size: 13px; }
+  .tm-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .tm-stat { padding: 12px 14px; } .tm-stat strong { font-size: 22px; }
+  .ss-card, .tm-card { border-radius: 14px; }
+}
+@media (max-width: 1000px) { .tm-summary { grid-template-columns: repeat(2, 1fr); gap: 8px; } .tm-summary > div { padding: 12px 14px; } .tm-summary strong { font-size: 22px; } }
+@media (max-width: 760px) { .tm-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } .tm-summary > div { padding: 10px 8px; text-align: center; } .tm-summary strong { font-size: 18px; } .tm-summary span { font-size: 10.5px; } }
+@media (max-width: 1000px) { .set-nav--v { grid-template-columns: repeat(3, minmax(0, 1fr)); } .set-nav--v .set-nav-item { min-width: 0; width: auto; } }

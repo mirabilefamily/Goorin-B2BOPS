@@ -65,3 +65,4 @@ Original request: port attached Vite/TS Bolt project into CRA env as a pixel-per
 - 2026-06: Stat cards variant E active: CreditGauge (half-arc credit utilization, Current/Past due tiles) + DueRunway (7-month runway w/ today marker and amount bars at due months).
 - 2026-06: Stat cards variant F active: CreditLine (3 columns + credit-line bar) + DueDataBars (data-bar rows).
 - 2026-06: Settings page v2: hero (title + "Changes save automatically" chip), 2-col layout — left: dark account card, vertical nav (icon tile, label, hint, chevron; testids settings-tab-users/workspace/notifications), link to Profile; right: section head + content (TeamAccess / SimpleSettings). Mobile: nav becomes horizontal scroll.
+- 2026-06: Settings mobile: 3-tile icon nav (Team / Company / Alerts short labels via tab.short), compact account card, autosave chip left-aligned, 2×2→4-col compact team stats. Fixed grid min-width bug with minmax(0,1fr).
