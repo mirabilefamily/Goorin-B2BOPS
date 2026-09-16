@@ -1,7 +1,7 @@
 import { orders, type Order } from '@/lib/orders';
 
 export type Shipment = { id: string; order: Order; created: string; stage: number; coo: boolean; incoterms: string; transport: string; forwarder: string; prepaidAt: string; paid: boolean; instructions: boolean };
-export const stages = ['Draft', 'Ready', 'Requirements', 'Released', 'Shipped', 'Invoiced'];
+export const stages = ['Draft', 'Ready', 'Booking & payment', 'Released', 'Shipped', 'Invoiced'];
 export const shipments: Shipment[] = orders.filter((o) => o.shipment).map((o) => ({
   id: o.shipment!, order: o, created: o.date, coo: o.status !== 'Open',
   stage: o.status === 'Open' ? 3 : o.status === 'Shipped' ? 4 : 5,
