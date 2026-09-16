@@ -18,7 +18,7 @@ export default function ShipmentsPage() {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<Shipment | null>(null);
   useBackable(!!open, () => setOpen(null));
-  const list = useMemo(() => { const q = query.trim().toLowerCase(); return shipments.filter((s) => (scope === 'All' || (scope === 'Active' ? s.stage < 6 : s.stage >= 6)) && (!q || s.id.toLowerCase().includes(q) || s.order.id.toLowerCase().includes(q) || s.order.factory.toLowerCase().includes(q))); }, [scope, query]);
+  const list = useMemo(() => { const q = query.trim().toLowerCase(); return shipments.filter((s) => (scope === 'All' || (scope === 'Active' ? s.stage < 5 : s.stage >= 5)) && (!q || s.id.toLowerCase().includes(q) || s.order.id.toLowerCase().includes(q) || s.order.factory.toLowerCase().includes(q))); }, [scope, query]);
   const total = list.reduce((s, x) => s + shipTotal(x), 0);
   if (open) return <Detail s={open} onBack={() => setOpen(null)} coo={coo} setCoo={(v) => { setCoo(v); notify(v ? 'Certificate of Origin now required for new shipments' : 'Certificate of Origin requirement turned off'); }} />;
   return (

@@ -547,3 +547,8 @@ tr:hover .sh-view { border-color: #121415; }
 .sh3-grid--even > .sh-card .sh3-sched { margin-top: auto; }
 @media (max-width: 760px) { .sh3-pay-tabs { grid-template-columns: 1fr; } .sh3-bank div { grid-template-columns: 96px 1fr; } }
 .sh3-grid--top { align-items: start; } .sh3-grid--top > .sh-card .sh3-docsec, .sh3-grid--top > .sh-card .sh3-sched { margin-top: 18px; }
+.sh3-steps { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.sh3-steps li.current small.warn { color: #9a6400; }
+.sh3-steps li.current small.info { color: #2f5fd1; }
+.sh3-steps li small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sh3-rail-meta:last-child { border-right: 0; padding-right: 0; } .sh3-steps li.current i:has(svg) { background: #0d8a68; border-color: #0d8a68; box-shadow: none; }

@@ -35,7 +35,8 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   const [paidAt, setPaidAt] = useState(s.paid ? `${fmt(s.created)}, 12:49 AM` : '');
   const paid = payState === 'paid';
   const pickWire = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.pdf,.png,.jpg,.jpeg'; inp.onchange = () => { const f = inp.files?.[0]; if (f) { setWireDoc(f.name); setPaidAt(stamp()); setPayState('review'); notify('Wire confirmation uploaded · Goorin will verify shortly'); } }; inp.click(); };
-  const stage = !siDone ? 2 : !paid ? 3 : Math.max(s.stage, 4);
+  const stage = !siDone || !paid ? 2 : Math.max(s.stage, 3);
+  const missing = !siDone && !paid ? 'Instructions & payment' : !siDone ? 'Instructions needed' : payState === 'review' ? 'Wire under review' : 'Payment due';
   const reqDone = (paid ? 1 : 0) + (siDone ? 1 : 0);
   const startEdit = () => { setForm(si); setEdit(true); setTab('booking'); };
   const saveSi = () => { setSi(form); setEdit(false); const first = !siDone; setSiDone(true); setSiAt(stamp()); notify(first ? 'Shipping instructions submitted · factory notified' : 'Shipping instructions updated · factory notified'); };
@@ -55,7 +56,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   const generated = ['Packing List', 'Commercial Invoice', ...(coo ? ['Certificate of Origin'] : [])];
   const activity: Event[] = [
     ...(s.instructions ? [{ title: 'Message sent to Goorin', detail: 'Packing list confirmed as final.', at: `${fmt(s.created)}, 3:29 AM`, by: 'Ryan M', kind: 'message' } as Event] : []),
-    ...(stage >= 4 ? [{ title: 'Released to factory', detail: 'All release requirements met · production handoff confirmed.', at: `${fmt(s.created)}, 12:50 AM`, by: 'Goorin Ops', kind: 'release' } as Event] : []),
+    ...(stage >= 3 ? [{ title: 'Released to factory', detail: 'All release requirements met · production handoff confirmed.', at: `${fmt(s.created)}, 12:50 AM`, by: 'Goorin Ops', kind: 'release' } as Event] : []),
     ...(siDone && !s.instructions ? [{ title: 'Shipping instructions submitted', detail: `${si.method} · ${si.transport}${si.forwarder ? ` · ${si.forwarder}` : ''}`, at: siAt, by: 'Ryan M', kind: 'booking' } as Event] : []),
     ...(paid && !s.paid ? [{ title: 'Prepayment received', detail: `${money(prepay)} · ${payMethod === 'wire' ? 'Bank wire' : 'Visa •••• 4242'}`, at: paidAt, by: payMethod === 'wire' ? 'Goorin Finance' : 'Stripe', kind: 'payment' } as Event] : []),
     ...(payState === 'review' ? [{ title: 'Wire confirmation uploaded', detail: `${wireDoc} · pending verification`, at: paidAt, by: 'Ryan M', kind: 'payment' } as Event] : []),
@@ -63,10 +64,10 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
     ...(s.instructions ? [{ title: 'Shipping instructions submitted', detail: `${si.method} · ${si.transport} · ${si.forwarder}`, at: `${fmt(s.created)}, 12:48 AM`, by: 'Ryan M', kind: 'booking' } as Event] : []),
     { title: 'Shipment created', detail: `${lines.length} lines · ${units.toLocaleString()} units from ${s.order.id}`, at: `${fmt(s.created)}, 12:40 AM`, by: 'Goorin Ops', kind: 'created' },
   ];
-  const nextStep = stage >= 6 ? null : stages[stage + 1];
-  const nextHint: Record<string, string> = { Shipped: 'Goorin will confirm once the factory hands off to your forwarder.', Invoiced: 'Your final invoice is issued after the shipment leaves the factory.', Released: 'Factory release follows once prepayment and shipping instructions are complete.', 'Pre-payment': 'Your 50% prepayment is already in — release follows right after your instructions.' };
-  const stageLabelLive = stage >= 6 ? 'Invoiced' : stage === 5 ? 'Shipped' : stage >= 4 ? 'Prepaid' : 'Action needed';
-  const stageToneLive = stage >= 6 ? 'green' : stage === 5 ? 'teal' : stage >= 4 ? 'blue' : 'amber';
+  const nextStep = stage >= 5 ? null : stages[stage + 1];
+  const nextHint: Record<string, string> = { Shipped: 'Goorin will confirm once the factory hands off to your forwarder.', Invoiced: 'Your final invoice is issued after the shipment leaves the factory.', Released: 'Factory release follows once both requirements are complete.' };
+  const stageLabelLive = stage >= 5 ? 'Invoiced' : stage === 4 ? 'Shipped' : stage >= 3 ? 'Prepaid' : payState === 'review' ? 'Under review' : 'Action needed';
+  const stageToneLive = stage >= 5 ? 'green' : stage === 4 ? 'teal' : stage >= 3 ? 'blue' : payState === 'review' ? 'blue' : 'amber';
   const tabs: { id: Tab; label: string; icon: typeof LayoutGrid; n?: number }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutGrid }, { id: 'booking', label: 'Booking & payment', icon: Truck }, { id: 'conversation', label: 'Conversation', icon: MessageSquare, n: msgs.length },
     { id: 'documents', label: 'Documents', icon: FileText, n: generated.length }, { id: 'activity', label: 'Activity', icon: Activity, n: activity.length },
@@ -91,7 +92,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
           </div>
         </div>
         <dl className="sh3-facts">
-          <div><dt>{s.order.estimated ? 'Est. ship date' : 'Ship date'}</dt><dd>{eta}</dd>{stage < 5 && <small data-testid="ships-in">in {days} days</small>}</div>
+          <div><dt>{s.order.estimated ? 'Est. ship date' : 'Ship date'}</dt><dd>{eta}</dd>{stage < 4 && <small data-testid="ships-in">in {days} days</small>}</div>
           <div><dt>Mode</dt>{siDone ? <><dd>{si.transport}</dd><small>{si.method === 'Freight forwarder' ? si.forwarder : 'Customer pickup'}</small></> : <><dd className="muted">—</dd><small className="warn">Instructions needed</small></>}</div>
           <div><dt>Incoterms</dt><dd>{s.incoterms} · USD</dd><small>Factory port</small></div>
           <div><dt>Units</dt><dd>{units.toLocaleString()}</dd><small>{lines.length} lines</small></div>
@@ -101,10 +102,10 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
         <div className="sh3-rail">
           <ol className="sh3-steps" data-testid="shipment-stages">
             {stages.map((st, i) => { const state = i < stage ? 'done' : i === stage ? 'current' : ''; return (
-              <li key={st} className={state}><i>{i < stage ? <Check /> : i + 1}</i><strong>{st}</strong><small>{i < stage ? 'Done' : i === stage ? (stage < 4 ? 'Action needed' : 'In progress') : 'Upcoming'}</small></li>
+              <li key={st} className={state}><i>{i < stage || (i === stage && stage === stages.length - 1) ? <Check /> : i + 1}</i><strong>{st}</strong><small className={i === stage && stage === 2 ? (payState === 'review' && siDone ? 'info' : 'warn') : ''}>{i < stage ? 'Done' : i === stage ? (stage === 2 ? `${reqDone} of 2 · ${missing}` : stage === stages.length - 1 ? 'Complete' : 'In progress') : 'Upcoming'}</small></li>
             ); })}
           </ol>
-          <div className="sh3-rail-foot"><span className="sh3-rail-meta" data-testid="stage-meta">Stage {stage + 1} of {stages.length} · {progress}%</span>{nextStep && <p className="sh3-next" data-testid="next-step"><span>Next</span><strong>{nextStep}</strong>{nextHint[nextStep] ?? 'We will keep you posted here.'}</p>}</div>
+          <div className="sh3-rail-foot"><span className="sh3-rail-meta" data-testid="stage-meta">Stage {stage + 1} of {stages.length} · {progress}%</span>{nextStep && <p className="sh3-next" data-testid="next-step"><span>Next</span><strong>{nextStep}</strong>{stage === 2 ? (reqDone === 2 ? 'Both requirements complete — Goorin is releasing the factory.' : `${2 - reqDone === 2 ? 'Two items' : 'One item'} left: ${missing.toLowerCase()}.`) : (nextHint[nextStep] ?? 'We will keep you posted here.')}</p>}</div>
         </div>
       </section>
 
