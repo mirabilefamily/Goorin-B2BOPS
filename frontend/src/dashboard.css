@@ -325,3 +325,15 @@
 .dash-hero .dash-sub { margin-top: 12px; font-size: 15px; color: #686e73; }
 .dash-hero .dash-sub strong { color: #2d3235; font-weight: 600; }
 @media (max-width: 760px) { .dash-hero h1 { font-size: 28px !important; } .dash-hero .dash-sub { font-size: 14px; margin-top: 8px; } .dash-hero .dash-eyebrow { margin-bottom: 10px; } }
+/* ── Hero: tighter ──────────────────────────────────────── */
+.dash-hero { align-items: center; padding: 0 0 16px; margin-bottom: 20px; gap: 16px; }
+.dash-hero .dash-eyebrow { margin-bottom: 8px; }
+.dash-hero h1 { font-size: clamp(26px, 2.2vw, 32px) !important; line-height: 1.1; }
+.dash-hero .dash-sub { margin-top: 6px; font-size: 14px; }
+.dash-hero-strip div { flex-direction: row; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 1px solid rgba(16,18,19,.08); border-radius: 999px; background: #fff; }
+.dash-hero-strip dt { font-size: 10.5px; }
+.dash-hero-strip dt::after { content: '·'; color: #c3c7c2; margin-left: 2px; }
+.dash-hero-strip dd { font-size: 13.5px; font-weight: 600; color: #2d3235; }
+@media (max-width: 900px) { .dash-hero { gap: 12px; } .dash-hero-strip { width: auto; } .dash-hero-strip div { flex: 0 0 auto; height: 32px; padding: 0 12px; } }
+@media (max-width: 760px) { .dash-hero { padding-bottom: 14px; margin-bottom: 16px; } .dash-hero h1 { font-size: 26px !important; } .dash-hero-strip div:first-child { padding-left: 12px; } }
+@media (max-width: 900px) { .dash-hero { align-items: flex-start; } }
