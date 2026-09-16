@@ -449,3 +449,20 @@ tr:hover .sh-view { border-color: #121415; }
 .sh3-rail-foot .sh3-next { padding: 0; border: 0; font-size: 13px; gap: 8px; }
 .sh3-next span { height: 20px; font-size: 10px; }
 @media (max-width: 760px) { .sh3-hero { padding: 16px; } .sh3-rail-meta { border-right: 0; padding-right: 0; } }
+/* ── Tabs: segmented pill bar ───────────────────────────── */
+.sh3-tabs { display: inline-flex; align-self: flex-start; max-width: 100%; gap: 2px; padding: 4px; border: 1px solid rgba(0,0,0,.07); border-bottom: 1px solid rgba(0,0,0,.07); border-radius: 999px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+.sh3-tabs button { height: 40px; padding: 0 16px 0 14px; border-radius: 999px; gap: 8px; font-size: 14px; color: #565c60; transition: background-color .16s ease, color .16s ease; }
+.sh3-tabs button svg { width: 16px; height: 16px; color: #8e9396; transition: color .16s ease; }
+.sh3-tabs button:hover { background: #f3f5f1; color: #121415; }
+.sh3-tabs button:hover svg { color: #121415; }
+.sh3-tabs button::after { content: none; }
+.sh3-tabs button.active { background: #121415; color: #fff; font-weight: 600; }
+.sh3-tabs button.active svg { color: #fff; }
+.sh3-tabs button em { min-width: 20px; height: 20px; font-size: 11px; background: #eef1ed; color: #565c60; }
+.sh3-tabs button.active em { background: rgba(255,255,255,.18); color: #fff; }
+@media (max-width: 760px) { .sh3-tabs { align-self: stretch; } .sh3-tabs button { padding: 0 12px; font-size: 13px; } .sh3-tabs button svg { display: none; } }
+.sh3-sched { margin-bottom: 18px; }
+.sh3-grid--even > .sh-card .sh3-note { margin-top: auto; }
+.sh3-docsec .sh3-files:last-child { margin-bottom: 0; }
+.sh3-tabs button::after, .sh3-tabs button.active::after { content: none !important; display: none !important; }
+.sh3-tabs button.active em { background: rgba(255,255,255,.2); }

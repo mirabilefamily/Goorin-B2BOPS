@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Check, CheckCircle2, CreditCard, Download, FileText, Lock, MessageSquare, Package, Pencil, Search, Send, Ship, Truck, Upload, X } from 'lucide-react';
+import { Activity, ArrowLeft, Check, CheckCircle2, CreditCard, Download, FileText, LayoutGrid, Lock, MessageSquare, Package, Pencil, Search, Send, Ship, Truck, Upload, X } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { CountrySelect } from './CountrySelect';
@@ -50,9 +50,9 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   ];
   const nextStep = s.stage >= 6 ? null : stages[s.stage + 1];
   const nextHint: Record<string, string> = { Shipped: 'Goorin will confirm once the factory hands off to your forwarder.', Invoiced: 'Your final invoice is issued after the shipment leaves the factory.', Released: 'Factory release follows once prepayment and shipping instructions are complete.' };
-  const tabs: { id: Tab; label: string; n?: number }[] = [
-    { id: 'overview', label: 'Overview' }, { id: 'booking', label: 'Booking & payment' }, { id: 'conversation', label: 'Conversation', n: msgs.length },
-    { id: 'documents', label: 'Documents', n: generated.length }, { id: 'activity', label: 'Activity', n: activity.length },
+  const tabs: { id: Tab; label: string; icon: typeof LayoutGrid; n?: number }[] = [
+    { id: 'overview', label: 'Overview', icon: LayoutGrid }, { id: 'booking', label: 'Booking & payment', icon: Truck }, { id: 'conversation', label: 'Conversation', icon: MessageSquare, n: msgs.length },
+    { id: 'documents', label: 'Documents', icon: FileText, n: generated.length }, { id: 'activity', label: 'Activity', icon: Activity, n: activity.length },
   ];
   const dl = (name: string) => notify(`${name} downloading…`);
   const progress = Math.round(((s.stage + 1) / stages.length) * 100);
@@ -92,7 +92,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
       </section>
 
       <nav className="sh3-tabs" role="tablist" data-testid="shipment-tabs">
-        {tabs.map((t) => <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'active' : ''} onClick={() => setTab(t.id)} data-testid={`tab-${t.id}`}>{t.label}{t.n !== undefined && <em>{t.n}</em>}</button>)}
+        {tabs.map((t) => { const Icon = t.icon; return <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'active' : ''} onClick={() => setTab(t.id)} data-testid={`tab-${t.id}`}><Icon />{t.label}{t.n !== undefined && <em>{t.n}</em>}</button>; })}
       </nav>
 
       {tab === 'overview' && (
