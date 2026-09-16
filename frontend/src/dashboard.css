@@ -347,3 +347,4 @@
 .dash-hero-strip dt svg { color: #6f7573; }
 .dash-hero-strip dt::after { content: none; }
 .dash-hero-strip dd { font-size: 13.5px; font-weight: 600; color: #121415; }
+.dash-hero-strip div:last-child { padding-right: 14px; } .dash-hero-strip div:first-child { padding-left: 12px; } .dash-hero-strip dd { white-space: nowrap; }
