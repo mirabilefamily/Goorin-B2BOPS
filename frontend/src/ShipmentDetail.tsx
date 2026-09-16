@@ -50,7 +50,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
 
   return (
     <div className="sh sh--v3" data-testid="shipment-detail">
-      <div className="sh-head"><button className="pb-back" onClick={onBack} data-testid="shipment-back"><ArrowLeft /> Shipments</button></div>
+      <div className="sh-head"><button className="pb-back pb-back--pill" onClick={onBack} data-testid="shipment-back"><ArrowLeft /> Shipments</button></div>
 
       <section className="sh3-hero" data-testid="shipment-hero">
         <div className="sh3-hero-top">
