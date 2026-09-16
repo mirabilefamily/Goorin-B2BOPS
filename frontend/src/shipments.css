@@ -476,3 +476,23 @@ tr:hover .sh-view { border-color: #121415; }
 .sh3-tabs button em { min-width: 18px; height: 18px; padding: 0 5px; font-size: 10.5px; background: rgba(0,0,0,.06); color: #565c60; }
 .sh3-tabs button.active em { background: #121415; color: #fff; }
 @media (max-width: 760px) { .sh3-tabs button { height: 34px; padding: 0 10px; font-size: 13px; } }
+/* ── Pending requirement state ──────────────────────────── */
+.stat-chip--warn { background: #fff3d6; color: #9a6400; }
+.sh-checks li.todo i { background: #fff3d6; color: #9a6400; }
+.sh-checks li.todo strong { color: #121415; }
+.sh3-req-cta { flex: 0 0 auto; height: 32px; padding: 0 14px; border-radius: 999px; background: #121415; color: #fff; font-size: 12.5px; font-weight: 600; white-space: nowrap; transition: background .15s ease; }
+.sh3-req-cta:hover { background: #2d3235; }
+.sh-lock--warn { color: #9a6400; }
+.sh-lock--warn svg { color: #9a6400; }
+.sh3-facts dd.muted { color: #b0b5b0; }
+.sh3-facts small.warn { color: #9a6400; font-weight: 600; }
+.sh3-steps li.current small { color: #565c60; }
+.sh3-si-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 22px 20px; border: 1.5px dashed rgba(0,0,0,.14); border-radius: 14px; background: #fafbf9; }
+.sh3-si-empty i { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; background: #fff3d6; color: #9a6400; margin-bottom: 6px; }
+.sh3-si-empty i svg { width: 18px; height: 18px; }
+.sh3-si-empty strong { font-size: 15px; color: #121415; }
+.sh3-si-empty span { font-size: 13.5px; color: #686e73; line-height: 1.45; }
+.sh3-si-empty .co-primary { margin-top: 12px !important; height: 40px !important; width: auto; font-size: 13.5px !important; border-radius: 999px !important; }
+.sh3-note--warn { background: #fff7e6; }
+.sh3-note--warn .co-primary { align-self: flex-start; height: 40px !important; width: auto; margin: 0 !important; font-size: 13.5px !important; border-radius: 999px !important; }
+@media (max-width: 760px) { .sh-checks li .sh3-req-cta { display: inline-flex; } .sh-checks li { flex-wrap: wrap; } .sh-checks li .sh3-req-cta { margin-left: 42px; } }

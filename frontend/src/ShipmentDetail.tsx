@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, ArrowLeft, Check, CheckCircle2, CreditCard, Download, FileText, LayoutGrid, Lock, MessageSquare, Package, Pencil, Search, Send, Ship, Truck, Upload, X } from 'lucide-react';
+import { Activity, AlertCircle, ArrowLeft, Check, CheckCircle2, CreditCard, Download, FileText, LayoutGrid, Lock, MessageSquare, Package, Pencil, Search, Send, Ship, Truck, Upload, X } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { CountrySelect } from './CountrySelect';
-import { fmt, shipLines, shipTotal, shipUnits, stageLabel, stageTone, stages, type Shipment } from './lib/shipments';
+import { fmt, shipLines, shipTotal, shipUnits, stages, type Shipment } from './lib/shipments';
 
 type Tab = 'overview' | 'booking' | 'conversation' | 'documents' | 'activity';
 type Msg = { who: string; mine: boolean; text: string; at: string };
@@ -22,11 +22,17 @@ const docMeta: Record<string, { size: string; note: string }> = { 'Packing List'
 export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => void; coo: boolean; setCoo: (v: boolean) => void }) {
   const notify = useToast();
   const [tab, setTab] = useState<Tab>('overview');
-  const [msgs, setMsgs] = useState<Msg[]>(() => seedMsgs(s));
+  const [msgs, setMsgs] = useState<Msg[]>(() => (s.instructions ? seedMsgs(s) : [{ who: 'Goorin Ops', mine: false, text: `Your prepayment for ${s.id} is in. Add your shipping instructions when you're ready and we'll release the factory.`, at: `${fmt(s.created)}, 9:27 PM` }]));
   const [draft, setDraft] = useState('');
-  const [si, setSi] = useState({ method: 'Freight forwarder' as 'Freight forwarder' | 'Customer pickup', forwarder: s.forwarder, contact: 'Name', email: 'name@ff123.com', phone: '3213444590', country: 'United States', transport: s.transport, notes: '' });
+  const [si, setSi] = useState({ method: 'Freight forwarder' as 'Freight forwarder' | 'Customer pickup', forwarder: s.forwarder, contact: s.instructions ? 'Name' : '', email: s.instructions ? 'name@ff123.com' : '', phone: s.instructions ? '3213444590' : '', country: 'United States', transport: s.transport, notes: '' });
   const [form, setForm] = useState(si);
   const [edit, setEdit] = useState(false);
+  const [siDone, setSiDone] = useState(s.instructions);
+  const [siAt, setSiAt] = useState(s.instructions ? `${fmt(s.created)}, 12:48 AM` : '');
+  const stage = !siDone ? 2 : !s.paid ? 3 : Math.max(s.stage, 4);
+  const reqDone = (s.paid ? 1 : 0) + (siDone ? 1 : 0);
+  const startEdit = () => { setForm(si); setEdit(true); setTab('booking'); };
+  const saveSi = () => { setSi(form); setEdit(false); const first = !siDone; setSiDone(true); setSiAt(stamp()); notify(first ? 'Shipping instructions submitted · factory notified' : 'Shipping instructions updated · factory notified'); };
   const [docs, setDocs] = useState<string[]>([]);
   const [lineQ, setLineQ] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
@@ -42,20 +48,23 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   const days = daysUntil(s.order.shipStart);
   const generated = ['Packing List', 'Commercial Invoice', ...(coo ? ['Certificate of Origin'] : [])];
   const activity: Event[] = [
-    { title: 'Message sent to Goorin', detail: 'Packing list confirmed as final.', at: `${fmt(s.created)}, 3:29 AM`, by: 'Ryan M', kind: 'message' },
-    { title: 'Released to factory', detail: 'All release requirements met · production handoff confirmed.', at: `${fmt(s.created)}, 12:50 AM`, by: 'Goorin Ops', kind: 'release' },
-    { title: 'Prepayment received', detail: `${money(prepay)} · Visa •••• 4242`, at: `${fmt(s.created)}, 12:49 AM`, by: 'Stripe', kind: 'payment' },
-    { title: 'Shipping instructions submitted', detail: `${si.method} · ${si.transport} · ${si.forwarder}`, at: `${fmt(s.created)}, 12:48 AM`, by: 'Ryan M', kind: 'booking' },
+    ...(s.instructions ? [{ title: 'Message sent to Goorin', detail: 'Packing list confirmed as final.', at: `${fmt(s.created)}, 3:29 AM`, by: 'Ryan M', kind: 'message' } as Event] : []),
+    ...(stage >= 4 ? [{ title: 'Released to factory', detail: 'All release requirements met · production handoff confirmed.', at: `${fmt(s.created)}, 12:50 AM`, by: 'Goorin Ops', kind: 'release' } as Event] : []),
+    ...(siDone && !s.instructions ? [{ title: 'Shipping instructions submitted', detail: `${si.method} · ${si.transport}${si.forwarder ? ` · ${si.forwarder}` : ''}`, at: siAt, by: 'Ryan M', kind: 'booking' } as Event] : []),
+    ...(s.paid ? [{ title: 'Prepayment received', detail: `${money(prepay)} · Visa •••• 4242`, at: `${fmt(s.created)}, 12:49 AM`, by: 'Stripe', kind: 'payment' } as Event] : []),
+    ...(s.instructions ? [{ title: 'Shipping instructions submitted', detail: `${si.method} · ${si.transport} · ${si.forwarder}`, at: `${fmt(s.created)}, 12:48 AM`, by: 'Ryan M', kind: 'booking' } as Event] : []),
     { title: 'Shipment created', detail: `${lines.length} lines · ${units.toLocaleString()} units from ${s.order.id}`, at: `${fmt(s.created)}, 12:40 AM`, by: 'Goorin Ops', kind: 'created' },
   ];
-  const nextStep = s.stage >= 6 ? null : stages[s.stage + 1];
-  const nextHint: Record<string, string> = { Shipped: 'Goorin will confirm once the factory hands off to your forwarder.', Invoiced: 'Your final invoice is issued after the shipment leaves the factory.', Released: 'Factory release follows once prepayment and shipping instructions are complete.' };
+  const nextStep = stage >= 6 ? null : stages[stage + 1];
+  const nextHint: Record<string, string> = { Shipped: 'Goorin will confirm once the factory hands off to your forwarder.', Invoiced: 'Your final invoice is issued after the shipment leaves the factory.', Released: 'Factory release follows once prepayment and shipping instructions are complete.', 'Pre-payment': 'Your 50% prepayment is already in — release follows right after your instructions.' };
+  const stageLabelLive = stage >= 6 ? 'Invoiced' : stage === 5 ? 'Shipped' : stage >= 4 ? 'Prepaid' : 'Action needed';
+  const stageToneLive = stage >= 6 ? 'green' : stage === 5 ? 'teal' : stage >= 4 ? 'blue' : 'amber';
   const tabs: { id: Tab; label: string; icon: typeof LayoutGrid; n?: number }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutGrid }, { id: 'booking', label: 'Booking & payment', icon: Truck }, { id: 'conversation', label: 'Conversation', icon: MessageSquare, n: msgs.length },
     { id: 'documents', label: 'Documents', icon: FileText, n: generated.length }, { id: 'activity', label: 'Activity', icon: Activity, n: activity.length },
   ];
   const dl = (name: string) => notify(`${name} downloading…`);
-  const progress = Math.round(((s.stage + 1) / stages.length) * 100);
+  const progress = Math.round(((stage + 1) / stages.length) * 100);
 
   return (
     <div className="sh sh--v3" data-testid="shipment-detail">
@@ -65,7 +74,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
         <div className="sh3-hero-top">
           <div className="sh3-id">
             <p className="pb-eyebrow">International shipment · {s.order.id}</p>
-            <h1>{s.id} <span className={`dash-pill tone-${stageTone(s)}`}><i />{stageLabel(s)}</span></h1>
+            <h1>{s.id} <span className={`dash-pill tone-${stageToneLive}`} data-testid="hero-status"><i />{stageLabelLive}</span></h1>
             <p className="sh3-hero-sub"><Ship /> {s.order.factory} <em>·</em> Created {fmt(s.created)} <em>·</em> {s.transport} · {s.incoterms}</p>
           </div>
           <div className="sh3-hero-actions">
@@ -74,20 +83,20 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
           </div>
         </div>
         <dl className="sh3-facts">
-          <div><dt>{s.order.estimated ? 'Est. ship date' : 'Ship date'}</dt><dd>{eta}</dd>{s.stage < 5 && <small data-testid="ships-in">in {days} days</small>}</div>
-          <div><dt>Mode</dt><dd>{si.transport}</dd><small>{si.method === 'Freight forwarder' ? si.forwarder : 'Customer pickup'}</small></div>
+          <div><dt>{s.order.estimated ? 'Est. ship date' : 'Ship date'}</dt><dd>{eta}</dd>{stage < 5 && <small data-testid="ships-in">in {days} days</small>}</div>
+          <div><dt>Mode</dt>{siDone ? <><dd>{si.transport}</dd><small>{si.method === 'Freight forwarder' ? si.forwarder : 'Customer pickup'}</small></> : <><dd className="muted">—</dd><small className="warn">Instructions needed</small></>}</div>
           <div><dt>Incoterms</dt><dd>{s.incoterms} · USD</dd><small>Factory port</small></div>
           <div><dt>Units</dt><dd>{units.toLocaleString()}</dd><small>{lines.length} lines</small></div>
           <div><dt>Declared value</dt><dd>{money(total)}</dd><small>Commercial invoice</small></div>
-          <div><dt>Prepayment</dt><dd className="good">{money(prepay)}</dd><small className="good">Received · 50%</small></div>
+          <div><dt>Prepayment</dt><dd className={s.paid ? 'good' : ''}>{money(prepay)}</dd><small className={s.paid ? 'good' : 'warn'}>{s.paid ? 'Received · 50%' : 'Due · 50%'}</small></div>
         </dl>
         <div className="sh3-rail">
           <ol className="sh3-steps" data-testid="shipment-stages">
-            {stages.map((st, i) => { const state = i < s.stage ? 'done' : i === s.stage ? 'current' : ''; return (
-              <li key={st} className={state}><i>{i < s.stage ? <Check /> : i + 1}</i><strong>{st}</strong><small>{i < s.stage ? 'Done' : i === s.stage ? 'In progress' : 'Upcoming'}</small></li>
+            {stages.map((st, i) => { const state = i < stage ? 'done' : i === stage ? 'current' : ''; return (
+              <li key={st} className={state}><i>{i < stage ? <Check /> : i + 1}</i><strong>{st}</strong><small>{i < stage ? 'Done' : i === stage ? (stage < 4 ? 'Action needed' : 'In progress') : 'Upcoming'}</small></li>
             ); })}
           </ol>
-          <div className="sh3-rail-foot"><span className="sh3-rail-meta" data-testid="stage-meta">Stage {s.stage + 1} of {stages.length} · {progress}%</span>{nextStep && <p className="sh3-next" data-testid="next-step"><span>Next</span><strong>{nextStep}</strong>{nextHint[nextStep] ?? 'We will keep you posted here.'}</p>}</div>
+          <div className="sh3-rail-foot"><span className="sh3-rail-meta" data-testid="stage-meta">Stage {stage + 1} of {stages.length} · {progress}%</span>{nextStep && <p className="sh3-next" data-testid="next-step"><span>Next</span><strong>{nextStep}</strong>{nextHint[nextStep] ?? 'We will keep you posted here.'}</p>}</div>
         </div>
       </section>
 
@@ -99,12 +108,13 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
         <div className="sh3-grid" data-testid="tab-panel-overview">
           <div className="sh-col">
             <section className="sh-card sh-checklist" data-testid="shipment-requirements">
-              <header><div><h2>Release requirements</h2><p>Both must be complete before the factory releases the shipment.</p></div><span className="stat-chip stat-chip--good"><CheckCircle2 /> 2 of 2 complete</span></header>
+              <header><div><h2>Release requirements</h2><p>Both must be complete before the factory releases the shipment.</p></div><span className={`stat-chip ${reqDone === 2 ? 'stat-chip--good' : 'stat-chip--warn'}`} data-testid="req-progress">{reqDone === 2 ? <CheckCircle2 /> : <AlertCircle />} {reqDone} of 2 complete</span></header>
               <ul className="sh-checks">
-                <li className="done"><i><Check /></i><div><strong>Payment</strong><span>Prepayment received {fmt(s.created)}, 12:49 AM</span></div><em>Complete</em></li>
-                <li className="done"><i><Check /></i><div><strong>Shipping instructions</strong><span>{si.method} · {si.transport}{si.method === 'Freight forwarder' ? ` · ${si.forwarder}` : ''}</span></div><em>Complete</em></li>
+                <li className={s.paid ? 'done' : 'todo'} data-testid="req-payment"><i>{s.paid ? <Check /> : <CreditCard />}</i><div><strong>Payment</strong><span>{s.paid ? `Prepayment received ${fmt(s.created)}, 12:49 AM` : `50% prepayment of ${money(prepay)} due before release`}</span></div>{s.paid ? <em>Complete</em> : <button className="sh3-req-cta" onClick={() => setTab('booking')} data-testid="req-payment-cta">Pay now</button>}</li>
+                <li className={siDone ? 'done' : 'todo'} data-testid="req-instructions"><i>{siDone ? <Check /> : <Truck />}</i><div><strong>Shipping instructions</strong><span>{siDone ? `${si.method} · ${si.transport}${si.method === 'Freight forwarder' && si.forwarder ? ` · ${si.forwarder}` : ''}` : 'Tell us how this shipment leaves the factory — forwarder or pickup.'}</span></div>{siDone ? <em>Complete</em> : <button className="sh3-req-cta" onClick={startEdit} data-testid="req-instructions-cta">Add instructions</button>}</li>
               </ul>
-              <p className="sh-lock"><Lock /> Requirements are locked. Your shipment is being prepared for release to the factory.</p>
+              {reqDone === 2 ? <p className="sh-lock"><Lock /> Requirements are locked. Your shipment is being prepared for release to the factory.</p>
+                : <p className="sh-lock sh-lock--warn"><AlertCircle /> {2 - reqDone === 1 ? 'One item' : 'Two items'} still needed. The factory holds this shipment until both requirements are complete.</p>}
             </section>
             <section className="sh-card sh3-lines" data-testid="shipment-lines">
               <header><div><h2>Shipment lines</h2><p>From factory packing list · read-only</p></div>
@@ -135,8 +145,10 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
       {tab === 'booking' && (
         <div className="sh3-grid sh3-grid--even" data-testid="tab-panel-booking">
           <section className="sh-card" data-testid="shipping-instructions">
-            <header><div><h2>Customer booking</h2><p>How your shipment leaves the factory.</p></div>{!edit && <button className="co-edit" onClick={() => { setForm(si); setEdit(true); }} data-testid="si-edit"><Pencil /> Edit</button>}</header>
-            {edit ? (
+            <header><div><h2>Customer booking</h2><p>How your shipment leaves the factory.</p></div>{!edit && siDone && <button className="co-edit" onClick={() => { setForm(si); setEdit(true); }} data-testid="si-edit"><Pencil /> Edit</button>}</header>
+            {!edit && !siDone ? (
+              <div className="sh3-si-empty" data-testid="si-empty"><i><Truck /></i><strong>No shipping instructions yet</strong><span>Add your forwarder or pickup details so the factory can hand off your goods.</span><button className="co-primary sh3-btn" onClick={startEdit} data-testid="si-add">Add shipping instructions</button></div>
+            ) : edit ? (
               <div className="co-form sh-form" data-testid="si-form">
                 <label className="co-field"><span>Booking method</span><div className="co-segment">{(['Freight forwarder', 'Customer pickup'] as const).map((m) => <button key={m} type="button" className={form.method === m ? 'active' : ''} onClick={() => setForm({ ...form, method: m })} data-testid={`si-method-${m.split(' ')[0].toLowerCase()}`}>{m}</button>)}</div></label>
                 {form.method === 'Freight forwarder' && <>
@@ -145,7 +157,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
                 </>}
                 <div className="co-row"><label className="co-field"><span>Transport</span><select className="mk-select" value={form.transport} onChange={(e) => setForm({ ...form, transport: e.target.value })} data-testid="si-transport">{['Ocean', 'Air', 'Ground'].map((t) => <option key={t}>{t}</option>)}</select></label><CountrySelect value={form.country} onChange={(v) => setForm({ ...form, country: v })} testId="si-country" /></div>
                 <label className="co-field"><span>Notes for the factory <em>(optional)</em></span><textarea className="co-input sh-notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Carrier account #, pickup windows, labeling…" data-testid="si-notes" /></label>
-                <div className="co-actions"><button className="co-secondary" onClick={() => setEdit(false)} data-testid="si-cancel">Cancel</button><button className="co-primary" disabled={form.method === 'Freight forwarder' && (!form.forwarder.trim() || !form.email.trim())} onClick={() => { setSi(form); setEdit(false); notify('Shipping instructions updated · factory notified'); }} data-testid="si-save">Save instructions</button></div>
+                <div className="co-actions"><button className="co-secondary" onClick={() => setEdit(false)} data-testid="si-cancel">Cancel</button><button className="co-primary" disabled={form.method === 'Freight forwarder' && (!form.forwarder.trim() || !form.email.trim())} onClick={saveSi} data-testid="si-save">{siDone ? 'Save instructions' : 'Submit instructions'}</button></div>
               </div>
             ) : (
               <dl className="sh3-kv">
@@ -157,7 +169,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
                   <div><dt>Phone</dt><dd>{si.phone}</dd></div>
                   <div><dt>Country</dt><dd>{si.country}</dd></div>
                 </>}
-                <div><dt>Submitted</dt><dd>{fmt(s.created)}, 12:48 AM</dd></div>
+                <div><dt>Submitted</dt><dd>{siAt}</dd></div>
                 {si.notes && <div><dt>Notes</dt><dd className="muted">{si.notes}</dd></div>}
               </dl>
             )}
@@ -167,15 +179,16 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
             </div>
           </section>
           <section className="sh-card" data-testid="prepayment-card">
-            <header><div><h2>Payment</h2><p>50% Prepay / 50% Net 60</p></div><span className="dash-pill tone-green"><i />Prepayment received</span></header>
+            <header><div><h2>Payment</h2><p>50% Prepay / 50% Net 60</p></div>{s.paid ? <span className="dash-pill tone-green"><i />Prepayment received</span> : <span className="dash-pill tone-amber"><i />Prepayment due</span>}</header>
             <p className="sh3-money" data-testid="prepay-amount">{money(prepay)}</p>
-            <p className="sh3-sub">paid of {money(total)} declared value</p>
-            <div className="sh3-split" aria-hidden><i style={{ width: '50%' }} /></div>
+            <p className="sh3-sub">{s.paid ? 'paid' : 'due now'} of {money(total)} declared value</p>
+            <div className="sh3-split" aria-hidden><i style={{ width: s.paid ? '50%' : '0%' }} /></div>
             <ul className="sh3-sched">
-              <li className="paid"><i><Check /></i><div><strong>50% prepayment</strong><span>Paid {fmt(s.created)} · Visa •••• 4242</span></div><b>{money(prepay)}</b></li>
+              <li className={s.paid ? 'paid' : ''}><i>{s.paid ? <Check /> : 1}</i><div><strong>50% prepayment</strong><span>{s.paid ? `Paid ${fmt(s.created)} · Visa •••• 4242` : 'Charged to Visa •••• 4242 on confirmation'}</span></div><b>{money(prepay)}</b></li>
               <li><i>2</i><div><strong>50% balance · Net 60</strong><span>Invoiced after the shipment leaves the factory</span></div><b>{money(total - prepay)}</b></li>
             </ul>
-            <div className="sh3-note"><p>Nothing else is due right now. Your remaining balance is invoiced once the shipment ships and is due 60 days after invoice.</p><button className="mk-btn" onClick={() => dl('Prepayment receipt.pdf')} data-testid="prepay-receipt"><Download /> Download receipt</button></div>
+            {s.paid ? <div className="sh3-note"><p>Nothing else is due right now. Your remaining balance is invoiced once the shipment ships and is due 60 days after invoice.</p><button className="mk-btn" onClick={() => dl('Prepayment receipt.pdf')} data-testid="prepay-receipt"><Download /> Download receipt</button></div>
+              : <div className="sh3-note sh3-note--warn"><p>Your prepayment is required before the factory releases this shipment.</p><button className="co-primary sh3-btn" onClick={() => notify('Prepayment charged to Visa •••• 4242')} data-testid="prepay-pay">Pay {money(prepay)} now</button></div>}
           </section>
         </div>
       )}
