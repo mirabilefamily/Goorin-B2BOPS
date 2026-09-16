@@ -82,13 +82,12 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
           <div><dt>Prepayment</dt><dd className="good">{money(prepay)}</dd><small className="good">Received · 50%</small></div>
         </dl>
         <div className="sh3-rail">
-          <div className="sh3-rail-head"><strong>{stages[s.stage]}</strong><span>Stage {s.stage + 1} of {stages.length} · {progress}%</span></div>
           <ol className="sh3-steps" data-testid="shipment-stages">
             {stages.map((st, i) => { const state = i < s.stage ? 'done' : i === s.stage ? 'current' : ''; return (
               <li key={st} className={state}><i>{i < s.stage ? <Check /> : i + 1}</i><strong>{st}</strong><small>{i < s.stage ? 'Done' : i === s.stage ? 'In progress' : 'Upcoming'}</small></li>
             ); })}
           </ol>
-          {nextStep && <p className="sh3-next" data-testid="next-step"><span>Next</span><strong>{nextStep}</strong>{nextHint[nextStep] ?? 'We will keep you posted here.'}</p>}
+          <div className="sh3-rail-foot"><span className="sh3-rail-meta" data-testid="stage-meta">Stage {s.stage + 1} of {stages.length} · {progress}%</span>{nextStep && <p className="sh3-next" data-testid="next-step"><span>Next</span><strong>{nextStep}</strong>{nextHint[nextStep] ?? 'We will keep you posted here.'}</p>}</div>
         </div>
       </section>
 

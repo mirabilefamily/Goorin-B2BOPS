@@ -424,3 +424,28 @@ tr:hover .sh-view { border-color: #121415; }
 @media (max-width: 1240px) { .sh3-facts div { padding: 0 14px; } .sh3-facts div:nth-child(4) { border-left: 0; padding-left: 0; } .sh3-facts { row-gap: 18px; } }
 @media (max-width: 900px) { .sh--v3 .sh-card > header { flex-wrap: wrap; } .sh3-linesearch { width: 100%; } .sh3-rail { padding: 16px; } .sh3-rail .sh3-steps { padding-bottom: 4px; } }
 @media (max-width: 760px) { .sh3-facts div { border-left: 0; padding: 0; } .sh3-facts div:nth-child(2n) { padding-left: 14px; border-left: 1px solid rgba(0,0,0,.07); } .sh3-kv div { grid-template-columns: 1fr; gap: 3px; } .sh3-msg { max-width: 100%; } .sh3-msg-avatar { display: none; } .sh3-help { flex-wrap: wrap; } .sh3-help .mk-btn { width: 100%; justify-content: center; } .sh3-chat-count { display: none; } .sh3-hero-sub em:last-of-type, .sh3-hero-sub em:last-of-type + * { display: none; } .sh3-timeline li:not(:last-child)::before { left: 17px; } .sh3-timeline li > i { width: 36px; height: 36px; } }
+/* ── Hero: tighter ──────────────────────────────────────── */
+.sh3-hero { gap: 14px; padding: 20px 24px 18px; }
+.sh3-id .pb-eyebrow { margin-bottom: 4px; }
+.sh3-id h1 { font-size: clamp(24px, 2.2vw, 28px); gap: 10px; }
+.sh3-id h1 .dash-pill { height: 24px; font-size: 12px; }
+.sh3-hero-sub { margin-top: 6px; font-size: 13.5px; }
+.sh3-hero-actions .co-primary.sh3-btn, .sh3-hero-actions .co-secondary.sh3-btn { height: 40px !important; padding: 0 16px; font-size: 13.5px !important; }
+.sh3-hero .sh3-facts { padding-top: 14px; }
+.sh3-facts div { gap: 3px; padding: 0 16px; }
+.sh3-facts dt { font-size: 10.5px; }
+.sh3-facts dd { font-size: 17px; }
+.sh3-facts small { font-size: 12px; }
+.sh3-rail { gap: 0; padding: 14px 0 0; border: 0; border-top: 1px solid rgba(0,0,0,.06); border-radius: 0; background: transparent; }
+.sh3-rail .sh3-steps { padding-top: 0; }
+.sh3-steps li { gap: 4px; }
+.sh3-steps li i { width: 24px; height: 24px; font-size: 11px; }
+.sh3-steps li i svg { width: 12px; height: 12px; }
+.sh3-steps li:not(:last-child)::before { top: 11px; left: 24px; }
+.sh3-steps li strong { font-size: 13px; margin-top: 4px; }
+.sh3-steps li small { font-size: 10px; }
+.sh3-rail-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,.06); }
+.sh3-rail-meta { font-size: 12.5px; color: #686e73; font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 14px; border-right: 1px solid rgba(0,0,0,.1); }
+.sh3-rail-foot .sh3-next { padding: 0; border: 0; font-size: 13px; gap: 8px; }
+.sh3-next span { height: 20px; font-size: 10px; }
+@media (max-width: 760px) { .sh3-hero { padding: 16px; } .sh3-rail-meta { border-right: 0; padding-right: 0; } }

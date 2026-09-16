@@ -1,0 +1,22 @@
+{
+  "summary": "Refinement pass on Shipment Detail (customer-facing) validated end-to-end via Playwright at desktop 1440x900 and mobile 390x844. Executed every scenario from the request: mock login -> shipments list -> IS-0012 detail. Hero: id/pill/factory/6 facts (ships-in 'in 112 days'), rail 'Released · Stage 5 of 7 · 71%' with 4 done + 1 current + next-step chip. Overview: requirements card, 100 lines rendering, filter 'GOAT' -> 9 rows / '9 of 100 lines' / subtotal $2,688.00; 'zzz' -> lines-empty; cleared -> 100 rows / $18,675.00. Side cards: 3 quick-docs, 3 recent-activity, docs-view-all / activity-view-all / help-message / hero-message navigations work. Booking: si-method 'Freight forwarder', mailto link present; edited transport to Air -> si-transport-value updates AND hero Mode fact updates to Air; prepay-amount $9,337.50; 2 schedule rows; prepay-receipt toast; both cards equal height (0px diff at 1440w). Conversation: 3 seeded msgs w/ GO/RM avatars, mine right-aligned, '3 messages', chat-send disabled empty, Enter appends chat-msg-3 -> badge '4' & '4 messages'. Documents: docs-download-all toast, all 3 doc buttons visible, coo-toggle-detail flips coo-state text, removes certificate item, and Documents badge 3<->2. Activity: activity-0..4 visible. IS-0007: no ships-in / no next-step, current stage 'Invoiced' (6 done), 2 lines. Mobile 390: no horizontal overflow, facts grid = 2 columns, chat avatars display:none. Back pill returns to list.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ShipmentDetail.tsx (218 lines, very dense one-liners) still readable but each tab body would benefit from extraction into subcomponents; JSX lines are hard to diff.",
+    "seedMsgs uses hard-coded times ('9:27 PM', '9:31 PM', '12:49 AM'); activity list also uses fixed strings. Cosmetic but 'Message sent to Goorin · 3:29 AM' is not tied to any real user action.",
+    "tab-conversation badge = msgs.length (message count, not unread). Fine for a prototype but worth flagging: badge grows with every send.",
+    "nextHint map only defines Shipped/Invoiced/Released — falls back to generic string for other stages; OK because earlier stages already have a current stage, but map could be exhaustive for the 7 stages.",
+    "si state duplicates fields from Shipment (forwarder, transport) rather than deriving; when editing, changes are only reflected via the local si state, not written back to the shared shipment object — acceptable for mock but note if this ever needs to persist across navigation."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "Mock login: click 'Log in' with empty fields.",
+  "seed_data_creation": "None (all data mocked in /app/frontend/src/lib/*).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Sidebar Shipments link works with: page.locator('aside').get_by_text('Shipments', exact=True).click(). Do not use nav selector — sidebar is inside <aside>. Login button label is 'Log in' (lowercase 'in'). All Detail v3.1 selectors verified: shipment-detail, shipment-back, shipment-hero, ships-in, shipment-stages, next-step, hero-message, hero-download, shipment-tabs, tab-{overview|booking|conversation|documents|activity}, shipment-requirements, shipment-lines(-scroll), lines-search, lines-empty, shipment-subtotal, shipment-quick-docs, docs-view-all, shipment-recent-activity, activity-view-all, shipment-help, help-message, shipping-instructions, si-{method|transport-value|edit|form|forwarder|contact|email|phone|transport|country|notes|cancel|save|method-freight|method-customer}, shipment-upload, prepayment-card, prepay-amount, prepay-receipt, shipment-chat, chat-msg-0..N, chat-input, chat-send, doc-{packing-list|commercial-invoice|certificate-of-origin}, docs-download-all, coo-toggle-detail, coo-state, tab-panel-{overview|booking|documents|activity}, activity-0..4.",
+  "rca of the issue": "N/A — no issues found."
+}
