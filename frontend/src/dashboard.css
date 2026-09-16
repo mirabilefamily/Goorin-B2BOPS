@@ -337,3 +337,13 @@
 @media (max-width: 900px) { .dash-hero { gap: 12px; } .dash-hero-strip { width: auto; } .dash-hero-strip div { flex: 0 0 auto; height: 32px; padding: 0 12px; } }
 @media (max-width: 760px) { .dash-hero { padding-bottom: 14px; margin-bottom: 16px; } .dash-hero h1 { font-size: 26px !important; } .dash-hero-strip div:first-child { padding-left: 12px; } }
 @media (max-width: 900px) { .dash-hero { align-items: flex-start; } }
+/* ── Hero: refine ───────────────────────────────────────── */
+.dash-hero h1 span { color: #121415; font-weight: 700; }
+.dash-hero h1 em { font-weight: 700; }
+.dash-hero .dash-eyebrow { color: #7a8184; }
+.dash-hero .dash-sub { color: #6f7573; }
+.dash-hero-strip div { height: 34px; padding: 0 14px 0 12px; border: 0; background: #eceeea; gap: 9px; }
+.dash-hero-strip dt { color: #6f7573; letter-spacing: .1em; }
+.dash-hero-strip dt svg { color: #6f7573; }
+.dash-hero-strip dt::after { content: none; }
+.dash-hero-strip dd { font-size: 13.5px; font-weight: 600; color: #121415; }
