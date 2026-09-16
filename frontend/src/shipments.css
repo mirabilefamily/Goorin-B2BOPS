@@ -317,3 +317,8 @@ tr:hover .sh-view { border-color: #121415; }
 .sh3-hero-sub { margin: 8px 0 0; font-size: 14px; color: #686e73; }
 .sh3-hero .sh3-facts { padding-top: 4px; }
 .sh3-coo--solo { margin-top: 0; padding-top: 0; border-top: 0; }
+.sh3-grid--even { align-items: stretch; }
+.sh3-grid--even > .sh-card { display: flex; flex-direction: column; }
+.sh3-grid--even > .sh-card .sh3-docsec, .sh3-grid--even > .sh-card .sh3-note { margin-top: auto; }
+.sh3-grid--even > .sh-card .sh3-docsec { padding-top: 20px; }
+.sh3-grid--even > .sh-card .sh3-dl--tight { margin-bottom: 20px; }
