@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Check, CheckCircle2, Download, FileSpreadsheet, FileText, Lock, MessageSquare, Pencil, Send, Upload } from 'lucide-react';
+import { ArrowLeft, Check, CheckCircle2, Download, FileText, Lock, MessageSquare, Pencil, Send, Upload } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { CountrySelect } from './CountrySelect';
@@ -33,7 +33,6 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   const eta = fmt(s.order.shipStart);
   const days = daysUntil(s.order.shipStart);
   const generated = ['Packing List', 'Commercial Invoice', ...(coo ? ['Certificate of Origin'] : [])];
-  const packingFile = `PL-${s.order.id}-1.xlsx`;
   const activity = [
     { title: 'Customer message sent', at: `${fmt(s.created)}, 3:29 AM`, by: 'Ryan M' },
     { title: 'Released to factory', at: `${fmt(s.created)}, 12:50 AM`, by: 'Goorin Ops' },
@@ -45,7 +44,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   const nextHint: Record<string, string> = { Shipped: 'Goorin will confirm once the factory hands off to your forwarder.', Invoiced: 'Your final invoice is issued after the shipment leaves the factory.', Released: 'Factory release follows once prepayment and shipping instructions are complete.' };
   const tabs: { id: Tab; label: string; n?: number }[] = [
     { id: 'overview', label: 'Overview' }, { id: 'booking', label: 'Booking & payment' }, { id: 'conversation', label: 'Conversation', n: msgs.length },
-    { id: 'documents', label: 'Documents', n: generated.length + 1 }, { id: 'activity', label: 'Activity', n: activity.length },
+    { id: 'documents', label: 'Documents', n: generated.length }, { id: 'activity', label: 'Activity', n: activity.length },
   ];
   const dl = (name: string) => notify(`${name} downloading…`);
 
@@ -108,7 +107,6 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
             <section className="sh-card sh3-side" data-testid="shipment-quick-docs">
               <header><h2>Documents</h2><button className="dash-link" onClick={() => setTab('documents')} data-testid="docs-view-all">View all</button></header>
               <ul className="sh3-files">
-                <li><button className="sh3-file" onClick={() => dl(packingFile)} data-testid="overview-packing-list"><FileSpreadsheet /><span>{packingFile}</span><Download /></button></li>
                 {generated.map((d) => <li key={d}><button className="sh3-file" onClick={() => dl(`${d}.pdf`)} data-testid={`overview-doc-${d.toLowerCase().replace(/\s+/g, '-')}`}><FileText /><span>{d} (PDF)</span><Download /></button></li>)}
               </ul>
             </section>
@@ -178,12 +176,11 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
 
       {tab === 'documents' && (
         <div className="sh3-grid sh3-grid--even" data-testid="tab-panel-documents">
-          <section className="sh-card"><header><h2>Factory packing list</h2><span>source file</span></header>
-            <ul className="sh3-files"><li><button className="sh3-file" onClick={() => dl(packingFile)} data-testid="doc-packing-list-xlsx"><FileSpreadsheet /><span>{packingFile}</span><Download /></button></li></ul>
-            <div className="sh-toggle sh3-coo"><div><strong>Require a Certificate of Origin</strong><span>Applies to new international shipments only.</span></div><button role="switch" aria-checked={coo} className={`sh-switch ${coo ? 'on' : ''}`} onClick={() => setCoo(!coo)} data-testid="coo-toggle-detail"><i /></button></div>
-          </section>
-          <section className="sh-card"><header><h2>Generated documents</h2><button className="dash-link" onClick={() => notify(`${generated.length} documents downloading…`)} data-testid="docs-download-all">Download all</button></header>
+          <section className="sh-card"><header><h2>Shipment documents</h2><button className="dash-link" onClick={() => notify(`${generated.length} documents downloading…`)} data-testid="docs-download-all">Download all</button></header>
             <ul className="sh3-files">{generated.map((d) => <li key={d}><button className="sh3-file" onClick={() => dl(`${d}.pdf`)} data-testid={`doc-${d.toLowerCase().replace(/\s+/g, '-')}`}><FileText /><span>{d} (PDF)</span><Download /></button></li>)}</ul>
+          </section>
+          <section className="sh-card"><header><h2>Certificate of Origin</h2></header>
+            <div className="sh-toggle sh3-coo sh3-coo--solo"><div><strong>Require a Certificate of Origin</strong><span>Applies to new international shipments only. Existing shipments are not altered.</span></div><button role="switch" aria-checked={coo} className={`sh-switch ${coo ? 'on' : ''}`} onClick={() => setCoo(!coo)} data-testid="coo-toggle-detail"><i /></button></div>
           </section>
         </div>
       )}

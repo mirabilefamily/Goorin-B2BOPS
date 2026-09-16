@@ -316,3 +316,4 @@ tr:hover .sh-view { border-color: #121415; }
 .sh3-hero-actions .co-primary.sh3-btn, .sh3-hero-actions .co-secondary.sh3-btn { height: 44px !important; min-height: 0; margin: 0 !important; border-radius: 999px !important; font-size: 14px !important; }
 .sh3-hero-sub { margin: 8px 0 0; font-size: 14px; color: #686e73; }
 .sh3-hero .sh3-facts { padding-top: 4px; }
+.sh3-coo--solo { margin-top: 0; padding-top: 0; border-top: 0; }
