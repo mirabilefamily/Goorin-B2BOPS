@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only test of redesigned Shipment Detail (light tabbed layout) + related list page. Executed full end-to-end Playwright coverage of all data-testids listed in the request across list, detail (hero/stepper/facts), Overview, Booking & payment (SI edit + prepayment), Conversation (seed msgs, send, badge), Documents (CoO toggle), Activity, back navigation, completed shipment IS-0007 variant, and mobile 390px overflow check. 100% of assertions passed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ShipmentDetail.tsx (~200 lines) is dense/inline — readable now but nearing the point where extracting each tab into its own component would help maintainability.",
+    "seedMsgs uses hard-coded times ('9:27 PM', '9:31 PM', '12:49 AM') and the activity list reuses fmt(s.created) with hard-coded time suffixes — cosmetic, but activity 'Customer message sent' at 3:29 AM is not tied to any real interaction.",
+    "The tab-conversation badge shows msgs.length instead of an unread count; documents tab badge is generated.length + 1 (accounts for packing xlsx). Both are functionally fine but the '+1' is a magic number.",
+    "Next-step chip logic: uses stages[s.stage + 1] with map { Shipped, Invoiced, Released }. 'Released' key is never hit because when stage < 5 the next stage after Pre-payment(3) is Released(4) — correct — but the map should ideally include all future stages for completeness."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "Mock login: click 'Log in' with empty fields (as specified).",
+  "seed_data_creation": "None (all data mocked in /app/frontend/src/lib/*).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Note: App uses popstate for hash navigation, not hashchange. Do NOT set window.location.hash via evaluate() after login — it won't trigger the router. Instead click the sidebar 'Shipments' link (get_by_role('link', name='Shipments')). Login is via 'Log in' button (lowercase 'in') with empty fields. All Detail v3 selectors verified working: shipment-detail, shipment-back, shipment-hero, ships-in, shipment-stages, next-step, hero-message, hero-download, shipment-tabs, tab-overview/booking/conversation/documents/activity, shipment-requirements, shipment-lines(-scroll), shipment-subtotal, shipment-quick-docs, docs-view-all, shipment-recent-activity, activity-view-all, doc-packing-list-xlsx, coo-toggle-detail, doc-packing-list, doc-commercial-invoice, doc-certificate-of-origin, docs-download-all, chat-msg-0..3, chat-input, chat-send, si-method, si-transport-value, si-edit, si-form, si-method-freight, si-method-customer, si-forwarder, si-email, si-transport, si-country, si-notes, si-cancel, si-save, prepayment-card, prepay-amount, prepay-receipt, shipment-upload, tab-panel-activity/documents/overview/booking.",
+  "rca of the issue": "N/A — no issues found."
+}
