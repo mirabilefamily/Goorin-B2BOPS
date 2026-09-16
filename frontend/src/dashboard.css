@@ -315,3 +315,13 @@
 .dash-hero-strip dd span { font-size: 13px; font-weight: 500; color: #686e73; letter-spacing: 0; }
 @media (max-width: 900px) { .dash-hero { flex-direction: column; align-items: flex-start; gap: 16px; } .dash-hero-strip { width: 100%; justify-content: flex-start; } .dash-hero-strip div { flex: 1; padding: 0 14px; } .dash-hero-strip dd { font-size: 15px; } }
 @media (max-width: 760px) { .dash-hero-strip div { padding: 0 12px; } .dash-hero-strip div:first-child { padding-left: 0; } .dash-hero-strip dd span { display: none; } }
+/* ── Greeting refinement ────────────────────────────────── */
+.dash-hero .dash-eyebrow { margin-bottom: 14px; font-size: 10.5px; letter-spacing: .16em; color: #8e9396; }
+.dash-hero .dash-eyebrow i { width: 22px; }
+.dash-hero h1 { font-size: clamp(30px, 2.8vw, 40px) !important; line-height: 1.05; letter-spacing: -.035em; }
+.dash-hero h1 span { color: #6f7573; font-weight: 500; }
+.dash-hero h1 em { color: #121415; }
+.dash-hero h1 b { color: var(--accent); font-weight: 700; }
+.dash-hero .dash-sub { margin-top: 12px; font-size: 15px; color: #686e73; }
+.dash-hero .dash-sub strong { color: #2d3235; font-weight: 600; }
+@media (max-width: 760px) { .dash-hero h1 { font-size: 28px !important; } .dash-hero .dash-sub { font-size: 14px; margin-top: 8px; } .dash-hero .dash-eyebrow { margin-bottom: 10px; } }

@@ -773,8 +773,6 @@ export default function DashboardPage({ name, onNavigate }: Props) {
   const delta = Math.round(((spendTotal - lastYear) / lastYear) * 100);
   const balanceShown = useCountUp(openAmount);
   const now = new Date();
-  const sortedOpen = [...openOrders].sort((a, b) => a.shipDate.localeCompare(b.shipDate));
-  const nextShip = sortedOpen.find((o) => o.shipDate >= new Date().toISOString().slice(0, 10)) ?? sortedOpen[0];
   const todayParts = { weekday: now.toLocaleDateString('en-US', { weekday: 'long' }), day: now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }), year: String(now.getFullYear()) };
 
   const actions = [
@@ -791,13 +789,11 @@ export default function DashboardPage({ name, onNavigate }: Props) {
       <header className="dash-hero dash-reveal">
         <div>
           <p className="dash-eyebrow"><i />The Goorin Bros. B2B Portal</p>
-          <h1 data-testid="dashboard-greeting">{greeting()}, <em>{name}</em>.</h1>
-          <p className="dash-sub">Here's a snapshot of Mirabile Distribution's account.</p>
+          <h1 data-testid="dashboard-greeting"><span>{greeting()},</span> <em>{name}</em><b>.</b></h1>
+          <p className="dash-sub">Here's a snapshot of <strong>Mirabile Distribution</strong>'s account.</p>
         </div>
         <dl className="dash-hero-strip" data-testid="dashboard-strip">
           <div data-testid="dashboard-date"><dt><CalendarDays /> {todayParts.weekday}</dt><dd>{todayParts.day}</dd></div>
-          <div data-testid="dashboard-open-orders"><dt>Open orders</dt><dd>{openOrders.length} <span>· {money(openAmount)}</span></dd></div>
-          <div data-testid="dashboard-next-ship"><dt>Next ship</dt><dd>{nextShip ? new Date(`${nextShip.shipDate}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}{nextShip && <span> · {nextShip.id}</span>}</dd></div>
         </dl>
       </header>
 
