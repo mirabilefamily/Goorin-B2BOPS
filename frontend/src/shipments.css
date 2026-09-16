@@ -313,4 +313,6 @@ tr:hover .sh-view { border-color: #121415; }
 @media (max-width: 900px) { .sh3-hero-top { flex-direction: column; } .sh3-hero-actions { width: 100%; } .sh3-hero-actions .sh3-btn { flex: 1; } .sh3-steps { display: flex; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; } .sh3-steps li { flex: 0 0 132px; } .sh3-grid--even { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .sh3-hero { padding: 20px 18px; gap: 16px; } .sh3-facts { grid-template-columns: 1fr 1fr; gap: 14px; } .sh3-facts dd { font-size: 16px; } .sh3-parties { flex-wrap: wrap; } .sh3-arrow { display: none; } .sh3-hero-actions { flex-direction: column; } .sh3-dl--2 { grid-template-columns: 1fr; } .sh3-msg { max-width: 100%; } .sh3-compose { flex-direction: column; align-items: stretch; padding: 16px 16px 0; } .sh3-compose .co-primary { width: 100%; } .sh3-msgs, .sh3-chat-head { padding: 18px 16px; } .sh3-hint { padding: 8px 16px 16px; } .sh3-tabs button { padding: 0 10px; font-size: 13.5px; } }
 .sh--v3 .sh-card > header.sh3-chat-head { justify-content: flex-start; }
-.sh3-hero-actions .co-primary.sh3-btn, .sh3-hero-actions .co-secondary.sh3-btn { height: 44px; min-height: 0; font-size: 14px; }
+.sh3-hero-actions .co-primary.sh3-btn, .sh3-hero-actions .co-secondary.sh3-btn { height: 44px !important; min-height: 0; margin: 0 !important; border-radius: 999px !important; font-size: 14px !important; }
+.sh3-hero-sub { margin: 8px 0 0; font-size: 14px; color: #686e73; }
+.sh3-hero .sh3-facts { padding-top: 4px; }

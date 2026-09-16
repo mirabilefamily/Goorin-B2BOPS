@@ -58,16 +58,12 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
           <div className="sh3-id">
             <p className="pb-eyebrow">International shipment</p>
             <h1>{s.id} <span className={`dash-pill tone-${stageTone(s)}`}><i />{stageLabel(s)}</span></h1>
+            <p className="sh3-sub sh3-hero-sub">{s.order.factory} · Created {fmt(s.created)}</p>
           </div>
           <div className="sh3-hero-actions">
             <button className="co-secondary sh3-btn" onClick={() => setTab('conversation')} data-testid="hero-message"><MessageSquare /> Message Goorin</button>
             <button className="co-primary sh3-btn" onClick={() => notify(`${generated.length} documents downloading…`)} data-testid="hero-download"><Download /> Download documents</button>
           </div>
-        </div>
-        <div className="sh3-parties">
-          <div><small>Customer</small><strong>Mirabile Distribution</strong></div>
-          <i className="sh3-arrow" />
-          <div><small>Factory</small><strong>{s.order.factory}</strong></div>
         </div>
         <dl className="sh3-facts">
           <div><dt>{s.order.estimated ? 'Est. ship date' : 'Ship date'}</dt><dd>{eta}</dd></div>
@@ -109,12 +105,12 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
             </section>
           </div>
           <aside className="sh-col">
-            <section className="sh-card sh3-side" data-testid="shipment-parties"><h2>Parties</h2>
-              <dl className="sh3-dl">
-                <div><dt>Customer</dt><dd>Mirabile Distribution</dd><small>ryan.mirabile@me.com</small></div>
-                <div><dt>Factory</dt><dd>{s.order.factory}</dd><small>ops@asiglobal.example</small></div>
-                <div><dt>Packing list</dt><dd><button className="sh3-file" onClick={() => dl(packingFile)} data-testid="parties-packing-list"><FileSpreadsheet /><span>{packingFile}</span><Download /></button></dd></div>
-              </dl>
+            <section className="sh-card sh3-side" data-testid="shipment-quick-docs">
+              <header><h2>Documents</h2><button className="dash-link" onClick={() => setTab('documents')} data-testid="docs-view-all">View all</button></header>
+              <ul className="sh3-files">
+                <li><button className="sh3-file" onClick={() => dl(packingFile)} data-testid="overview-packing-list"><FileSpreadsheet /><span>{packingFile}</span><Download /></button></li>
+                {generated.map((d) => <li key={d}><button className="sh3-file" onClick={() => dl(`${d}.pdf`)} data-testid={`overview-doc-${d.toLowerCase().replace(/\s+/g, '-')}`}><FileText /><span>{d} (PDF)</span><Download /></button></li>)}
+              </ul>
             </section>
             <section className="sh-card sh3-side" data-testid="shipment-recent-activity">
               <header><h2>Recent activity</h2><button className="dash-link" onClick={() => setTab('activity')} data-testid="activity-view-all">View all</button></header>
