@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, AlertCircle, ArrowLeft, Check, CheckCircle2, CreditCard, Download, FileText, LayoutGrid, Lock, MessageSquare, Package, Pencil, Search, Send, Ship, Truck, Upload, X } from 'lucide-react';
+import { Activity, AlertCircle, ArrowLeft, Check, CheckCircle2, Clock, Copy, CreditCard, Download, Landmark, FileText, LayoutGrid, Lock, MessageSquare, Package, Pencil, Search, Send, Ship, Truck, Upload, X } from 'lucide-react';
 import { useToast } from '@/lib/toast';
 import { money } from '@/lib/money';
 import { CountrySelect } from './CountrySelect';
@@ -29,8 +29,14 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   const [edit, setEdit] = useState(false);
   const [siDone, setSiDone] = useState(s.instructions);
   const [siAt, setSiAt] = useState(s.instructions ? `${fmt(s.created)}, 12:48 AM` : '');
-  const stage = !siDone ? 2 : !s.paid ? 3 : Math.max(s.stage, 4);
-  const reqDone = (s.paid ? 1 : 0) + (siDone ? 1 : 0);
+  const [payState, setPayState] = useState<'due' | 'review' | 'paid'>(s.paid ? 'paid' : 'due');
+  const [payMethod, setPayMethod] = useState<'card' | 'wire'>('card');
+  const [wireDoc, setWireDoc] = useState('');
+  const [paidAt, setPaidAt] = useState(s.paid ? `${fmt(s.created)}, 12:49 AM` : '');
+  const paid = payState === 'paid';
+  const pickWire = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.pdf,.png,.jpg,.jpeg'; inp.onchange = () => { const f = inp.files?.[0]; if (f) { setWireDoc(f.name); setPaidAt(stamp()); setPayState('review'); notify('Wire confirmation uploaded · Goorin will verify shortly'); } }; inp.click(); };
+  const stage = !siDone ? 2 : !paid ? 3 : Math.max(s.stage, 4);
+  const reqDone = (paid ? 1 : 0) + (siDone ? 1 : 0);
   const startEdit = () => { setForm(si); setEdit(true); setTab('booking'); };
   const saveSi = () => { setSi(form); setEdit(false); const first = !siDone; setSiDone(true); setSiAt(stamp()); notify(first ? 'Shipping instructions submitted · factory notified' : 'Shipping instructions updated · factory notified'); };
   const [docs, setDocs] = useState<string[]>([]);
@@ -51,6 +57,8 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
     ...(s.instructions ? [{ title: 'Message sent to Goorin', detail: 'Packing list confirmed as final.', at: `${fmt(s.created)}, 3:29 AM`, by: 'Ryan M', kind: 'message' } as Event] : []),
     ...(stage >= 4 ? [{ title: 'Released to factory', detail: 'All release requirements met · production handoff confirmed.', at: `${fmt(s.created)}, 12:50 AM`, by: 'Goorin Ops', kind: 'release' } as Event] : []),
     ...(siDone && !s.instructions ? [{ title: 'Shipping instructions submitted', detail: `${si.method} · ${si.transport}${si.forwarder ? ` · ${si.forwarder}` : ''}`, at: siAt, by: 'Ryan M', kind: 'booking' } as Event] : []),
+    ...(paid && !s.paid ? [{ title: 'Prepayment received', detail: `${money(prepay)} · ${payMethod === 'wire' ? 'Bank wire' : 'Visa •••• 4242'}`, at: paidAt, by: payMethod === 'wire' ? 'Goorin Finance' : 'Stripe', kind: 'payment' } as Event] : []),
+    ...(payState === 'review' ? [{ title: 'Wire confirmation uploaded', detail: `${wireDoc} · pending verification`, at: paidAt, by: 'Ryan M', kind: 'payment' } as Event] : []),
     ...(s.paid ? [{ title: 'Prepayment received', detail: `${money(prepay)} · Visa •••• 4242`, at: `${fmt(s.created)}, 12:49 AM`, by: 'Stripe', kind: 'payment' } as Event] : []),
     ...(s.instructions ? [{ title: 'Shipping instructions submitted', detail: `${si.method} · ${si.transport} · ${si.forwarder}`, at: `${fmt(s.created)}, 12:48 AM`, by: 'Ryan M', kind: 'booking' } as Event] : []),
     { title: 'Shipment created', detail: `${lines.length} lines · ${units.toLocaleString()} units from ${s.order.id}`, at: `${fmt(s.created)}, 12:40 AM`, by: 'Goorin Ops', kind: 'created' },
@@ -88,7 +96,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
           <div><dt>Incoterms</dt><dd>{s.incoterms} · USD</dd><small>Factory port</small></div>
           <div><dt>Units</dt><dd>{units.toLocaleString()}</dd><small>{lines.length} lines</small></div>
           <div><dt>Declared value</dt><dd>{money(total)}</dd><small>Commercial invoice</small></div>
-          <div><dt>Prepayment</dt><dd className={s.paid ? 'good' : ''}>{money(prepay)}</dd><small className={s.paid ? 'good' : 'warn'}>{s.paid ? 'Received · 50%' : 'Due · 50%'}</small></div>
+          <div><dt>Prepayment</dt><dd className={paid ? 'good' : ''}>{money(prepay)}</dd><small className={paid ? 'good' : payState === 'review' ? 'info' : 'warn'}>{paid ? 'Received · 50%' : payState === 'review' ? 'Wire under review' : 'Due · 50%'}</small></div>
         </dl>
         <div className="sh3-rail">
           <ol className="sh3-steps" data-testid="shipment-stages">
@@ -110,7 +118,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
             <section className="sh-card sh-checklist" data-testid="shipment-requirements">
               <header><div><h2>Release requirements</h2><p>Both must be complete before the factory releases the shipment.</p></div><span className={`stat-chip ${reqDone === 2 ? 'stat-chip--good' : 'stat-chip--warn'}`} data-testid="req-progress">{reqDone === 2 ? <CheckCircle2 /> : <AlertCircle />} {reqDone} of 2 complete</span></header>
               <ul className="sh-checks">
-                <li className={s.paid ? 'done' : 'todo'} data-testid="req-payment"><i>{s.paid ? <Check /> : <CreditCard />}</i><div><strong>Payment</strong><span>{s.paid ? `Prepayment received ${fmt(s.created)}, 12:49 AM` : `50% prepayment of ${money(prepay)} due before release`}</span></div>{s.paid ? <em>Complete</em> : <button className="sh3-req-cta" onClick={() => setTab('booking')} data-testid="req-payment-cta">Pay now</button>}</li>
+                <li className={paid ? 'done' : payState === 'review' ? 'review' : 'todo'} data-testid="req-payment"><i>{paid ? <Check /> : payState === 'review' ? <Clock /> : <CreditCard />}</i><div><strong>Payment</strong><span>{paid ? `Prepayment received ${paidAt}` : payState === 'review' ? `Wire confirmation uploaded ${paidAt} · Goorin is verifying` : `50% prepayment of ${money(prepay)} due before release`}</span></div>{paid ? <em>Complete</em> : payState === 'review' ? <em className="review">Under review</em> : <button className="sh3-req-cta" onClick={() => setTab('booking')} data-testid="req-payment-cta">Pay now</button>}</li>
                 <li className={siDone ? 'done' : 'todo'} data-testid="req-instructions"><i>{siDone ? <Check /> : <Truck />}</i><div><strong>Shipping instructions</strong><span>{siDone ? `${si.method} · ${si.transport}${si.method === 'Freight forwarder' && si.forwarder ? ` · ${si.forwarder}` : ''}` : 'Tell us how this shipment leaves the factory — forwarder or pickup.'}</span></div>{siDone ? <em>Complete</em> : <button className="sh3-req-cta" onClick={startEdit} data-testid="req-instructions-cta">Add instructions</button>}</li>
               </ul>
               {reqDone === 2 ? <p className="sh-lock"><Lock /> Requirements are locked. Your shipment is being prepared for release to the factory.</p>
@@ -143,7 +151,7 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
       )}
 
       {tab === 'booking' && (
-        <div className="sh3-grid sh3-grid--even" data-testid="tab-panel-booking">
+        <div className={`sh3-grid sh3-grid--even ${paid ? '' : 'sh3-grid--top'}`} data-testid="tab-panel-booking">
           <section className="sh-card" data-testid="shipping-instructions">
             <header><div><h2>Customer booking</h2><p>How your shipment leaves the factory.</p></div>{!edit && siDone && <button className="co-edit" onClick={() => { setForm(si); setEdit(true); }} data-testid="si-edit"><Pencil /> Edit</button>}</header>
             {!edit && !siDone ? (
@@ -179,16 +187,43 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
             </div>
           </section>
           <section className="sh-card" data-testid="prepayment-card">
-            <header><div><h2>Payment</h2><p>50% Prepay / 50% Net 60</p></div>{s.paid ? <span className="dash-pill tone-green"><i />Prepayment received</span> : <span className="dash-pill tone-amber"><i />Prepayment due</span>}</header>
+            <header><div><h2>Payment</h2><p>50% Prepay / 50% Net 60</p></div>{paid ? <span className="dash-pill tone-green" data-testid="pay-status"><i />Prepayment received</span> : payState === 'review' ? <span className="dash-pill tone-blue" data-testid="pay-status"><i />Wire under review</span> : <span className="dash-pill tone-amber" data-testid="pay-status"><i />Prepayment due</span>}</header>
             <p className="sh3-money" data-testid="prepay-amount">{money(prepay)}</p>
-            <p className="sh3-sub">{s.paid ? 'paid' : 'due now'} of {money(total)} declared value</p>
-            <div className="sh3-split" aria-hidden><i style={{ width: s.paid ? '50%' : '0%' }} /></div>
+            <p className="sh3-sub">{paid ? 'paid' : payState === 'review' ? 'wired · awaiting verification' : 'due now'} · 50% of {money(total)} declared value</p>
+            <div className={`sh3-split ${payState === 'review' ? 'review' : ''}`} aria-hidden><i style={{ width: paid ? '50%' : payState === 'review' ? '50%' : '0%' }} /></div>
+            {!paid && payState === 'due' && (
+              <div className="sh3-pay" data-testid="pay-options">
+                <div className="sh3-pay-tabs" role="tablist">
+                  <button role="tab" aria-selected={payMethod === 'card'} className={payMethod === 'card' ? 'active' : ''} onClick={() => setPayMethod('card')} data-testid="pay-method-card"><i><CreditCard /></i><span><strong>Pay by card</strong><small>Instant · releases today</small></span></button>
+                  <button role="tab" aria-selected={payMethod === 'wire'} className={payMethod === 'wire' ? 'active' : ''} onClick={() => setPayMethod('wire')} data-testid="pay-method-wire"><i><Landmark /></i><span><strong>Bank wire / SWIFT</strong><small>Upload confirmation · 1–2 days</small></span></button>
+                </div>
+                {payMethod === 'card' ? (
+                  <div className="sh3-pay-panel" data-testid="pay-card-panel">
+                    <div className="sh3-cardrow"><i className="sh3-brand">VISA</i><div><strong>Visa •••• 4242</strong><span>Card on file · expires 08/28</span></div><button className="dash-link" onClick={() => notify('Card management coming soon')} data-testid="pay-change-card">Change</button></div>
+                    <button className="co-primary sh3-btn sh3-paybtn" onClick={() => { setPayState('paid'); setPaidAt(stamp()); notify(`${money(prepay)} charged to Visa •••• 4242`); }} data-testid="prepay-pay"><Lock /> Pay {money(prepay)} now</button>
+                    <small className="sh3-pay-fine">Secured by Stripe · you'll receive a receipt by email.</small>
+                  </div>
+                ) : (
+                  <div className="sh3-pay-panel" data-testid="pay-wire-panel">
+                    <dl className="sh3-bank">
+                      {[['Beneficiary', 'Goorin Bros. Inc.'], ['Bank', 'JPMorgan Chase, San Francisco'], ['Account', '•••• 8841'], ['SWIFT / BIC', 'CHASUS33'], ['Reference', s.id]].map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}<button aria-label={`Copy ${k}`} onClick={() => { navigator.clipboard?.writeText(v); notify(`${k} copied`); }} data-testid={`copy-${k.toLowerCase().replace(/[^a-z]+/g, '-')}`}><Copy /></button></dd></div>)}
+                    </dl>
+                    <button className="sh3-drop" onClick={pickWire} data-testid="wire-upload"><i><Upload /></i><strong>Upload SWIFT / remittance confirmation</strong><span>PDF, PNG or JPEG · max 10MB</span></button>
+                    <small className="sh3-pay-fine">Include <b>{s.id}</b> in the wire reference so we can match it quickly.</small>
+                  </div>
+                )}
+              </div>
+            )}
+            {payState === 'review' && (
+              <div className="sh3-review" data-testid="pay-review">
+                <i><Clock /></i><div><strong>Wire confirmation received</strong><span>{wireDoc} · uploaded {paidAt}. Goorin verifies within 1–2 business days; we'll release the factory as soon as funds land.</span></div>
+              </div>
+            )}
             <ul className="sh3-sched">
-              <li className={s.paid ? 'paid' : ''}><i>{s.paid ? <Check /> : 1}</i><div><strong>50% prepayment</strong><span>{s.paid ? `Paid ${fmt(s.created)} · Visa •••• 4242` : 'Charged to Visa •••• 4242 on confirmation'}</span></div><b>{money(prepay)}</b></li>
+              <li className={paid ? 'paid' : payState === 'review' ? 'review' : ''}><i>{paid ? <Check /> : payState === 'review' ? <Clock /> : 1}</i><div><strong>50% prepayment</strong><span>{paid ? `Paid ${paidAt} · ${payMethod === 'wire' ? 'Bank wire' : 'Visa •••• 4242'}` : payState === 'review' ? 'Bank wire · awaiting verification' : 'Due before factory release'}</span></div><b>{money(prepay)}</b></li>
               <li><i>2</i><div><strong>50% balance · Net 60</strong><span>Invoiced after the shipment leaves the factory</span></div><b>{money(total - prepay)}</b></li>
             </ul>
-            {s.paid ? <div className="sh3-note"><p>Nothing else is due right now. Your remaining balance is invoiced once the shipment ships and is due 60 days after invoice.</p><button className="mk-btn" onClick={() => dl('Prepayment receipt.pdf')} data-testid="prepay-receipt"><Download /> Download receipt</button></div>
-              : <div className="sh3-note sh3-note--warn"><p>Your prepayment is required before the factory releases this shipment.</p><button className="co-primary sh3-btn" onClick={() => notify('Prepayment charged to Visa •••• 4242')} data-testid="prepay-pay">Pay {money(prepay)} now</button></div>}
+            {paid && <div className="sh3-note"><p>Nothing else is due right now. Your remaining balance is invoiced once the shipment ships and is due 60 days after invoice.</p><button className="mk-btn" onClick={() => dl('Prepayment receipt.pdf')} data-testid="prepay-receipt"><Download /> Download receipt</button></div>}
           </section>
         </div>
       )}
