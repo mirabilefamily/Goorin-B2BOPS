@@ -6,13 +6,15 @@ import { CountrySelect } from './CountrySelect';
 import { fmt, shipLines, shipTotal, shipUnits, stages, type Shipment } from './lib/shipments';
 
 type Tab = 'overview' | 'booking' | 'conversation' | 'documents' | 'activity';
-type Msg = { who: string; mine: boolean; text: string; at: string };
+type Msg = { who: string; mine: boolean; text: string; date: string; time: string };
+const todayLabel = () => new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const nowTime = () => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 type Event = { title: string; detail: string; at: string; by: string; kind: 'message' | 'release' | 'payment' | 'booking' | 'created' };
 const stamp = () => new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 const seedMsgs = (s: Shipment): Msg[] => [
-  { who: 'Goorin Ops', mine: false, text: `Booking confirmed with ${s.forwarder} — ${s.transport.toLowerCase()}, ETD ${fmt(s.order.shipStart)}.`, at: `${fmt(s.created)}, 9:27 PM` },
-  { who: 'Ryan M', mine: true, text: 'Great — packing list is final on our side. Releasing to factory once prepayment clears.', at: `${fmt(s.created)}, 9:31 PM` },
-  { who: 'Goorin Ops', mine: false, text: 'Prepayment received. Factory has been released.', at: `${fmt(s.created)}, 12:49 AM` },
+  { who: 'Goorin Ops', mine: false, text: `Booking confirmed with ${s.forwarder} — ${s.transport.toLowerCase()}, ETD ${fmt(s.order.shipStart)}.`, date: fmt(s.created), time: '9:27 PM' },
+  { who: 'Ryan M', mine: true, text: 'Great — packing list is final on our side. Releasing to factory once prepayment clears.', date: fmt(s.created), time: '9:31 PM' },
+  { who: 'Goorin Ops', mine: false, text: 'Prepayment received. Factory has been released.', date: fmt(s.created), time: '12:49 AM' },
 ];
 const daysUntil = (iso: string) => Math.max(0, Math.round((new Date(`${iso}T12:00:00`).getTime() - Date.now()) / 86400000));
 const initials = (name: string) => name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
@@ -22,7 +24,7 @@ const docMeta: Record<string, { size: string; note: string }> = { 'Packing List'
 export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => void; coo: boolean; setCoo: (v: boolean) => void }) {
   const notify = useToast();
   const [tab, setTab] = useState<Tab>('overview');
-  const [msgs, setMsgs] = useState<Msg[]>(() => (s.instructions ? seedMsgs(s) : [{ who: 'Goorin Ops', mine: false, text: `Your prepayment for ${s.id} is in. Add your shipping instructions when you're ready and we'll release the factory.`, at: `${fmt(s.created)}, 9:27 PM` }]));
+  const [msgs, setMsgs] = useState<Msg[]>(() => (s.instructions ? seedMsgs(s) : [{ who: 'Goorin Ops', mine: false, text: `Your prepayment for ${s.id} is in. Add your shipping instructions when you're ready and we'll release the factory.`, date: fmt(s.created), time: '9:27 PM' }]));
   const [draft, setDraft] = useState('');
   const [si, setSi] = useState({ method: 'Freight forwarder' as 'Freight forwarder' | 'Customer pickup', forwarder: s.forwarder, contact: s.instructions ? 'Name' : '', email: s.instructions ? 'name@ff123.com' : '', phone: s.instructions ? '3213444590' : '', country: 'United States', transport: s.transport, notes: '' });
   const [form, setForm] = useState(si);
@@ -45,7 +47,10 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => { if (tab === 'conversation') endRef.current?.scrollIntoView({ block: 'nearest' }); }, [tab, msgs.length]);
   const pickDocs = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.accept = '.pdf,.png,.jpg,.jpeg'; inp.onchange = () => { const names = Array.from(inp.files ?? []).map((f) => f.name); if (names.length) { setDocs((d) => [...names, ...d]); notify(`${names.length} document${names.length === 1 ? '' : 's'} uploaded`); } }; inp.click(); };
-  const send = () => { if (!draft.trim()) return; setMsgs((m) => [...m, { who: 'Ryan M', mine: true, text: draft.trim(), at: stamp() }]); setDraft(''); };
+  const sendText = (text: string) => { if (!text.trim()) return; setMsgs((m) => [...m, { who: 'Ryan M', mine: true, text: text.trim(), date: todayLabel(), time: nowTime() }]); setDraft(''); };
+  const send = () => sendText(draft);
+  const awaitingMe = msgs.length > 0 && !msgs[msgs.length - 1].mine;
+  const quickReplies = ['Thanks — confirming receipt.', 'Prepayment sent today.', 'Shipping instructions submitted.', 'Please share tracking once the container departs.'];
   const lines = shipLines(s);
   const shown = useMemo(() => { const q = lineQ.trim().toLowerCase(); return q ? lines.filter((l) => l.sku.toLowerCase().includes(q) || l.name.toLowerCase().includes(q)) : lines; }, [lines, lineQ]);
   const total = shipTotal(s);
@@ -231,13 +236,19 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
 
       {tab === 'conversation' && (
         <section className="sh-card sh3-chat" data-testid="shipment-chat">
-          <header className="sh3-chat-head"><i><MessageSquare /></i><div><h2>Shipment conversation</h2><p>Visible to you and the Goorin Bros. team · replies notify you by email.</p></div><span className="sh3-chat-count">{msgs.length} messages</span></header>
+          <header className="sh3-chat-head"><i><MessageSquare /></i><div><h2>Conversation with Goorin Bros.</h2><p>ops@goorinbros.com · visible to the Goorin team</p></div><div className="sh3-chat-meta"><span className={`sh3-chat-state ${awaitingMe ? 'me' : ''}`} data-testid="chat-state">{awaitingMe ? 'Awaiting your reply' : 'Awaiting Goorin'}</span><span className="sh3-chat-count" data-testid="chat-count">{msgs.length} message{msgs.length === 1 ? '' : 's'}</span></div></header>
           <div className="sh3-msgs">
-            {msgs.map((m, i) => <div key={i} className={`sh3-msg ${m.mine ? 'mine' : ''}`} data-testid={`chat-msg-${i}`}><span className="sh3-msg-avatar">{initials(m.who)}</span><div><small>{m.who} · {m.at}</small><p>{m.text}</p></div></div>)}
+            {msgs.map((m, i) => <div key={i} className="sh3-msg-group">
+              {(i === 0 || msgs[i - 1].date !== m.date) && <div className="sh3-daysep" data-testid={`chat-day-${i}`}><span>{m.date}</span></div>}
+              <div className={`sh3-msg ${m.mine ? 'mine' : ''}`} data-testid={`chat-msg-${i}`}><span className="sh3-msg-avatar">{initials(m.who)}</span><div><small><b>{m.who}</b> {m.time}</small><p>{m.text}</p></div></div>
+            </div>)}
             <div ref={endRef} />
           </div>
-          <div className="sh3-compose"><textarea value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder="Write a message to Goorin…" data-testid="chat-input" /><button className="co-primary" onClick={send} disabled={!draft.trim()} data-testid="chat-send"><Send /> Send</button></div>
-          <small className="sh3-hint">Enter to send · Shift + Enter for a new line</small>
+          <footer className="sh3-chat-foot">
+            <div className="sh3-quick" data-testid="chat-quick-replies">{quickReplies.map((q) => <button key={q} onClick={() => sendText(q)} data-testid="chat-quick">{q}</button>)}</div>
+            <div className="sh3-compose"><span className="sh3-msg-avatar mine">RM</span><textarea value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder="Message Goorin Bros.…" data-testid="chat-input" /><button className={`sh3-send ${draft.trim() ? 'ready' : ''}`} onClick={send} disabled={!draft.trim()} data-testid="chat-send"><Send /> Send</button></div>
+            <small className="sh3-hint">Enter to send · Shift + Enter for a new line</small>
+          </footer>
         </section>
       )}
 
