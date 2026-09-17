@@ -617,3 +617,16 @@ tr:hover .sh-view { border-color: #121415; }
 .sh3-hint { font-size: 14px; color: #a3a8a4; }
 @media (max-width: 760px) { .sh3-chat-head { padding: 16px; } .sh3-chat-head > i { width: 40px; height: 40px; } .sh3-msgs { padding: 8px 14px 16px; } .sh3-msg-avatar { width: 32px; height: 32px; border-radius: 9px; } .sh3-quick button { height: 40px; font-size: 14px; } .sh3-send { height: 48px; border-radius: 14px; } .sh3-compose textarea { min-height: 72px; font-size: 15px; } }
 .sh3-chat-head { align-items: flex-start; } .sh3-chat-head > .sh3-chat-meta { flex: 0 0 auto; margin-left: auto; align-self: flex-start; }
+/* ── Conversation: polish ───────────────────────────────── */
+@keyframes sh3-pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.sh3-msg { animation: sh3-pop .22s ease both; }
+.sh3-msg.cont { margin-top: -10px; }
+.sh3-msg.cont .sh3-msg-avatar { visibility: hidden; margin-top: 0; }
+.sh3-msg.cont > div { padding-top: 0; }
+.sh3-msg-status { display: inline-flex; align-items: center; gap: 5px; font-style: normal; font-size: 12.5px; color: #8e9396; margin-top: -1px; }
+.sh3-msg-status svg { width: 13px; height: 13px; color: #0d8a68; }
+.sh3-compose textarea { resize: none; overflow-y: auto; line-height: 1.45; }
+.sh3-send.ready:hover { background: #2d3235; }
+.sh3-hint span { color: #b3b8b4; }
+.sh3-msgs { scroll-behavior: smooth; }
+@media (max-width: 760px) { .sh3-hint span { display: none; } }

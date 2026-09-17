@@ -8,6 +8,7 @@ import { fmt, shipLines, shipTotal, shipUnits, stages, type Shipment } from './l
 type Tab = 'overview' | 'booking' | 'conversation' | 'documents' | 'activity';
 type Msg = { who: string; mine: boolean; text: string; date: string; time: string };
 const todayLabel = () => new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const dayLabel = (d: string) => (d === todayLabel() ? 'Today' : d);
 const nowTime = () => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 type Event = { title: string; detail: string; at: string; by: string; kind: 'message' | 'release' | 'payment' | 'booking' | 'created' };
 const stamp = () => new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
@@ -50,7 +51,9 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
   const sendText = (text: string) => { if (!text.trim()) return; setMsgs((m) => [...m, { who: 'Ryan M', mine: true, text: text.trim(), date: todayLabel(), time: nowTime() }]); setDraft(''); };
   const send = () => sendText(draft);
   const awaitingMe = msgs.length > 0 && !msgs[msgs.length - 1].mine;
-  const quickReplies = ['Thanks — confirming receipt.', 'Prepayment sent today.', 'Shipping instructions submitted.', 'Please share tracking once the container departs.'];
+  const quickReplies = ['Thanks — confirming receipt.', 'Prepayment sent today.', 'Shipping instructions submitted.', 'Please share tracking once the container departs.'].filter((q) => !msgs.some((m) => m.mine && m.text === q));
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => { const el = taRef.current; if (el) { el.style.height = '0px'; el.style.height = `${Math.max(92, Math.min(el.scrollHeight, 220))}px`; } }, [draft]);
   const lines = shipLines(s);
   const shown = useMemo(() => { const q = lineQ.trim().toLowerCase(); return q ? lines.filter((l) => l.sku.toLowerCase().includes(q) || l.name.toLowerCase().includes(q)) : lines; }, [lines, lineQ]);
   const total = shipTotal(s);
@@ -238,16 +241,16 @@ export function Detail({ s, onBack, coo, setCoo }: { s: Shipment; onBack: () => 
         <section className="sh-card sh3-chat" data-testid="shipment-chat">
           <header className="sh3-chat-head"><i><MessageSquare /></i><div><h2>Conversation with Goorin Bros.</h2><p>ops@goorinbros.com · visible to the Goorin team</p></div><div className="sh3-chat-meta"><span className={`sh3-chat-state ${awaitingMe ? 'me' : ''}`} data-testid="chat-state">{awaitingMe ? 'Awaiting your reply' : 'Awaiting Goorin'}</span><span className="sh3-chat-count" data-testid="chat-count">{msgs.length} message{msgs.length === 1 ? '' : 's'}</span></div></header>
           <div className="sh3-msgs">
-            {msgs.map((m, i) => <div key={i} className="sh3-msg-group">
-              {(i === 0 || msgs[i - 1].date !== m.date) && <div className="sh3-daysep" data-testid={`chat-day-${i}`}><span>{m.date}</span></div>}
-              <div className={`sh3-msg ${m.mine ? 'mine' : ''}`} data-testid={`chat-msg-${i}`}><span className="sh3-msg-avatar">{initials(m.who)}</span><div><small><b>{m.who}</b> {m.time}</small><p>{m.text}</p></div></div>
-            </div>)}
+            {msgs.map((m, i) => { const newDay = i === 0 || msgs[i - 1].date !== m.date; const cont = !newDay && msgs[i - 1].who === m.who; const last = i === msgs.length - 1; return <div key={i} className="sh3-msg-group">
+              {newDay && <div className="sh3-daysep" data-testid={`chat-day-${i}`}><span>{dayLabel(m.date)}</span></div>}
+              <div className={`sh3-msg ${m.mine ? 'mine' : ''} ${cont ? 'cont' : ''} ${last ? 'last' : ''}`} data-testid={`chat-msg-${i}`}><span className="sh3-msg-avatar">{cont ? '' : initials(m.who)}</span><div>{!cont && <small><b>{m.who}</b> {m.time}</small>}<p title={m.time}>{m.text}</p>{last && m.mine && <em className="sh3-msg-status" data-testid="chat-delivered"><Check /> Delivered · Goorin notified by email</em>}</div></div>
+            </div>; })}
             <div ref={endRef} />
           </div>
           <footer className="sh3-chat-foot">
-            <div className="sh3-quick" data-testid="chat-quick-replies">{quickReplies.map((q) => <button key={q} onClick={() => sendText(q)} data-testid="chat-quick">{q}</button>)}</div>
-            <div className="sh3-compose"><span className="sh3-msg-avatar mine">RM</span><textarea value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder="Message Goorin Bros.…" data-testid="chat-input" /><button className={`sh3-send ${draft.trim() ? 'ready' : ''}`} onClick={send} disabled={!draft.trim()} data-testid="chat-send"><Send /> Send</button></div>
-            <small className="sh3-hint">Enter to send · Shift + Enter for a new line</small>
+            {quickReplies.length > 0 && <div className="sh3-quick" data-testid="chat-quick-replies">{quickReplies.map((q) => <button key={q} onClick={() => sendText(q)} data-testid="chat-quick">{q}</button>)}</div>}
+            <div className="sh3-compose"><span className="sh3-msg-avatar mine">RM</span><textarea ref={taRef} rows={1} value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder="Message Goorin Bros.…" data-testid="chat-input" /><button className={`sh3-send ${draft.trim() ? 'ready' : ''}`} onClick={send} disabled={!draft.trim()} data-testid="chat-send"><Send /> Send</button></div>
+            <small className="sh3-hint">Enter to send · Shift + Enter for a new line <span>· Goorin typically replies within one business day</span></small>
           </footer>
         </section>
       )}
